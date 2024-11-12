@@ -1,0 +1,168 @@
+//LOADRIMS JOB 60798,E002884,CLASS=W,MSGCLASS=Q,NOTIFY=ROSCAAO
+//*******************************************************************/
+//* 5751-CS9                                                        */
+//* COPYRIGHT IBM CORP.  1988, 2019                                 */
+//*******************************************************************/
+//*
+//**********************************************
+//* DO NOT TURN CAPS ON. THIS JOB CONTAINS CASE
+//*         SENSITIVE CONTROL CARDS.
+//**********************************************
+//*
+//* Read all comments carefully and modify them to suit your
+//* environment before submitting the job.
+//*
+//* NOTE 1: CHANGE CustomPac.Qualifier to your environment's MASTER HLQ
+//*                volser              to a valid DASD volser
+//*
+//* NOTE 2: If you want your SCPPCENU CLIST data set to have RECFM=VB,
+//*         locate the statement that looks like:
+//*              archid="SCPPCENU" and change it to:
+//*              archid="SCPPCENV"
+//*
+//*         (Do not forget to specify the proper RECFM when you
+//*          generate the RECEIVE job later.)
+//*
+//* NOTE 3: Allocate and mount a UNIX file system to contain the
+//*         destination directory and its files.
+//*         On the SET statement below, specify the path for the
+//*         directory in which the CustomPac dialog and order
+//*         information will be stored.  Specify a directory
+//*         that has at least 100 cylinders (80 MB) of free space
+//*
+//* NOTE 4: Change host_userid to a userid which is authorized to
+//*         use Secure FTP. Ensure the appropriate Global Root CA
+//*         certificates are connected to the keyring with trust status.
+//*         Also review the KEYRING statement in the FTP.DATA input and
+//*         change the ShareableKeyRing as per RACF setup on your
+//*         system. For more information on the specific RACF tasks
+//*         that need to be completed on your system to support Secure
+//*         FTP, visit the Shopz home page at:
+//*         http://www.ibm.com/software/shopzseries
+//*         and click the "Connectivity Test" link in the "Connectivity
+//*         Test for SW download readiness" box.
+//*
+//* NOTE 5: If you want to use an existing FTP.DATA file or data set,
+//*         comment the CRTFTPD1 and DELFTPD1 steps.
+//*         In the DOWNLOAD step, update the <FTPOPTIONS> tag
+//*         value used for the SMPCLNT DD input with the
+//*         directory path and file name or data set name for the
+//*         existing FTP.DATA file.
+//*         <FTPOPTIONS> -f /tmp/host_userid.ftp.data
+//*</FTPOPTIONS>
+//*                                or
+//*         <FTPOPTIONS> -f "//'tsouid.FTP.DATA'" </FTPOPTIONS>
+//*
+//* NOTE 6: The <FTPOPTIONS> tag contains only -f parameter. You can
+//*         add any additional parameters as required by your
+//*         system settings.
+//*
+//* NOTE 7: Update the SMPJHOME DD Statement to point to location
+//*         of the Java runtime libraries.
+//*
+//*         Replace xxxx in the SMPJHOME DD Statement to the level of
+//*         Java running on your system.
+//*
+//*         SMP/E will use Java(TM)for the SHA-1 package integrity
+//*         check if ICSF is not available.
+//*
+//*ETPATH  SET PATH='/service/very/big/omvs/filesystem/for/download/'
+//*
+//*
+//* Create a temporary FTP.DATA file to be used for FTP by GIMGTPKG.
+//*
+//GIMUNZIP EXEC PGM=GIMUNZIP,COND=(0,LT)
+//*
+//*   *******************************************************
+//*   *   Load the master dialog data sets
+//*   *******************************************************
+//*
+//*
+//SMPDIR     DD PATHDISP=KEEP,
+// PATH='/u/zos24/OS241147.order'
+//*
+//SMPOUT     DD SYSOUT=*
+//SYSPRINT   DD SYSOUT=*
+//SYSUT3     DD UNIT=SYSALLDA,SPACE=(CYL,(50,10))
+//SYSUT4     DD UNIT=SYSALLDA,SPACE=(CYL,(25,5))
+//SYSIN      DD *
+<!--                                                                -->
+<!--  The volume must be specified below on the volume attributes   -->
+<!--  of the ARCHDEF statements. The volume you specify will be     -->
+<!--  used to allocate the dialog data sets.                        -->
+<!--  Please refer to NOTE 2 for allocation of the SCPPCENU CLIST   -->
+<!--  data set.                                                     -->
+<!--                                                                -->
+<GIMUNZIP>
+   <ARCHDEF
+      archid="DOCLIB"
+      newname="ZOS24.OS241147.DOCLIB"
+      volume="SUPZ35"/>
+   <ARCHDEF
+      archid="SCPPCENU"
+      newname="ZOS24.OS241147.SCPPCENU"
+      volume="SUPZ35"/>
+   <ARCHDEF
+      archid="SCPPEENU"
+      newname="ZOS24.OS241147.SCPPEENU"
+      replace="yes"
+      volume="SUPZ35"/>
+   <ARCHDEF
+      archid="SCPPHENU"
+      newname="ZOS24.OS241147.SCPPHENU"
+      replace="yes"
+      volume="SUPZ35"/>
+   <ARCHDEF
+      archid="SCPPLENU"
+      newname="ZOS24.OS241147.SCPPLENU"
+      volume="SUPZ35"/>
+   <ARCHDEF
+      archid="SCPPLOAD"
+      newname="ZOS24.OS241147.SCPPLOAD"
+      volume="SUPZ35"/>
+   <ARCHDEF
+      archid="SCPPMENU"
+      newname="ZOS24.OS241147.SCPPMENU"
+      volume="SUPZ35"/>
+   <ARCHDEF
+      archid="SCPPPENU"
+      newname="ZOS24.OS241147.SCPPPENU"
+      volume="SUPZ35"/>
+   <ARCHDEF
+      name="S0010.CPPSMS.OS241147.SCPPSENU.pax.Z"
+      newname="ZOS24.OS241147.SCPPSENU"
+      volume="SUPZ35"/>
+   <ARCHDEF
+      archid="SCPPTENU"
+      newname="ZOS24.OS241147.SCPPTENU"
+      volume="SUPZ35"/>
+</GIMUNZIP>
+/*
+//*
+//INVUPDT1 EXEC PGM=IDCAMS,COND=(0,LT)
+//*
+//*   ****************************************************************
+//*   *   Add or replace Version record with the key"V" to SCPPVENU
+//*   ****************************************************************
+//*
+//SYSPRINT DD  SYSOUT=*
+//*
+//IVENU    DD   DSN=ZOS24.OS241147.SCPPSENU(VERSION),DISP=SHR
+//SYSIN    DD  *
+  DEFINE CLUSTER(                          -
+                   NAME(ZOS24.OS241147.SCPPVENU) -
+                   CYL(5  1)                  -
+                   FREESPACE(30 30)           -
+                   KEYS(30 0)                 -
+                   RECORDSIZE(1024 32760)     -
+                   UNIQUE                     -
+                   SHAREOPTIONS(2 3)          -
+                   VOLUME(SUPZ35)             -
+                 )                            -
+            DATA ( NAME(ZOS24.OS241147.SCPPVENU.DATA)) -
+            INDEX( NAME(ZOS24.OS241147.SCPPVENU.INDEX))
+
+     REPRO INFILE(IVENU) OUTDATASET(ZOS24.OS241147.SCPPVENU)
+
+/*
+//

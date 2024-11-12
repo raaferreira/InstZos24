@@ -1,0 +1,21 @@
+//SSIDCIMC JOB 60798,E002884,CLASS=A,MSGCLASS=X,NOTIFY=E002884
+//*--------------------------------------------------
+//IDCA020  EXEC PGM=IDCAMS
+//SYSPRINT DD  SYSOUT=*
+//SYSIN    DD  *
+  IMPORT CONNECT                  -
+         OBJECTS((CATALOG.ZOST22.MASTER -
+                DEVICETYPE(3390) -
+                VOLUMES(ZOST20))) -
+         CATALOG(CATALOG.ZOS24.MASTER)
+  IMPORT CONNECT                  -
+         OBJECTS((CATALOG.ZOST22.SUPORTE -
+                DEVICETYPE(3390) -
+                VOLUMES(ZOST21))) -
+         CATALOG(CATALOG.ZOS24.MASTER)
+ DEFINE -
+       ALIAS(NAME(ZOS24) -
+       RELATE(CATALOG.ZOST22.SUPORTE)) -
+       CATALOG(CATALOG.ZOS24.MASTER)
+/*
+//

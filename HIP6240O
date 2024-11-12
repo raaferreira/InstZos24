@@ -1,0 +1,64 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*
+//********************************************************************
+//* JOB: HIP6240O  (product-supplied job IVPFTP in library SEZAINST)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job will test the installation of FTP. It will run under
+//*      the userid specified in the input below.  This userid must
+//*      have the appropriate z/OS UNIX access.
+//*
+//********************************************************************
+//*
+//*  The job will:
+//*  - Issue the LOCSTAT command to display local status information.
+//*  - Copy member FTPTESTP from the SEZAINST library into
+//*    /tmp/ftptestp.
+//*  - Copy /tmp/ftptestp into the IVP configuration data set as
+//*    member FTPTESTG.
+//*
+//*  Before running the job, do the following:
+//*  - If necessary, change DSN on the SYSFTPD DD card to pick up the
+//*    appropriate FTP client FTP.DATA file
+//*  - If necessary, change DSN on the SYSTCPD DD card to pick up the
+//*    appropriate TCPIP.DATA file
+//*  - Change the input values for 'userid password' to match the
+//*    userid and password you wish to FTP in under.
+//*      For example: USER1 USER1PW
+//*  - Change 'TCPIVP.TCPPARMS' on the GET statement to the
+//*    name of the IVP configuration data set, if not using the
+//*    default of 'TCPIVP.TCPPARMS'
+//*
+//********************************************************************
+//STEP01 EXEC PGM=FTP,REGION=2048K
+//*
+//SYSFTPD    DD  DSN=TCPIP.SEZAINST(FTPSDATA),DISP=SHR
+//SYSTCPD    DD  DSN=TCPIP.SEZAINST(TCPDAT02),DISP=SHR
+//SYSPRINT  DD  SYSOUT=*
+//OUTPUT    DD  SYSOUT=*
+//INPUT     DD  *
+; Comments can be inserted in this area.
+127.0.0.1 21
+e002884 piloto
+; Connection to the server is not required for LOCSTAT command.
+LOCSTAT
+PUT 'TCPIP.SEZAINST(FTPTESTP)'  /tmp/ftptestp
+GET  /tmp/ftptestp 'TCPIVP.TCPPARMS(FTPTESTG)'
+QUIT
+/*

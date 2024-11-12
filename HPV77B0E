@@ -1,0 +1,50 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//***************************************************************
+//* JOB: HPV77B0E (no product-supplied job)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job does the following:
+//*      - Used to create a started procedure task
+//*      - Copy the CPOSERV member from SYS1.SAMPLIB
+//*        to CPAC.PROCLIB
+//*      - Change the product variables
+//*
+//* MRC: A return code of 0 is expected from this job.
+//*
+//***************************************************************
+//COPYMEM  EXEC PGM=IEBGENER
+//SYSUT1   DD DSN=SYS1.SAMPLIB(CPOSERV),DISP=SHR
+//SYSUT2   DD DSN=CPAC.PROCLIB(CPOSERV),DISP=SHR
+//SYSPRINT DD SYSOUT=*
+//SYSIN DD DUMMY
+//#NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,COPYMEM),(4000,LT))
+//EDITMEM  EXEC PGM=IKJEFT1B
+//SYSTSPRT DD SYSOUT=*
+//SYSTSIN  DD *
+EDIT 'CPAC.PROCLIB(CPOSERV)' OLD CNTL TEXT
+F '=CPO'
+C '=CPO' '=CPO'
+F 'DOMAIN1'
+C 'DOMAIN1' 'IPO1'
+F 'cposrv'
+C 'cposrv' 'cposrv'
+SAVE
+END
+/*
+//

@@ -1,0 +1,136 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*
+//*------------------------------------------------------------------
+//* JOB: HSM1P00S  (product-supplied job ICEINVJ in library SICESAMP)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job invokes DFSORT from an assembler program.  It sorts
+//*      and copies a data set.
+//*
+//* MRC: The maximum expected return code is 0.
+//*------------------------------------------------------------------
+//*
+//GEN  EXEC  PGM=IEBDG
+//SYSPRINT   DD  SYSOUT=*
+//GENOUT  DD  DSN=&SORTIN,DISP=(NEW,PASS),
+//        DCB=(LRECL=60,BLKSIZE=600,RECFM=FB),
+//        UNIT=SYSALLDA,SPACE=(TRK,(5,1))
+//SYSIN  DD  *
+ DSD  OUTPUT=(GENOUT)
+ FD NAME=SEQNUM,LENGTH=6,STARTLOC=6,FORMAT=ZD,INDEX=1
+ FD NAME=CNTFLD1,LENGTH=16,STARTLOC=40,FORMAT=AN,ACTION=RP
+ CREATE QUANTITY=360,FILL='*',NAME=(SEQNUM,CNTFLD1)
+ END
+//*
+//* Assemble the program to invoke DFSORT
+//*
+//C    EXEC PGM=ASMA90,PARM='OBJECT,NODECK,XREF(FULL)'
+//SYSLIB   DD DSN=SYS1.MACLIB,
+//            DISP=SHR
+//SYSUT1   DD UNIT=SYSALLDA,SPACE=(CYL,(4,2)),DSN=&SYSUT1
+//SYSPRINT DD SYSOUT=*,
+//            DCB=(BLKSIZE=3509),UNIT=SYSALLDA
+//SYSLIN   DD DISP=(,PASS),UNIT=SYSALLDA,SPACE=(CYL,(1,1,0)),
+//            DCB=(BLKSIZE=400),DSN=&&AMXSET
+//SYSIN    DD *
+PL31    CSECT
+         PRINT  GEN
+R0       EQU   0
+R1       EQU   1
+R2       EQU   2
+R3       EQU   3
+R4       EQU   4
+R5       EQU   5
+R6       EQU   6
+R7       EQU   7
+R8       EQU   8              TEMPORARY SAVE AREA REGISTER
+R12      EQU   12             BASE REGISTER
+R13      EQU   13             SAVE AREA REGISTER
+*---------------------------------------------------------------------
+* STANDARD SAVE AREA AND BASE REGISTER SETUP.
+*---------------------------------------------------------------------
+         SAVE  (14,12)        SAVE REGISTERS
+         BALR  R12,0          LOAD BASE R12
+         USING *,R12          DEFINE BASE REG
+         LA    R8,SAVE        CURRENT SAVE AREA ADDR
+         ST    R8,R8(R13)     STORE IN PREV. SAVE AREA
+         ST    R13,4(R8)      SAVE R13
+         LR    R13,R8         R13 = CURRENT SAVE ADDR
+*---------------------------------------------------------------------
+*              SET UP PARAMETER LIST AND CALL SORT
+*---------------------------------------------------------------------
+         LA    R1,PARMLST              LOAD PARAMETER LIST
+         LINK  EP=SORT                 CALL DFSORT
+         L     R13,4(,R13)             RESTORE R13
+         RETURN (14,12),RC=(15)        RSTR REGS,SET RC AND RET
+*---------------------------------------------------------------------
+*              CREATE PARAMETER LIST
+*---------------------------------------------------------------------
+         CNOP  0,4            START ON A FULL WORD BOUNDARY
+PARMLST  DC    A(CNTLSTMT)    POINTS TO CONTROL STATEMENTS
+         DC    A(0)           ADDRESS OF USER EXIT E15
+         DC    A(0)           ADDRESS OF USER EXIT E35
+         DC    A(0)           USER EXIT ADDRESS CONSTANT
+         DC    A(0)           ADDR OF ALTSEQ XLATE TABLE
+         DC    A(0)           ADDR OF STAE WORK AREA ADDR
+         DC    A(0)           ADDRESS OF USER EXIT E18
+         DC    A(0)           ADDRESS OF USER EXIT E39
+         DC    F'-1'          DENOTES END OF 31-BIT PARM LST
+CNTLSTMT DS    0H             RSRV FOR LNGTH OF CNTL STMTS
+         DC    AL2(CTLEND-CTLSTART)
+CTLSTART DC    C' SORT FIELDS=(40,16,CH,A,6,6,ZD,A) '
+         DC    C' RECORD TYPE=F,LENGTH=60  '
+CTLEND   EQU   *
+SAVE     DS    18F
+         END
+/*
+//*
+//* Link the program
+//*
+//L        EXEC PGM=IEWL,PARM='MAP,LET,LIST,NCAL'
+//SYSPRINT DD SYSOUT=*,
+//            DCB=(RECFM=FB,BLKSIZE=3509)
+//SYSUT1   DD UNIT=SYSALLDA,SPACE=(CYL,(3,2)),DSN=&SYSUT1
+//SYSLIN   DD DSN=&&AMXSET,DISP=(OLD,DELETE)
+//SYSLMOD  DD DISP=(,PASS),UNIT=SYSALLDA,SPACE=(CYL,(1,1,1)),
+//            DSN=&GOSET(PL31),DCB=(RECFM=U,BLKSIZE=32760)
+//*
+//* Run the program to invoke DFSORT
+//*
+//SB1      EXEC PGM=PL31
+//STEPLIB  DD DSN=&GOSET,DISP=(OLD,PASS)
+//SYSOUT   DD SYSOUT=*
+//SORTWK01 DD SPACE=(CYL,(1,1)),UNIT=SYSALLDA
+//SORTIN   DD DSN=&SORTIN,DISP=(OLD,PASS)
+//SORTOUT  DD DSN=&SORTOUT,DISP=(NEW,PASS),UNIT=SYSALLDA,
+//            SPACE=(TRK,(3,1)),DCB=*.SORTIN
+//*
+//* Print the data after it has been sorted.
+//*
+//PRTAFTER EXEC PGM=ICEMAN
+//*
+//SYSOUT   DD  DUMMY
+//SORTIN   DD  DSN=&SORTOUT,DISP=(OLD,PASS)
+//SORTOUT  DD  SYSOUT=*,
+//             DCB=(RECFM=FB,LRECL=60,BLKSIZE=600)
+//SYSIN    DD  *
+   SORT FIELDS=COPY
+   RECORD TYPE=F,LENGTH=60
+   END
+//*

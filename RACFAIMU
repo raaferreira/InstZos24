@@ -1,0 +1,288 @@
+//E031392E JOB 60798,E031392,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=E031392,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*-------------------------------------------------------------------
+//* Allocate the back up data sets for RACF primary and secondary
+//* databases.
+//*-------------------------------------------------------------------
+//ALLOC1 EXEC PGM=IEFBR14
+//SYSPRINT DD SYSOUT=*
+//BKUPPRIM DD DSN=SYS1.RACFPRIM.BKUPDSN,
+//         DISP=(NEW,CATLG),
+//         UNIT=3390,
+//         VOL=SER=SUPZ07,
+//         BLKSIZE=04096,DSORG=PS,
+//         RECFM=F,LRECL=04096,
+//         SPACE=(CYL,(00100,1),,CONTIG)
+//*
+//BKUPSEC  DD DSN=SYS1.RACFSEC.BKUPDSN,
+//         DISP=(NEW,CATLG),
+//         UNIT=3390,
+//         VOL=SER=SUPZ07,
+//         BLKSIZE=04096,DSORG=PS,
+//         RECFM=F,LRECL=04096,
+//         SPACE=(CYL,(00100,1),,CONTIG)
+//*
+//NOTOK  EXEC PGM=CPPMAXRC,COND=((0,GE,ALLOC1),(4000,LT))
+//*
+//*-------------------------------------------------------------------
+//* Stage 1 is now complete.  Step STOPJOB1 will cause the job to
+//* terminate.  To begin stage 2 you must restart the job from the
+//* step immediately following STOPJOB1.
+//* At this point you have:
+//*  - Back up data sets for RACF primary and secondary databases
+//*    allocated.
+//*
+//*-------------------------------------------------------------------
+//STOPJOB1 EXEC PGM=CPPMAXRC
+//*-------------------------------------------------------------------
+//*
+//*-------------------------------------------------------------------
+//* Diagnosis the RACF primary database using IRRUT200 utiity.
+//*-------------------------------------------------------------------
+//DIAGNP2 EXEC PGM=IRRUT200,COND=(4000,LT)
+//SYSPRINT  DD SYSOUT=*
+//SYSRACF   DD DSN=SYS1.RACF,
+//             DISP=OLD,
+//             UNIT=3390,
+//             VOL=SER=ZOS247
+//SYSUT1    DD UNIT=SYSDA,
+//             SPACE=(CYL,(100))
+//SYSUT2    DD SYSOUT=*
+//SYSIN     DD *
+    INDEX
+    MAP ALL
+    END
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,DIAGNP2),(4000,LT))
+//*
+//*-------------------------------------------------------------------
+//* Stage 2 is now complete.  Step STOPJOB2 will cause the job to
+//* terminate.  To begin stage 3 you must restart the job from the
+//* step immediately following STOPJOB2.
+//* At this point you have:
+//*  - Back up data sets for RACF primary and secondary databases
+//*    allocated.
+//*  - Analyzed your RACF primary database.
+//*
+//*-------------------------------------------------------------------
+//STOPJOB2 EXEC PGM=CPPMAXRC
+//*-------------------------------------------------------------------
+//*
+//*-------------------------------------------------------------------
+//* Copy the RACF primary database into a back up database.
+//*-------------------------------------------------------------------
+//COPYP3 EXEC PGM=IRRUT400,PARM='LOCKINPUT,FREESPACE(20)',
+//      COND=(4000,LT)
+//SYSPRINT  DD SYSOUT=*
+//INDD1     DD DSN=SYS1.RACF,
+//             DISP=OLD,
+//             UNIT=3390,
+//             VOL=SER=ZOS247
+//OUTDD1    DD DSN=SYS1.RACFPRIM.BKUPDSN,
+//             DISP=OLD
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,COPYP3),(4000,LT))
+//*
+//*-------------------------------------------------------------------
+//* Unlock the RACF primary database.
+//*-------------------------------------------------------------------
+//UNLKP4  EXEC PGM=IRRUT400,PARM='UNLOCKINPUT',COND=(4000,LT)
+//SYSPRINT  DD SYSOUT=*
+//INDD1     DD DSN=SYS1.RACF,
+//             DISP=OLD,
+//             UNIT=3390,
+//             VOL=SER=ZOS247
+/*
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,UNLKP4),(4000,LT))
+//*
+//*-------------------------------------------------------------------
+//* Stage 3 is now complete.  Step STOPJOB3 will cause the job to
+//* terminate.  To begin stage 4 you must restart the job from the
+//* step immediately following STOPJOB3.
+//* At this point you have:
+//*  - Back up data sets for RACF primary and secondary databases
+//*    allocated.
+//*  - Analyzed and backed up your RACF primary database.
+//*
+//*-------------------------------------------------------------------
+//STOPJOB3 EXEC PGM=CPPMAXRC
+//*-------------------------------------------------------------------
+//*
+//*-------------------------------------------------------------------
+//* Diagnosis the RACF secondary database using IRRUT200 utiity.
+//*-------------------------------------------------------------------
+//DIAGNB5      EXEC PGM=IRRUT200,COND=(4000,LT)
+//SYSPRINT  DD SYSOUT=*
+//SYSRACF   DD DSN=SYS1.RACFSEC,
+//             DISP=OLD,
+//             UNIT=3390,
+//             VOL=SER=ZOS247
+//SYSUT1    DD UNIT=SYSDA,
+//             SPACE=(CYL,(100))
+//SYSUT2    DD SYSOUT=*
+//SYSIN     DD *
+    INDEX
+    MAP ALL
+    END
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,DIAGNB5),(4000,LT))
+//*
+//*-------------------------------------------------------------------
+//* Stage 4 is now complete.  Step STOPJOB4 will cause the job to
+//* terminate.  To begin stage 5 you must restart the job from the
+//* step immediately following STOPJOB4.
+//* At this point you have:
+//*  - Back up data sets for RACF primary and secondary databases
+//*    allocated.
+//*  - Analyzed and backed up your RACF primary database.
+//*  - Analyzed your RACF secondary database.
+//*
+//*-------------------------------------------------------------------
+//STOPJOB4 EXEC PGM=CPPMAXRC
+//*-------------------------------------------------------------------
+//*
+//*-------------------------------------------------------------------
+//* Copy the RACF secondary database into a back up database.
+//*-------------------------------------------------------------------
+//COPYB6 EXEC PGM=IRRUT400,PARM='LOCKINPUT,FREESPACE(20)',
+//      COND=(4000,LT)
+//SYSPRINT  DD SYSOUT=*
+//INDD1     DD DSN=SYS1.RACFSEC,
+//             DISP=OLD,
+//             UNIT=3390,
+//             VOL=SER=ZOS247
+//OUTDD1    DD DSN=SYS1.RACFSEC.BKUPDSN,
+//             DISP=OLD
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,COPYB6),(4000,LT))
+//*
+//*-------------------------------------------------------------------
+//* Unlock the RACF secondary database.
+//*-------------------------------------------------------------------
+//UNLKB7  EXEC PGM=IRRUT400,PARM='UNLOCKINPUT',COND=(4000,LT)
+//SYSPRINT  DD SYSOUT=*
+//INDD1     DD DSN=SYS1.RACFSEC,
+//             DISP=OLD,
+//             UNIT=3390,
+//             VOL=SER=ZOS247
+/*
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,UNLKB7),(4000,LT))
+//*
+//*-------------------------------------------------------------------
+//* INACTIVATE the RACF secondary database.
+//* This step will issue the repliable message asking for password
+//* for RVARY command. The default password of RVARY command is 'YES'.
+//*-------------------------------------------------------------------
+//INACB8  EXEC PGM=IKJEFT1B,COND=(4000,LT)
+//SYSPRINT  DD SYSOUT=*
+//SYSTSPRT  DD SYSOUT=*
+//SYSTSIN  DD   *
+  RVARY INACTIVE,DATASET(SYS1.RACFSEC)
+/*
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,INACB8),(4000,LT))
+//*
+//*-------------------------------------------------------------------
+//* Convert the active RACF database to next AIM stage.
+//*-------------------------------------------------------------------
+//AIMCP9  EXEC PGM=IRRIRA00,PARM=STAGE(1),COND=(4000,LT)
+//SYSPRINT  DD SYSOUT=*
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((4,GE,AIMCP9),(4000,LT))
+//*
+//*-------------------------------------------------------------------
+//* Stage 5 is now complete.  Step STOPJOB5 will cause the job to
+//* terminate.  To begin stage 6 you must restart the job from the
+//* step immediately following STOPJOB5.
+//* At this point you have:
+//*  - Analyzed and backed up your RACF primary and secondary RACF
+//*    databases.
+//*  - Inactivated the RACF secondary database before upating the
+//*    AIM stage of active RACF databases.
+//*  - Updated the AIM stage of RACF primary database.
+//*
+//*-------------------------------------------------------------------
+//STOPJOB5 EXEC PGM=CPPMAXRC
+//*-------------------------------------------------------------------
+//*
+//*-------------------------------------------------------------------
+//* Diagnosis the RACF primary database after converting to next
+//* AIM stage.
+//*-------------------------------------------------------------------
+//DIAGNP10 EXEC PGM=IRRUT200,COND=(4000,LT)
+//SYSPRINT  DD SYSOUT=*
+//SYSRACF   DD DSN=SYS1.RACF,
+//             DISP=OLD,
+//             UNIT=3390,
+//             VOL=SER=ZOS247
+//SYSUT1    DD UNIT=VIO,
+//             SPACE=(CYL,(100))
+//SYSUT2    DD SYSOUT=*
+//SYSIN     DD *
+    INDEX
+    MAP ALL
+    END
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,DIAGNP10),(4000,LT))
+//*
+//*-------------------------------------------------------------------
+//* Stage 6 is now complete.  Step STOPJOB6 will cause the job to
+//* terminate.  To begin stage 7 you must restart the job from the
+//* step immediately following STOPJOB6.
+//* At this point you have:
+//*  - Analyzed and backed up your RACF primary and secondary RACF
+//*    databases.
+//*  - Inactivated the RACF secondary database before upating the
+//*    AIM stage of active RACF databases.
+//*  - Updated the AIM stage of RACF primary database.
+//*  - Analyzed the RACF primary database after updating it to next
+//*    AIM stage.
+//*
+//*-------------------------------------------------------------------
+//STOPJOB6 EXEC PGM=CPPMAXRC
+//*-------------------------------------------------------------------
+//*
+//*-------------------------------------------------------------------
+//* Stage 7: In this final stage RACF primary database which is updated
+//* to next AIM stage is now copied to RACF secondary database and
+//* RACF secondary database is activated.
+//* Last step of the job checks the AIM stage of active RACF databases.
+//*-------------------------------------------------------------------
+//* Copy the RACF primary database into the RACF secondary database.
+//* Unlock the RACF primary database.
+//* ACTIVATE the RACF secondary database.
+//* This step will issue the repliable message asking for password
+//* for RVARY command. The default password of RVARY command is 'YES'.
+//*-------------------------------------------------------------------
+//*
+//CPYDS11 EXEC PGM=IRRUT200,PARM='ACTIVATE'
+//SYSRACF DD DSN=Z24MST.SYS1.RACF,DISP=SHR
+//SYSUT1  DD DSN=Z24MST.SYS1.RACFSEC,DISP=OLD
+//SYSUT2  DD SYSOUT=*
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,CPYDS11),(4000,LT))
+//*
+//*-------------------------------------------------------------------
+//* Finally check the AIM stage of active RACF databases.
+//*-------------------------------------------------------------------
+//CHKAIM12 EXEC PGM=IRRIRA00,COND=(4000,LT)
+//SYSPRINT  DD SYSOUT=*
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((4,GE,CHKAIM12),(4000,LT))
+//*

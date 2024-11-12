@@ -1,0 +1,6606 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*--------------------------------------------------------------------
+//* GDE:  ServerPac INSTALLATION
+//* DOC:  LOAD ALL DATA SETS.
+//*       RESTORE YOUR HFS FILESYSTEM.
+//*
+//* NOTE: WHEN ZFS IS USED AS A FILE SYSTEM TYPE TO RECEIVE
+//*       THE ORDER, ENSURE THAT MINIMUM 512M OF STORAGE IS
+//*       DEFINED ON VM SYSTEM BEFORE EXECUTION OF THIS JOB.
+//*
+//*
+//*
+//* MRC:  THE MAXIMUM EXPECTED RETURN CODE IS: 04
+//*--------------------------------------------------------------------
+//CHKFILE  EXEC PGM=IKJEFT1B,COND=(4000,LT)
+//**************************************************
+//*  CHECK MISSING PAX FILES
+//**************************************************
+//SYSEXEC  DD DSN=ZOS24.OS241147.ORDER.SCPPCENU,DISP=SHR
+//SYSTSPRT DD SYSOUT=*
+//BPXOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+//GIMPAF   DD PATHDISP=KEEP,
+// PATH='/u/zos24/OS241147.content/GIMPAF.XML'
+//SYSTSIN  DD *
+  CPPECKPX +
+     /u/zos24/OS241147.content
+/*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((0,EQ,CHKFILE),(4000,LT))
+//*
+//*
+//*  Note:CPPECKFS EXEC run in CHECKFS step does not consider
+//*  the secondary space to which HFS/zFS can be
+//*  expanded while checking the available space in the
+//*  SMPWKDIR directory.
+//*
+//CHECKFS  EXEC PGM=IKJEFT1B,COND=(4000,LT)
+//**************************************************
+//*  CHECK FILE SYSTEM FOR ADEQUATE WORK SPACE
+//**************************************************
+//SYSEXEC  DD DSN=ZOS24.OS241147.ORDER.SCPPCENU,DISP=SHR
+//SYSTSPRT DD SYSOUT=*
+//BPXOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+//SYSTSIN  DD *
+  CPPECKFS +
+     /tmp/zos24tmp +
+     1817260
+/*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((0,EQ,CHECKFS),(4000,LT))
+//*
+//*******************************************************************
+//* This JOB uses the CPPEHFS exec to restore your HFS filesystem.  *
+//*                                                                 *
+//* This job must be run from a userid that has the following       *
+//* RACF authority.                                                 *
+//* 1. UID(0) or READ access to the BPX.SUPERUSER facility class    *
+//* 2. READ access to the BPX.FILEATTR.APF  BPX.FILEATTR.PROGCTL    *
+//*    and BPX.FILEATTR.SHARELIB facility classes.                  *
+//* The following RACF profiles (or equivalent profiles) must exist *
+//* in your security database.                                      *
+//* 1. Groups - TTY and UUCPG                                       *
+//*    Users  - UUCP                                                *
+//*                                                                 *
+//* NOTE: All SYSTSIN parameters are required and must be in the    *
+//*       order specified.                                          *
+//*******************************************************************
+//STEP1    EXEC PGM=IKJEFT1B,COND=(4000,LT)
+//SYSEXEC  DD  DSN=ZOS24.OS241147.ORDER.SCPPCENU,DISP=SHR
+//SMPDIR  DD PATHDISP=KEEP,
+//     PATH='/u/zos24/OS241147.content'
+//SMPWKDIR DD PATHDISP=KEEP,
+//     PATH='/tmp/zos24tmp'
+//SYSUT3   DD   UNIT=SYSALLDA,SPACE=(CYL,(10,10))
+//SYSUT4   DD   UNIT=SYSALLDA,SPACE=(CYL,(10,10))
+//SMPOUT   DD   SYSOUT=*
+//SYSIN    DD   *
+<GIMUNZIP>
+  <ARCHDEF
+   archid="ROOT.100"
+   newname="/Service"
+   replace="yes"
+   preserveid="yes"/>
+</GIMUNZIP>
+/*
+//BPXOUT   DD   SYSOUT=*
+//SYSPRINT DD   SYSOUT=*
+//SYSTSPRT DD   SYSOUT=*
+//SYSTSIN  DD   *
+  %CPPEHFS  +
+  /Service +
+  E +
+  / +
+  ZFS +
+  Z24SUP.OMVS.ROOT +
+  /etc +
+  ZFS +
+  Z24SUP.OMVS.ETC +
+  /global/zosmf +
+  ZFS +
+  Z24SUP.OMVS.SIZUUSRD +
+  /usr/lpp/fonts +
+  ZFS +
+  Z24SUP.FNT.OMVS.ZFS +
+  /usr/lpp/ixm +
+  ZFS +
+  Z24SUP.OMVS.SIXMHFS +
+  /usr/lpp/java/J8.0 +
+  ZFS +
+  Z24SUP.OMVS.JV31V80 +
+  /usr/lpp/java/J8.0_64 +
+  ZFS +
+  Z24SUP.OMVS.JAVA64V8 +
+  /usr/lpp/kan +
+  ZFS +
+  Z24SUP.OMVS.TKANROOT +
+  /usr/lpp/liberty_zos +
+  ZFS +
+  Z24SUP.OMVS.SBBLZFS +
+  /usr/lpp/mqm/V9R1MX +
+  ZFS +
+  Z24SUP.OMVS.V9R1MX.MQROOT +
+  /usr/lpp/netview/v6r3 +
+  ZFS +
+  Z24SUP.OMVS.NETVHFS +
+  /usr/lpp/zcx_zos +
+  ZFS +
+  Z24SUP.OMVS.SAZDZFS +
+  /usr/lpp/IBM/cobol/igyv6r3 +
+  ZFS +
+  Z24SUP.OMVS.SIGYROOT +
+  /usr/lpp/IBM/pli/v5r3 +
+  ZFS +
+  Z24SUP.OMVS.SIBMROOT +
+  /usr/lpp/IBM/zosconnect/v3r0 +
+  ZFS +
+  Z24SUP.OMVS.SBAQROOT +
+  /var +
+  ZFS +
+  Z24SUP.OMVS.VAR +
+  /var/wbem +
+  ZFS +
+  Z24SUP.OMVS.SCFZHFS2
+/*
+//PATHFILE DD *
+/*
+//NOTOK EXEC  PGM=CPPMAXRC,COND=((0,GE,STEP1),(4000,LT))
+//*
+//UNZIP#08 EXEC PGM=GIMUNZIP,COND=(4000,LT)
+//SMPDIR   DD PATHDISP=KEEP,
+// PATH='/u/zos24/OS241147.content'
+//*
+//SMPWKDIR   DD PATHDISP=KEEP,
+// PATH='/tmp/zos24tmp'
+//SMPOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+//SYSUT3   DD UNIT=SYSALLDA,SPACE=(CYL,(50,10))
+//SYSUT4   DD UNIT=SYSALLDA,SPACE=(CYL,(25,5))
+//SYSIN    DD *
+<GIMUNZIP>
+  <ARCHDEF
+    archid="AEAGJENU.100"
+    newname="Z24MST.REXX.AEAGJENU"
+  />
+  <ARCHDEF
+    archid="AEAGMENU.100"
+    newname="Z24MST.REXX.AEAGMENU"
+  />
+  <ARCHDEF
+    archid="AEAGMOD1.100"
+    newname="Z24MST.REXX.AEAGMOD1"
+  />
+  <ARCHDEF
+    archid="AEAGSAM.100"
+    newname="Z24MST.REXX.AEAGSAM"
+  />
+  <ARCHDEF
+    archid="SEAGALT.100"
+    newname="Z24MST.REXX.SEAGALT"
+  />
+  <ARCHDEF
+    archid="SEAGJENU.100"
+    newname="Z24MST.REXX.SEAGJENU"
+  />
+  <ARCHDEF
+    archid="SEAGMENU.100"
+    newname="Z24MST.REXX.SEAGMENU"
+  />
+  <ARCHDEF
+    archid="SEAGSAM.100"
+    newname="Z24MST.REXX.SEAGSAM"
+  />
+  <ARCHDEF
+    archid="SMPGCSI"
+    newname="Z24SUP.SMPE.GLOBAL.CSI"
+    replace="yes"
+  />
+  <ARCHDEF
+    archid="MVSDCSI"
+    newname="Z24SUP.SMPE.MVS.DLIB.CSI"
+    replace="yes"
+  />
+  <ARCHDEF
+    archid="MVSTCSI"
+    newname="Z24SUP.SMPE.MVS.TARGET.CSI"
+    replace="yes"
+  />
+  <ARCHDEF
+    archid="SMPSCDS.100"
+    newname="Z24SUP.SMPE.MVST100.SMPSCDS"
+  />
+  <ARCHDEF
+    archid="SMPPTS"
+    newname="Z24SUP.SMPE.SMPPTS"
+  />
+  <ARCHDEF
+    archid="SMPPTS1"
+    newname="Z24SUP.SMPE.SMPPTS1"
+  />
+  <ARCHDEF
+    archid="AACBCNTL.100"
+    newname="Z24MST.SYS1.AACBCNTL"
+  />
+  <ARCHDEF
+    archid="AADFMAC1.100"
+    newname="Z24MST.SYS1.AADFMAC1"
+  />
+  <ARCHDEF
+    archid="AADRLIB.100"
+    newname="Z24MST.SYS1.AADRLIB"
+  />
+  <ARCHDEF
+    archid="AADRYLIB.100"
+    newname="Z24MST.SYS1.AADRYLIB"
+  />
+  <ARCHDEF
+    archid="AAXREXEC.100"
+    newname="Z24MST.SYS1.AAXREXEC"
+  />
+  <ARCHDEF
+    archid="ABDTCLI0.100"
+    newname="Z24MST.SYS1.ABDTCLI0"
+  />
+  <ARCHDEF
+    archid="ABDTHELP.100"
+    newname="Z24MST.SYS1.ABDTHELP"
+  />
+  <ARCHDEF
+    archid="ABDTMAC.100"
+    newname="Z24MST.SYS1.ABDTMAC"
+  />
+  <ARCHDEF
+    archid="ABDTMOD.100"
+    newname="Z24MST.SYS1.ABDTMOD"
+  />
+  <ARCHDEF
+    archid="ABDTMSG.100"
+    newname="Z24MST.SYS1.ABDTMSG"
+  />
+  <ARCHDEF
+    archid="ABDTPNL0.100"
+    newname="Z24MST.SYS1.ABDTPNL0"
+  />
+  <ARCHDEF
+    archid="ABDTSAMP.100"
+    newname="Z24MST.SYS1.ABDTSAMP"
+  />
+  <ARCHDEF
+    archid="ABLSCLI0.100"
+    newname="Z24MST.SYS1.ABLSCLI0"
+  />
+  <ARCHDEF
+    archid="ABLSKEL0.100"
+    newname="Z24MST.SYS1.ABLSKEL0"
+  />
+  <ARCHDEF
+    archid="ABLSMSG0.100"
+    newname="Z24MST.SYS1.ABLSMSG0"
+  />
+  <ARCHDEF
+    archid="ABLSPNL0.100"
+    newname="Z24MST.SYS1.ABLSPNL0"
+  />
+  <ARCHDEF
+    archid="ABLSTBL0.100"
+    newname="Z24MST.SYS1.ABLSTBL0"
+  />
+  <ARCHDEF
+    archid="ABMFMOD0.100"
+    newname="Z24MST.SYS1.ABMFMOD0"
+  />
+  <ARCHDEF
+    archid="ABPXEXEC.100"
+    newname="Z24MST.SYS1.ABPXEXEC"
+  />
+  <ARCHDEF
+    archid="ABPXMENU.100"
+    newname="Z24MST.SYS1.ABPXMENU"
+  />
+  <ARCHDEF
+    archid="ABPXMOD1.100"
+    newname="Z24MST.SYS1.ABPXMOD1"
+  />
+  <ARCHDEF
+    archid="ABPXPENU.100"
+    newname="Z24MST.SYS1.ABPXPENU"
+  />
+  <ARCHDEF
+    archid="ABPXSPC.100"
+    newname="Z24MST.SYS1.ABPXSPC"
+  />
+  <ARCHDEF
+    archid="ABPXTENU.100"
+    newname="Z24MST.SYS1.ABPXTENU"
+  />
+  <ARCHDEF
+    archid="ABPXXMLS.100"
+    newname="Z24MST.SYS1.ABPXXMLS"
+  />
+  <ARCHDEF
+    archid="ACBDCLST.100"
+    newname="Z24MST.SYS1.ACBDCLST"
+  />
+  <ARCHDEF
+    archid="ACBDHENU.100"
+    newname="Z24MST.SYS1.ACBDHENU"
+  />
+  <ARCHDEF
+    archid="ACBDMENU.100"
+    newname="Z24MST.SYS1.ACBDMENU"
+  />
+  <ARCHDEF
+    archid="ACBDMOD1.100"
+    newname="Z24MST.SYS1.ACBDMOD1"
+  />
+  <ARCHDEF
+    archid="ACBDMOD2.100"
+    newname="Z24MST.SYS1.ACBDMOD2"
+  />
+  <ARCHDEF
+    archid="ACBDPENU.100"
+    newname="Z24MST.SYS1.ACBDPENU"
+  />
+  <ARCHDEF
+    archid="ACBDTEMP.100"
+    newname="Z24MST.SYS1.ACBDTEMP"
+  />
+  <ARCHDEF
+    archid="ACBDTENU.100"
+    newname="Z24MST.SYS1.ACBDTENU"
+  />
+  <ARCHDEF
+    archid="ACBRDBRM.100"
+    newname="Z24MST.SYS1.ACBRDBRM"
+  />
+  <ARCHDEF
+    archid="ACBRMOD0.100"
+    newname="Z24MST.SYS1.ACBRMOD0"
+  />
+  <ARCHDEF
+    archid="ACCRHFS.100"
+    newname="Z24MST.SYS1.ACCRHFS"
+  />
+  <ARCHDEF
+    archid="ACCRMOD.100"
+    newname="Z24MST.SYS1.ACCRMOD"
+  />
+  <ARCHDEF
+    archid="ACDMMOD0.100"
+    newname="Z24MST.SYS1.ACDMMOD0"
+  />
+  <ARCHDEF
+    archid="ACDRMODS.100"
+    newname="Z24MST.SYS1.ACDRMODS"
+  />
+  <ARCHDEF
+    archid="ACDRTABL.100"
+    newname="Z24MST.SYS1.ACDRTABL"
+  />
+  <ARCHDEF
+    archid="ACLMMOD0.100"
+    newname="Z24MST.SYS1.ACLMMOD0"
+  />
+  <ARCHDEF
+    archid="ACMDLIB.100"
+    newname="Z24MST.SYS1.ACMDLIB"
+  />
+  <ARCHDEF
+    archid="ACSSLIB.100"
+    newname="Z24MST.SYS1.ACSSLIB"
+  />
+  <ARCHDEF
+    archid="ACUNHF.100"
+    newname="Z24MST.SYS1.ACUNHF"
+  />
+  <ARCHDEF
+    archid="ACUNJCL.100"
+    newname="Z24MST.SYS1.ACUNJCL"
+  />
+  <ARCHDEF
+    archid="ACUNLOCL.100"
+    newname="Z24MST.SYS1.ACUNLOCL"
+  />
+  <ARCHDEF
+    archid="ACUNMAC.100"
+    newname="Z24MST.SYS1.ACUNMAC"
+  />
+  <ARCHDEF
+    archid="ACUNMENU.100"
+    newname="Z24MST.SYS1.ACUNMENU"
+  />
+  <ARCHDEF
+    archid="ACUNMOD.100"
+    newname="Z24MST.SYS1.ACUNMOD"
+  />
+  <ARCHDEF
+    archid="ACUNSAMP.100"
+    newname="Z24MST.SYS1.ACUNSAMP"
+  />
+  <ARCHDEF
+    archid="ACUNTBL.100"
+    newname="Z24MST.SYS1.ACUNTBL"
+  />
+  <ARCHDEF
+    archid="ADBBLIB.100"
+    newname="Z24MST.SYS1.ADBBLIB"
+  />
+  <ARCHDEF
+    archid="ADFMAC1.100"
+    newname="Z24MST.SYS1.ADFMAC1"
+  />
+  <ARCHDEF
+    archid="ADFPMOD0.100"
+    newname="Z24MST.SYS1.ADFPMOD0"
+  />
+  <ARCHDEF
+    archid="ADFQMLIB.100"
+    newname="Z24MST.SYS1.ADFQMLIB"
+  />
+  <ARCHDEF
+    archid="ADFQPLIB.100"
+    newname="Z24MST.SYS1.ADFQPLIB"
+  />
+  <ARCHDEF
+    archid="ADFQPSRC.100"
+    newname="Z24MST.SYS1.ADFQPSRC"
+  />
+  <ARCHDEF
+    archid="ADGTCLIB.100"
+    newname="Z24MST.SYS1.ADGTCLIB"
+  />
+  <ARCHDEF
+    archid="ADGTLLIB.100"
+    newname="Z24MST.SYS1.ADGTLLIB"
+  />
+  <ARCHDEF
+    archid="ADGTMLIB.100"
+    newname="Z24MST.SYS1.ADGTMLIB"
+  />
+  <ARCHDEF
+    archid="ADGTPLIB.100"
+    newname="Z24MST.SYS1.ADGTPLIB"
+  />
+  <ARCHDEF
+    archid="ADGTPSRC.100"
+    newname="Z24MST.SYS1.ADGTPSRC"
+  />
+  <ARCHDEF
+    archid="ADGTSLIB.100"
+    newname="Z24MST.SYS1.ADGTSLIB"
+  />
+  <ARCHDEF
+    archid="ADGTTLIB.100"
+    newname="Z24MST.SYS1.ADGTTLIB"
+  />
+  <ARCHDEF
+    archid="ADGTTSRC.100"
+    newname="Z24MST.SYS1.ADGTTSRC"
+  />
+  <ARCHDEF
+    archid="ADMSSVM.100"
+    newname="Z24MST.SYS1.ADMSSVM"
+  />
+  <ARCHDEF
+    archid="AEDGEXE1.100"
+    newname="Z24MST.SYS1.AEDGEXE1"
+  />
+  <ARCHDEF
+    archid="AEDGHFS.100"
+    newname="Z24MST.SYS1.AEDGHFS"
+  />
+  <ARCHDEF
+    archid="AEDGMENU.100"
+    newname="Z24MST.SYS1.AEDGMENU"
+  />
+  <ARCHDEF
+    archid="AEDGMOD1.100"
+    newname="Z24MST.SYS1.AEDGMOD1"
+  />
+  <ARCHDEF
+    archid="AEDGPENU.100"
+    newname="Z24MST.SYS1.AEDGPENU"
+  />
+  <ARCHDEF
+    archid="AEDGPSRC.100"
+    newname="Z24MST.SYS1.AEDGPSRC"
+  />
+  <ARCHDEF
+    archid="AEDGSRC1.100"
+    newname="Z24MST.SYS1.AEDGSRC1"
+  />
+  <ARCHDEF
+    archid="AEEQINST.100"
+    newname="Z24MST.SYS1.AEEQINST"
+  />
+  <ARCHDEF
+    archid="AERBCLS.100"
+    newname="Z24MST.SYS1.AERBCLS"
+  />
+  <ARCHDEF
+    archid="AERBMAC1.100"
+    newname="Z24MST.SYS1.AERBMAC1"
+  />
+  <ARCHDEF
+    archid="AERBMENU.100"
+    newname="Z24MST.SYS1.AERBMENU"
+  />
+  <ARCHDEF
+    archid="AERBMOD1.100"
+    newname="Z24MST.SYS1.AERBMOD1"
+  />
+  <ARCHDEF
+    archid="AERBPENU.100"
+    newname="Z24MST.SYS1.AERBPENU"
+  />
+  <ARCHDEF
+    archid="AERBPWSV.100"
+    newname="Z24MST.SYS1.AERBPWSV"
+  />
+  <ARCHDEF
+    archid="AERBT.100"
+    newname="Z24MST.SYS1.AERBT"
+  />
+  <ARCHDEF
+    archid="AERBTENU.100"
+    newname="Z24MST.SYS1.AERBTENU"
+  />
+  <ARCHDEF
+    archid="AFNTILIB.100"
+    newname="Z24MST.SYS1.AFNTILIB"
+  />
+  <ARCHDEF
+    archid="AFNTLIB.100"
+    newname="Z24MST.SYS1.AFNTLIB"
+  />
+  <ARCHDEF
+    archid="AFNTLIBB.100"
+    newname="Z24MST.SYS1.AFNTLIBB"
+  />
+  <ARCHDEF
+    archid="AFNT300.100"
+    newname="Z24MST.SYS1.AFNT300"
+  />
+</GIMUNZIP>
+/*
+//*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((4,GE,UNZIP#08),(4000,LT))
+//UNZIP#09 EXEC PGM=GIMUNZIP,COND=(4000,LT)
+//SMPDIR   DD PATHDISP=KEEP,
+// PATH='/u/zos24/OS241147.content'
+//*
+//SMPWKDIR   DD PATHDISP=KEEP,
+// PATH='/tmp/zos24tmp'
+//SMPOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+//SYSUT3   DD UNIT=SYSALLDA,SPACE=(CYL,(50,10))
+//SYSUT4   DD UNIT=SYSALLDA,SPACE=(CYL,(25,5))
+//SYSIN    DD *
+<GIMUNZIP>
+  <ARCHDEF
+    archid="AFOMHDRS.100"
+    newname="Z24MST.SYS1.AFOMHDRS"
+  />
+  <ARCHDEF
+    archid="AFOMHFS.100"
+    newname="Z24MST.SYS1.AFOMHFS"
+  />
+  <ARCHDEF
+    archid="AFOMMOD1.100"
+    newname="Z24MST.SYS1.AFOMMOD1"
+  />
+  <ARCHDEF
+    archid="AFOMOBJ.100"
+    newname="Z24MST.SYS1.AFOMOBJ"
+  />
+  <ARCHDEF
+    archid="AFONTHFS.100"
+    newname="Z24MST.SYS1.AFONTHFS"
+  />
+  <ARCHDEF
+    archid="AGDEMOD0.100"
+    newname="Z24MST.SYS1.AGDEMOD0"
+  />
+  <ARCHDEF
+    archid="AGENLIB.100"
+    newname="Z24MST.SYS1.AGENLIB"
+  />
+  <ARCHDEF
+    archid="AGFTAJL1.100"
+    newname="Z24MST.SYS1.AGFTAJL1"
+  />
+  <ARCHDEF
+    archid="AGFTAMD1.100"
+    newname="Z24MST.SYS1.AGFTAMD1"
+  />
+  <ARCHDEF
+    archid="AGFUMOD1.100"
+    newname="Z24MST.SYS1.AGFUMOD1"
+  />
+  <ARCHDEF
+    archid="AHASMAC.110"
+    newname="Z24MST.SYS1.AHASMAC"
+  />
+  <ARCHDEF
+    archid="AHASMENU.110"
+    newname="Z24MST.SYS1.AHASMENU"
+  />
+  <ARCHDEF
+    archid="AHASMOD.110"
+    newname="Z24MST.SYS1.AHASMOD"
+  />
+  <ARCHDEF
+    archid="AHASPARM.110"
+    newname="Z24MST.SYS1.AHASPARM"
+  />
+  <ARCHDEF
+    archid="AHASPNL0.110"
+    newname="Z24MST.SYS1.AHASPNL0"
+  />
+  <ARCHDEF
+    archid="AHASSAMP.110"
+    newname="Z24MST.SYS1.AHASSAMP"
+  />
+  <ARCHDEF
+    archid="AHASSRC.110"
+    newname="Z24MST.SYS1.AHASSRC"
+  />
+  <ARCHDEF
+    archid="AHELP.100"
+    newname="Z24MST.SYS1.AHELP"
+  />
+  <ARCHDEF
+    archid="AHELPENP.100"
+    newname="Z24MST.SYS1.AHELPENP"
+  />
+  <ARCHDEF
+    archid="AICELIB.100"
+    newname="Z24MST.SYS1.AICELIB"
+  />
+  <ARCHDEF
+    archid="AICESAMP.100"
+    newname="Z24MST.SYS1.AICESAMP"
+  />
+  <ARCHDEF
+    archid="AICESRCE.100"
+    newname="Z24MST.SYS1.AICESRCE"
+  />
+  <ARCHDEF
+    archid="AICEUSER.100"
+    newname="Z24MST.SYS1.AICEUSER"
+  />
+  <ARCHDEF
+    archid="AICQAB.100"
+    newname="Z24MST.SYS1.AICQAB"
+  />
+  <ARCHDEF
+    archid="AICQILIB.100"
+    newname="Z24MST.SYS1.AICQILIB"
+  />
+  <ARCHDEF
+    archid="AICQMAC1.100"
+    newname="Z24MST.SYS1.AICQMAC1"
+  />
+  <ARCHDEF
+    archid="AICQMAC2.100"
+    newname="Z24MST.SYS1.AICQMAC2"
+  />
+  <ARCHDEF
+    archid="AICQMAC3.100"
+    newname="Z24MST.SYS1.AICQMAC3"
+  />
+  <ARCHDEF
+    archid="AICQMAC4.100"
+    newname="Z24MST.SYS1.AICQMAC4"
+  />
+  <ARCHDEF
+    archid="AICQMAC5.100"
+    newname="Z24MST.SYS1.AICQMAC5"
+  />
+  <ARCHDEF
+    archid="AIEAHDR.100"
+    newname="Z24MST.SYS1.AIEAHDR"
+  />
+  <ARCHDEF
+    archid="AIEAHDRV.100"
+    newname="Z24MST.SYS1.AIEAHDRV"
+  />
+  <ARCHDEF
+    archid="AIEALNKE.100"
+    newname="Z24MST.SYS1.AIEALNKE"
+  />
+  <ARCHDEF
+    archid="AIEAMIGE.100"
+    newname="Z24MST.SYS1.AIEAMIGE"
+  />
+  <ARCHDEF
+    archid="AIEASID.100"
+    newname="Z24MST.SYS1.AIEASID"
+  />
+  <ARCHDEF
+    archid="AIEWMOD0.100"
+    newname="Z24MST.SYS1.AIEWMOD0"
+  />
+  <ARCHDEF
+    archid="AIFALIB.100"
+    newname="Z24MST.SYS1.AIFALIB"
+  />
+  <ARCHDEF
+    archid="AIGDVBS1.100"
+    newname="Z24MST.SYS1.AIGDVBS1"
+  />
+  <ARCHDEF
+    archid="AIKYHFS.100"
+    newname="Z24MST.SYS1.AIKYHFS"
+  />
+  <ARCHDEF
+    archid="AIMAGE.100"
+    newname="Z24MST.SYS1.AIMAGE"
+  />
+  <ARCHDEF
+    archid="AIMFMOD0.100"
+    newname="Z24MST.SYS1.AIMFMOD0"
+  />
+  <ARCHDEF
+    archid="AINDLMD.100"
+    newname="Z24MST.SYS1.AINDLMD"
+  />
+  <ARCHDEF
+    archid="AISTASGD.100"
+    newname="Z24MST.SYS1.AISTASGD"
+  />
+  <ARCHDEF
+    archid="AISTASN1.100"
+    newname="Z24MST.SYS1.AISTASN1"
+  />
+  <ARCHDEF
+    archid="AISTCMIP.100"
+    newname="Z24MST.SYS1.AISTCMIP"
+  />
+  <ARCHDEF
+    archid="AISTDAT1.100"
+    newname="Z24MST.SYS1.AISTDAT1"
+  />
+  <ARCHDEF
+    archid="AISTDAT2.100"
+    newname="Z24MST.SYS1.AISTDAT2"
+  />
+  <ARCHDEF
+    archid="AISTGDMO.100"
+    newname="Z24MST.SYS1.AISTGDMO"
+  />
+  <ARCHDEF
+    archid="AISTMAC1.100"
+    newname="Z24MST.SYS1.AISTMAC1"
+  />
+  <ARCHDEF
+    archid="AITYHFS.100"
+    newname="Z24MST.SYS1.AITYHFS"
+  />
+  <ARCHDEF
+    archid="ALINKLIB.100"
+    newname="Z24MST.SYS1.ALINKLIB"
+  />
+  <ARCHDEF
+    archid="ALPALIB.100"
+    newname="Z24MST.SYS1.ALPALIB"
+  />
+  <ARCHDEF
+    archid="AMACLIB.100"
+    newname="Z24MST.SYS1.AMACLIB"
+  />
+  <ARCHDEF
+    archid="AMIGLIB.100"
+    newname="Z24MST.SYS1.AMIGLIB"
+  />
+  <ARCHDEF
+    archid="AMODGEN.100"
+    newname="Z24MST.SYS1.AMODGEN"
+  />
+  <ARCHDEF
+    archid="AMSGENP.100"
+    newname="Z24MST.SYS1.AMSGENP"
+  />
+  <ARCHDEF
+    archid="AMSGENU.100"
+    newname="Z24MST.SYS1.AMSGENU"
+  />
+  <ARCHDEF
+    archid="ANFSLIBE.100"
+    newname="Z24MST.SYS1.ANFSLIBE"
+  />
+  <ARCHDEF
+    archid="ANFSMAC.100"
+    newname="Z24MST.SYS1.ANFSMAC"
+  />
+  <ARCHDEF
+    archid="ANFSSAMP.100"
+    newname="Z24MST.SYS1.ANFSSAMP"
+  />
+  <ARCHDEF
+    archid="ANFSTARB.100"
+    newname="Z24MST.SYS1.ANFSTARB"
+  />
+  <ARCHDEF
+    archid="ANUCLEUS.100"
+    newname="Z24MST.SYS1.ANUCLEUS"
+  />
+  <ARCHDEF
+    archid="AOSACB.100"
+    newname="Z24MST.SYS1.AOSACB"
+  />
+  <ARCHDEF
+    archid="AOSA0.100"
+    newname="Z24MST.SYS1.AOSA0"
+  />
+  <ARCHDEF
+    archid="AOSA1.100"
+    newname="Z24MST.SYS1.AOSA1"
+  />
+  <ARCHDEF
+    archid="AOSBN.100"
+    newname="Z24MST.SYS1.AOSBN"
+  />
+  <ARCHDEF
+    archid="AOSB0.100"
+    newname="Z24MST.SYS1.AOSB0"
+  />
+  <ARCHDEF
+    archid="AOSB3.100"
+    newname="Z24MST.SYS1.AOSB3"
+  />
+  <ARCHDEF
+    archid="AOSCA.100"
+    newname="Z24MST.SYS1.AOSCA"
+  />
+  <ARCHDEF
+    archid="AOSCD.100"
+    newname="Z24MST.SYS1.AOSCD"
+  />
+  <ARCHDEF
+    archid="AOSCE.100"
+    newname="Z24MST.SYS1.AOSCE"
+  />
+  <ARCHDEF
+    archid="AOSC2.100"
+    newname="Z24MST.SYS1.AOSC2"
+  />
+  <ARCHDEF
+    archid="AOSC5.100"
+    newname="Z24MST.SYS1.AOSC5"
+  />
+  <ARCHDEF
+    archid="AOSC6.100"
+    newname="Z24MST.SYS1.AOSC6"
+  />
+  <ARCHDEF
+    archid="AOSD0.100"
+    newname="Z24MST.SYS1.AOSD0"
+  />
+  <ARCHDEF
+    archid="AOSD7.100"
+    newname="Z24MST.SYS1.AOSD7"
+  />
+  <ARCHDEF
+    archid="AOSG0.100"
+    newname="Z24MST.SYS1.AOSG0"
+  />
+  <ARCHDEF
+    archid="AOSJSC.100"
+    newname="Z24MST.SYS1.AOSJSC"
+  />
+  <ARCHDEF
+    archid="AOST3.100"
+    newname="Z24MST.SYS1.AOST3"
+  />
+  <ARCHDEF
+    archid="AOST4.100"
+    newname="Z24MST.SYS1.AOST4"
+  />
+  <ARCHDEF
+    archid="AOSU0.100"
+    newname="Z24MST.SYS1.AOSU0"
+  />
+  <ARCHDEF
+    archid="AOSXCF.100"
+    newname="Z24MST.SYS1.AOSXCF"
+  />
+  <ARCHDEF
+    archid="AOS00.100"
+    newname="Z24MST.SYS1.AOS00"
+  />
+  <ARCHDEF
+    archid="AOS04.100"
+    newname="Z24MST.SYS1.AOS04"
+  />
+  <ARCHDEF
+    archid="AOS05.100"
+    newname="Z24MST.SYS1.AOS05"
+  />
+  <ARCHDEF
+    archid="AOS06.100"
+    newname="Z24MST.SYS1.AOS06"
+  />
+  <ARCHDEF
+    archid="AOS11.100"
+    newname="Z24MST.SYS1.AOS11"
+  />
+  <ARCHDEF
+    archid="AOS12.100"
+    newname="Z24MST.SYS1.AOS12"
+  />
+  <ARCHDEF
+    archid="AOS24.100"
+    newname="Z24MST.SYS1.AOS24"
+  />
+  <ARCHDEF
+    archid="AOS26.100"
+    newname="Z24MST.SYS1.AOS26"
+  />
+  <ARCHDEF
+    archid="AOS28.100"
+    newname="Z24MST.SYS1.AOS28"
+  />
+  <ARCHDEF
+    archid="AOS32.100"
+    newname="Z24MST.SYS1.AOS32"
+  />
+  <ARCHDEF
+    archid="ASAMPLIB.100"
+    newname="Z24MST.SYS1.ASAMPLIB"
+  />
+  <ARCHDEF
+    archid="ASSFMOD0.100"
+    newname="Z24MST.SYS1.ASSFMOD0"
+  />
+  <ARCHDEF
+    archid="ATSOMAC.100"
+    newname="Z24MST.SYS1.ATSOMAC"
+  />
+  <ARCHDEF
+    archid="AUADS.100"
+    newname="Z24MST.SYS1.AUADS"
+  />
+  <ARCHDEF
+    archid="CBRDBRM.100"
+    newname="Z24MST.SYS1.CBRDBRM"
+  />
+  <ARCHDEF
+    archid="CIPLIB.100"
+    newname="Z24MST.SYS1.CIPLIB"
+  />
+  <ARCHDEF
+    archid="CMDLIB.100"
+    newname="Z24MST.SYS1.CMDLIB"
+  />
+  <ARCHDEF
+    archid="CSSLIB.100"
+    newname="Z24MST.SYS1.CSSLIB"
+  />
+</GIMUNZIP>
+/*
+//*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((4,GE,UNZIP#09),(4000,LT))
+//UNZIP#10 EXEC PGM=GIMUNZIP,COND=(4000,LT)
+//SMPDIR   DD PATHDISP=KEEP,
+// PATH='/u/zos24/OS241147.content'
+//*
+//SMPWKDIR   DD PATHDISP=KEEP,
+// PATH='/tmp/zos24tmp'
+//SMPOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+//SYSUT3   DD UNIT=SYSALLDA,SPACE=(CYL,(50,10))
+//SYSUT4   DD UNIT=SYSALLDA,SPACE=(CYL,(25,5))
+//SYSIN    DD *
+<GIMUNZIP>
+  <ARCHDEF
+    archid="DBBLIB.100"
+    newname="Z24MST.SYS1.DBBLIB"
+  />
+  <ARCHDEF
+    archid="DFQLLIB.100"
+    newname="Z24MST.SYS1.DFQLLIB"
+  />
+  <ARCHDEF
+    archid="DFQMLIB.100"
+    newname="Z24MST.SYS1.DFQMLIB"
+  />
+  <ARCHDEF
+    archid="DFQPLIB.100"
+    newname="Z24MST.SYS1.DFQPLIB"
+  />
+  <ARCHDEF
+    archid="ACDSS"
+    newname="Z24MST.SYS1.DFSMS.ACDS"
+    replace="yes"
+  />
+  <ARCHDEF
+    archid="SCDSS"
+    newname="Z24MST.SYS1.DFSMS.SCDS"
+    replace="yes"
+  />
+  <ARCHDEF
+    archid="DGTCLIB.100"
+    newname="Z24MST.SYS1.DGTCLIB"
+  />
+  <ARCHDEF
+    archid="DGTLLIB.100"
+    newname="Z24MST.SYS1.DGTLLIB"
+  />
+  <ARCHDEF
+    archid="DGTMLIB.100"
+    newname="Z24MST.SYS1.DGTMLIB"
+  />
+  <ARCHDEF
+    archid="DGTPLIB.100"
+    newname="Z24MST.SYS1.DGTPLIB"
+  />
+  <ARCHDEF
+    archid="DGTSLIB.100"
+    newname="Z24MST.SYS1.DGTSLIB"
+  />
+  <ARCHDEF
+    archid="DGTTLIB.100"
+    newname="Z24MST.SYS1.DGTTLIB"
+  />
+  <ARCHDEF
+    archid="FONTLIB.100"
+    newname="Z24MST.SYS1.FONTLIB"
+  />
+  <ARCHDEF
+    archid="FONTLIBB.100"
+    newname="Z24MST.SYS1.FONTLIBB"
+  />
+  <ARCHDEF
+    archid="FONT300.100"
+    newname="Z24MST.SYS1.FONT300"
+  />
+  <ARCHDEF
+    archid="HELP.100"
+    newname="Z24MST.SYS1.HELP"
+  />
+  <ARCHDEF
+    archid="HELPENP.100"
+    newname="Z24MST.SYS1.HELPENP"
+  />
+  <ARCHDEF
+    archid="HHRFCLST.100"
+    newname="Z24MST.SYS1.HHRFCLST"
+  />
+  <ARCHDEF
+    archid="HHRFMSG.100"
+    newname="Z24MST.SYS1.HHRFMSG"
+  />
+  <ARCHDEF
+    archid="HHRFPANL.100"
+    newname="Z24MST.SYS1.HHRFPANL"
+  />
+  <ARCHDEF
+    archid="HHRFSKEL.100"
+    newname="Z24MST.SYS1.HHRFSKEL"
+  />
+  <ARCHDEF
+    archid="HRFCLST.100"
+    newname="Z24MST.SYS1.HRFCLST"
+  />
+  <ARCHDEF
+    archid="HRFMSG.100"
+    newname="Z24MST.SYS1.HRFMSG"
+  />
+  <ARCHDEF
+    archid="HRFPANL.100"
+    newname="Z24MST.SYS1.HRFPANL"
+  />
+  <ARCHDEF
+    archid="HRFSKEL.100"
+    newname="Z24MST.SYS1.HRFSKEL"
+  />
+  <ARCHDEF
+    archid="APARMLIB.100"
+    newname="Z24MST.SYS1.IBM.APARMLIB"
+  />
+  <ARCHDEF
+    archid="APROCLIB.100"
+    newname="Z24MST.SYS1.IBM.APROCLIB"
+  />
+  <ARCHDEF
+    archid="PARMLIB.100"
+    newname="Z24MST.SYS1.IBM.PARMLIB"
+  />
+  <ARCHDEF
+    archid="PROCLIB.100"
+    newname="Z24MST.SYS1.IBM.PROCLIB"
+  />
+  <ARCHDEF
+    archid="IGDVBS1.100"
+    newname="Z24MST.SYS1.IGDVBS1"
+  />
+  <ARCHDEF
+    archid="IMAGELIB.100"
+    newname="Z24MST.SYS1.IMAGELIB"
+  />
+  <ARCHDEF
+    archid="SYSIPLP"
+    newname="Z24MST.SYS1.IPLPARM"
+  />
+  <ARCHDEF
+    archid="LINKLIB.100"
+    newname="Z24MST.SYS1.LINKLIB"
+  />
+  <ARCHDEF
+    archid="LPALIB.100"
+    newname="Z24MST.SYS1.LPALIB"
+  />
+  <ARCHDEF
+    archid="MACLIB.100"
+    newname="Z24MST.SYS1.MACLIB"
+  />
+  <ARCHDEF
+    archid="MIGLIB.100"
+    newname="Z24MST.SYS1.MIGLIB"
+  />
+  <ARCHDEF
+    archid="MODGEN.100"
+    newname="Z24MST.SYS1.MODGEN"
+  />
+  <ARCHDEF
+    archid="MSGENP.100"
+    newname="Z24MST.SYS1.MSGENP"
+  />
+  <ARCHDEF
+    archid="MSGENU.100"
+    newname="Z24MST.SYS1.MSGENU"
+  />
+  <ARCHDEF
+    archid="NFSLIBE.100"
+    newname="Z24MST.SYS1.NFSLIBE"
+  />
+  <ARCHDEF
+    archid="NFSMAC.100"
+    newname="Z24MST.SYS1.NFSMAC"
+  />
+  <ARCHDEF
+    archid="NFSSAMP.100"
+    newname="Z24MST.SYS1.NFSSAMP"
+  />
+  <ARCHDEF
+    archid="NFSTARB.100"
+    newname="Z24MST.SYS1.NFSTARB"
+  />
+  <ARCHDEF
+    archid="NUCLEUS.100"
+    newname="Z24MST.SYS1.NUCLEUS"
+  />
+  <ARCHDEF
+    archid="SYS1PARM"
+    newname="Z24MST.SYS1.PARMLIB"
+  />
+  <ARCHDEF
+    archid="RACFPRIM.100"
+    newname="Z24MST.SYS1.RACF"
+    replace="yes"
+  />
+  <ARCHDEF
+    archid="RACFBACK.100"
+    newname="Z24MST.SYS1.RACFSEC"
+    replace="yes"
+  />
+  <ARCHDEF
+    archid="SACBCNTL.100"
+    newname="Z24MST.SYS1.SACBCNTL"
+  />
+  <ARCHDEF
+    archid="SADRYLIB.100"
+    newname="Z24MST.SYS1.SADRYLIB"
+  />
+  <ARCHDEF
+    archid="SAMPLIB.100"
+    newname="Z24MST.SYS1.SAMPLIB"
+  />
+  <ARCHDEF
+    archid="SAXREXEC.100"
+    newname="Z24MST.SYS1.SAXREXEC"
+  />
+  <ARCHDEF
+    archid="SBDTCLI0.100"
+    newname="Z24MST.SYS1.SBDTCLI0"
+  />
+  <ARCHDEF
+    archid="SBDTCMD.100"
+    newname="Z24MST.SYS1.SBDTCMD"
+  />
+  <ARCHDEF
+    archid="SBDTHELP.100"
+    newname="Z24MST.SYS1.SBDTHELP"
+  />
+  <ARCHDEF
+    archid="SBDTLIB.100"
+    newname="Z24MST.SYS1.SBDTLIB"
+  />
+  <ARCHDEF
+    archid="SBDTLINK.100"
+    newname="Z24MST.SYS1.SBDTLINK"
+  />
+  <ARCHDEF
+    archid="SBDTLPA.100"
+    newname="Z24MST.SYS1.SBDTLPA"
+  />
+  <ARCHDEF
+    archid="SBDTMAC.100"
+    newname="Z24MST.SYS1.SBDTMAC"
+  />
+  <ARCHDEF
+    archid="SBDTMSG.100"
+    newname="Z24MST.SYS1.SBDTMSG"
+  />
+  <ARCHDEF
+    archid="SBDTPNL0.100"
+    newname="Z24MST.SYS1.SBDTPNL0"
+  />
+  <ARCHDEF
+    archid="SBDTSAMP.100"
+    newname="Z24MST.SYS1.SBDTSAMP"
+  />
+  <ARCHDEF
+    archid="SBLSCLI0.100"
+    newname="Z24MST.SYS1.SBLSCLI0"
+  />
+  <ARCHDEF
+    archid="SBLSKEL0.100"
+    newname="Z24MST.SYS1.SBLSKEL0"
+  />
+  <ARCHDEF
+    archid="SBLSMSG0.100"
+    newname="Z24MST.SYS1.SBLSMSG0"
+  />
+  <ARCHDEF
+    archid="SBLSPNL0.100"
+    newname="Z24MST.SYS1.SBLSPNL0"
+  />
+  <ARCHDEF
+    archid="SBLSTBL0.100"
+    newname="Z24MST.SYS1.SBLSTBL0"
+  />
+  <ARCHDEF
+    archid="SBPXEXEC.100"
+    newname="Z24MST.SYS1.SBPXEXEC"
+  />
+  <ARCHDEF
+    archid="SBPXMENU.100"
+    newname="Z24MST.SYS1.SBPXMENU"
+  />
+  <ARCHDEF
+    archid="SBPXPENU.100"
+    newname="Z24MST.SYS1.SBPXPENU"
+  />
+  <ARCHDEF
+    archid="SBPXTENU.100"
+    newname="Z24MST.SYS1.SBPXTENU"
+  />
+  <ARCHDEF
+    archid="SCBDCLST.100"
+    newname="Z24MST.SYS1.SCBDCLST"
+  />
+  <ARCHDEF
+    archid="SCBDHENU.100"
+    newname="Z24MST.SYS1.SCBDHENU"
+  />
+  <ARCHDEF
+    archid="SCBDMENU.100"
+    newname="Z24MST.SYS1.SCBDMENU"
+  />
+  <ARCHDEF
+    archid="SCBDPENU.100"
+    newname="Z24MST.SYS1.SCBDPENU"
+  />
+  <ARCHDEF
+    archid="SCBDTEMP.100"
+    newname="Z24MST.SYS1.SCBDTEMP"
+  />
+  <ARCHDEF
+    archid="SCBDTENU.100"
+    newname="Z24MST.SYS1.SCBDTENU"
+  />
+  <ARCHDEF
+    archid="SCCR3BND.100"
+    newname="Z24MST.SYS1.SCCR3BND"
+  />
+  <ARCHDEF
+    archid="SCCR6BND.100"
+    newname="Z24MST.SYS1.SCCR6BND"
+  />
+  <ARCHDEF
+    archid="SCDRTABL.100"
+    newname="Z24MST.SYS1.SCDRTABL"
+  />
+  <ARCHDEF
+    archid="SCUNHF.100"
+    newname="Z24MST.SYS1.SCUNHF"
+  />
+  <ARCHDEF
+    archid="SCUNJCL.100"
+    newname="Z24MST.SYS1.SCUNJCL"
+  />
+  <ARCHDEF
+    archid="SCUNLOCL.100"
+    newname="Z24MST.SYS1.SCUNLOCL"
+  />
+  <ARCHDEF
+    archid="SCUNMENU.100"
+    newname="Z24MST.SYS1.SCUNMENU"
+  />
+  <ARCHDEF
+    archid="SCUNTBL.100"
+    newname="Z24MST.SYS1.SCUNTBL"
+  />
+  <ARCHDEF
+    archid="SDFQPSRC.100"
+    newname="Z24MST.SYS1.SDFQPSRC"
+  />
+  <ARCHDEF
+    archid="SDGTPSRC.100"
+    newname="Z24MST.SYS1.SDGTPSRC"
+  />
+  <ARCHDEF
+    archid="SDGTTSRC.100"
+    newname="Z24MST.SYS1.SDGTTSRC"
+  />
+  <ARCHDEF
+    archid="SDMSSVM.100"
+    newname="Z24MST.SYS1.SDMSSVM"
+  />
+  <ARCHDEF
+    archid="SDMSSVMS.100"
+    newname="Z24MST.SYS1.SDMSSVMS"
+  />
+  <ARCHDEF
+    archid="SDWWDLPA.100"
+    newname="Z24MST.SYS1.SDWWDLPA"
+  />
+  <ARCHDEF
+    archid="SEDGEXE1.100"
+    newname="Z24MST.SYS1.SEDGEXE1"
+  />
+  <ARCHDEF
+    archid="SEDGMENU.100"
+    newname="Z24MST.SYS1.SEDGMENU"
+  />
+  <ARCHDEF
+    archid="SEDGPENU.100"
+    newname="Z24MST.SYS1.SEDGPENU"
+  />
+  <ARCHDEF
+    archid="SEDGPSRC.100"
+    newname="Z24MST.SYS1.SEDGPSRC"
+  />
+  <ARCHDEF
+    archid="SEEQINST.100"
+    newname="Z24MST.SYS1.SEEQINST"
+  />
+  <ARCHDEF
+    archid="SERBCLS.100"
+    newname="Z24MST.SYS1.SERBCLS"
+  />
+  <ARCHDEF
+    archid="SERBLINK.100"
+    newname="Z24MST.SYS1.SERBLINK"
+  />
+  <ARCHDEF
+    archid="SERBLPA.100"
+    newname="Z24MST.SYS1.SERBLPA"
+  />
+  <ARCHDEF
+    archid="SERBMENU.100"
+    newname="Z24MST.SYS1.SERBMENU"
+  />
+  <ARCHDEF
+    archid="SERBPENU.100"
+    newname="Z24MST.SYS1.SERBPENU"
+  />
+</GIMUNZIP>
+/*
+//*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((4,GE,UNZIP#10),(4000,LT))
+//UNZIP#11 EXEC PGM=GIMUNZIP,COND=(4000,LT)
+//SMPDIR   DD PATHDISP=KEEP,
+// PATH='/u/zos24/OS241147.content'
+//*
+//SMPWKDIR   DD PATHDISP=KEEP,
+// PATH='/tmp/zos24tmp'
+//SMPOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+//SYSUT3   DD UNIT=SYSALLDA,SPACE=(CYL,(50,10))
+//SYSUT4   DD UNIT=SYSALLDA,SPACE=(CYL,(25,5))
+//SYSIN    DD *
+<GIMUNZIP>
+  <ARCHDEF
+    archid="SERBPWSV.100"
+    newname="Z24MST.SYS1.SERBPWSV"
+  />
+  <ARCHDEF
+    archid="SERBT.100"
+    newname="Z24MST.SYS1.SERBT"
+  />
+  <ARCHDEF
+    archid="SERBTENU.100"
+    newname="Z24MST.SYS1.SERBTENU"
+  />
+  <ARCHDEF
+    archid="SFNTILIB.100"
+    newname="Z24MST.SYS1.SFNTILIB"
+  />
+  <ARCHDEF
+    archid="SFOMHDRS.100"
+    newname="Z24MST.SYS1.SFOMHDRS"
+  />
+  <ARCHDEF
+    archid="SFOMOBJ.100"
+    newname="Z24MST.SYS1.SFOMOBJ"
+  />
+  <ARCHDEF
+    archid="SHASLNKE.110"
+    newname="Z24MST.SYS1.SHASLNKE"
+  />
+  <ARCHDEF
+    archid="SHASMAC.110"
+    newname="Z24MST.SYS1.SHASMAC"
+  />
+  <ARCHDEF
+    archid="SHASMENU.110"
+    newname="Z24MST.SYS1.SHASMENU"
+  />
+  <ARCHDEF
+    archid="SHASMIG.110"
+    newname="Z24MST.SYS1.SHASMIG"
+  />
+  <ARCHDEF
+    archid="SHASPARM.110"
+    newname="Z24MST.SYS1.SHASPARM"
+  />
+  <ARCHDEF
+    archid="SHASPNL0.110"
+    newname="Z24MST.SYS1.SHASPNL0"
+  />
+  <ARCHDEF
+    archid="SHASSAMP.110"
+    newname="Z24MST.SYS1.SHASSAMP"
+  />
+  <ARCHDEF
+    archid="SHASSRC.110"
+    newname="Z24MST.SYS1.SHASSRC"
+  />
+  <ARCHDEF
+    archid="SICELINK.100"
+    newname="Z24MST.SYS1.SICELINK"
+  />
+  <ARCHDEF
+    archid="SICELPA.100"
+    newname="Z24MST.SYS1.SICELPA"
+  />
+  <ARCHDEF
+    archid="SICEPROC.100"
+    newname="Z24MST.SYS1.SICEPROC"
+  />
+  <ARCHDEF
+    archid="SICESAMP.100"
+    newname="Z24MST.SYS1.SICESAMP"
+  />
+  <ARCHDEF
+    archid="SICESRCE.100"
+    newname="Z24MST.SYS1.SICESRCE"
+  />
+  <ARCHDEF
+    archid="SICEUSER.100"
+    newname="Z24MST.SYS1.SICEUSER"
+  />
+  <ARCHDEF
+    archid="SIEAHDR.100"
+    newname="Z24MST.SYS1.SIEAHDR.H"
+  />
+  <ARCHDEF
+    archid="SIEAHDRV.100"
+    newname="Z24MST.SYS1.SIEAHDRV.H"
+  />
+  <ARCHDEF
+    archid="SIEALNKE.100"
+    newname="Z24MST.SYS1.SIEALNKE"
+  />
+  <ARCHDEF
+    archid="SIEAMIGE.100"
+    newname="Z24MST.SYS1.SIEAMIGE"
+  />
+  <ARCHDEF
+    archid="SIEASID.100"
+    newname="Z24MST.SYS1.SIEASID"
+  />
+  <ARCHDEF
+    archid="SIFALIB.100"
+    newname="Z24MST.SYS1.SIFALIB"
+  />
+  <ARCHDEF
+    archid="SISTASGD.100"
+    newname="Z24MST.SYS1.SISTASGD"
+  />
+  <ARCHDEF
+    archid="SISTASN1.100"
+    newname="Z24MST.SYS1.SISTASN1"
+  />
+  <ARCHDEF
+    archid="SISTCLIB.100"
+    newname="Z24MST.SYS1.SISTCLIB"
+  />
+  <ARCHDEF
+    archid="SISTCMIP.100"
+    newname="Z24MST.SYS1.SISTCMIP"
+  />
+  <ARCHDEF
+    archid="SISTDAT1.100"
+    newname="Z24MST.SYS1.SISTDAT1"
+  />
+  <ARCHDEF
+    archid="SISTDAT2.100"
+    newname="Z24MST.SYS1.SISTDAT2"
+  />
+  <ARCHDEF
+    archid="SISTGDMO.100"
+    newname="Z24MST.SYS1.SISTGDMO"
+  />
+  <ARCHDEF
+    archid="SISTMAC1.100"
+    newname="Z24MST.SYS1.SISTMAC1"
+  />
+  <ARCHDEF
+    archid="SORTLIB.100"
+    newname="Z24MST.SYS1.SORTLIB"
+  />
+  <ARCHDEF
+    archid="SORTLPA.100"
+    newname="Z24MST.SYS1.SORTLPA"
+  />
+  <ARCHDEF
+    archid="SVCLIB.100"
+    newname="Z24MST.SYS1.SVCLIB"
+  />
+  <ARCHDEF
+    archid="UADS.100"
+    newname="Z24MST.SYS1.UADS"
+  />
+  <ARCHDEF
+    archid="VTAMLIB.100"
+    newname="Z24MST.SYS1.VTAMLIB"
+  />
+  <ARCHDEF
+    archid="VTAMLST.100"
+    newname="Z24MST.SYS1.VTAMLST"
+  />
+  <ARCHDEF
+    archid="AEZADBR1.100"
+    newname="Z24MST.TCPIP.AEZADBR1"
+  />
+  <ARCHDEF
+    archid="AEZAMAC1.100"
+    newname="Z24MST.TCPIP.AEZAMAC1"
+  />
+  <ARCHDEF
+    archid="AEZAMAC2.100"
+    newname="Z24MST.TCPIP.AEZAMAC2"
+  />
+  <ARCHDEF
+    archid="AEZAMAC3.100"
+    newname="Z24MST.TCPIP.AEZAMAC3"
+  />
+  <ARCHDEF
+    archid="AEZAMODS.100"
+    newname="Z24MST.TCPIP.AEZAMODS"
+  />
+  <ARCHDEF
+    archid="AEZARNT1.100"
+    newname="Z24MST.TCPIP.AEZARNT1"
+  />
+  <ARCHDEF
+    archid="AEZARNT2.100"
+    newname="Z24MST.TCPIP.AEZARNT2"
+  />
+  <ARCHDEF
+    archid="AEZARNT3.100"
+    newname="Z24MST.TCPIP.AEZARNT3"
+  />
+  <ARCHDEF
+    archid="AEZARNT4.100"
+    newname="Z24MST.TCPIP.AEZARNT4"
+  />
+  <ARCHDEF
+    archid="AEZAROE1.100"
+    newname="Z24MST.TCPIP.AEZAROE1"
+  />
+  <ARCHDEF
+    archid="AEZAROE2.100"
+    newname="Z24MST.TCPIP.AEZAROE2"
+  />
+  <ARCHDEF
+    archid="AEZAROE3.100"
+    newname="Z24MST.TCPIP.AEZAROE3"
+  />
+  <ARCHDEF
+    archid="AEZASMP1.100"
+    newname="Z24MST.TCPIP.AEZASMP1"
+  />
+  <ARCHDEF
+    archid="AEZAXLTD.100"
+    newname="Z24MST.TCPIP.AEZAXLTD"
+  />
+  <ARCHDEF
+    archid="AEZAXLTK.100"
+    newname="Z24MST.TCPIP.AEZAXLTK"
+  />
+  <ARCHDEF
+    archid="AEZAXLT1.100"
+    newname="Z24MST.TCPIP.AEZAXLT1"
+  />
+  <ARCHDEF
+    archid="AEZAXLT2.100"
+    newname="Z24MST.TCPIP.AEZAXLT2"
+  />
+  <ARCHDEF
+    archid="AEZAXLT3.100"
+    newname="Z24MST.TCPIP.AEZAXLT3"
+  />
+  <ARCHDEF
+    archid="SEZACMAC.100"
+    newname="Z24MST.TCPIP.SEZACMAC"
+  />
+  <ARCHDEF
+    archid="SEZACMTX.100"
+    newname="Z24MST.TCPIP.SEZACMTX"
+  />
+  <ARCHDEF
+    archid="SEZADBCX.100"
+    newname="Z24MST.TCPIP.SEZADBCX"
+  />
+  <ARCHDEF
+    archid="SEZADBRM.100"
+    newname="Z24MST.TCPIP.SEZADBRM"
+  />
+  <ARCHDEF
+    archid="SEZADPIL.100"
+    newname="Z24MST.TCPIP.SEZADPIL"
+  />
+  <ARCHDEF
+    archid="SEZADSIL.100"
+    newname="Z24MST.TCPIP.SEZADSIL"
+  />
+  <ARCHDEF
+    archid="SEZADSIM.100"
+    newname="Z24MST.TCPIP.SEZADSIM"
+  />
+  <ARCHDEF
+    archid="SEZADSIP.100"
+    newname="Z24MST.TCPIP.SEZADSIP"
+  />
+  <ARCHDEF
+    archid="SEZAEXEC.100"
+    newname="Z24MST.TCPIP.SEZAEXEC"
+  />
+  <ARCHDEF
+    archid="SEZAINST.100"
+    newname="Z24MST.TCPIP.SEZAINST"
+  />
+  <ARCHDEF
+    archid="SEZALIBN.100"
+    newname="Z24MST.TCPIP.SEZALIBN"
+  />
+  <ARCHDEF
+    archid="SEZALNK2.100"
+    newname="Z24MST.TCPIP.SEZALNK2"
+  />
+  <ARCHDEF
+    archid="SEZALOAD.100"
+    newname="Z24MST.TCPIP.SEZALOAD"
+  />
+  <ARCHDEF
+    archid="SEZALPA.100"
+    newname="Z24MST.TCPIP.SEZALPA"
+  />
+  <ARCHDEF
+    archid="SEZAMENU.100"
+    newname="Z24MST.TCPIP.SEZAMENU"
+  />
+  <ARCHDEF
+    archid="SEZANCLS.100"
+    newname="Z24MST.TCPIP.SEZANCLS"
+  />
+  <ARCHDEF
+    archid="SEZANMAC.100"
+    newname="Z24MST.TCPIP.SEZANMAC"
+  />
+  <ARCHDEF
+    archid="SEZANPNL.100"
+    newname="Z24MST.TCPIP.SEZANPNL"
+  />
+  <ARCHDEF
+    archid="SEZAOLDX.100"
+    newname="Z24MST.TCPIP.SEZAOLDX"
+  />
+  <ARCHDEF
+    archid="SEZAPENU.100"
+    newname="Z24MST.TCPIP.SEZAPENU"
+  />
+  <ARCHDEF
+    archid="SEZARNT1.100"
+    newname="Z24MST.TCPIP.SEZARNT1"
+  />
+  <ARCHDEF
+    archid="SEZARNT2.100"
+    newname="Z24MST.TCPIP.SEZARNT2"
+  />
+  <ARCHDEF
+    archid="SEZARNT3.100"
+    newname="Z24MST.TCPIP.SEZARNT3"
+  />
+  <ARCHDEF
+    archid="SEZARNT4.100"
+    newname="Z24MST.TCPIP.SEZARNT4"
+  />
+  <ARCHDEF
+    archid="SEZAROE1.100"
+    newname="Z24MST.TCPIP.SEZAROE1"
+  />
+  <ARCHDEF
+    archid="SEZAROE2.100"
+    newname="Z24MST.TCPIP.SEZAROE2"
+  />
+  <ARCHDEF
+    archid="SEZAROE3.100"
+    newname="Z24MST.TCPIP.SEZAROE3"
+  />
+  <ARCHDEF
+    archid="SEZARPCL.100"
+    newname="Z24MST.TCPIP.SEZARPCL"
+  />
+  <ARCHDEF
+    archid="SEZATCP.100"
+    newname="Z24MST.TCPIP.SEZATCP"
+  />
+  <ARCHDEF
+    archid="SEZATCPX.100"
+    newname="Z24MST.TCPIP.SEZATCPX"
+  />
+  <ARCHDEF
+    archid="SEZATELX.100"
+    newname="Z24MST.TCPIP.SEZATELX"
+  />
+  <ARCHDEF
+    archid="SEZAXAWL.100"
+    newname="Z24MST.TCPIP.SEZAXAWL"
+  />
+  <ARCHDEF
+    archid="SEZAXLD1.100"
+    newname="Z24MST.TCPIP.SEZAXLD1"
+  />
+  <ARCHDEF
+    archid="SEZAXLD2.100"
+    newname="Z24MST.TCPIP.SEZAXLD2"
+  />
+  <ARCHDEF
+    archid="SEZAXMLB.100"
+    newname="Z24MST.TCPIP.SEZAXMLB"
+  />
+  <ARCHDEF
+    archid="SEZAXTLB.100"
+    newname="Z24MST.TCPIP.SEZAXTLB"
+  />
+  <ARCHDEF
+    archid="SEZAX11L.100"
+    newname="Z24MST.TCPIP.SEZAX11L"
+  />
+  <ARCHDEF
+    archid="TCPPARMS.100"
+    newname="Z24SUP.TCPIVP.TCPPARMS"
+  />
+  <ARCHDEF
+    archid="DKANCMD.100"
+    newname="Z24SUP.TIVOLI.DKANCMD"
+  />
+  <ARCHDEF
+    archid="DKANCUS.100"
+    newname="Z24SUP.TIVOLI.DKANCUS"
+  />
+  <ARCHDEF
+    archid="DKANDATV.100"
+    newname="Z24SUP.TIVOLI.DKANDATV"
+  />
+  <ARCHDEF
+    archid="DKANEXEC.100"
+    newname="Z24SUP.TIVOLI.DKANEXEC"
+  />
+</GIMUNZIP>
+/*
+//*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((4,GE,UNZIP#11),(4000,LT))
+//UNZIP#12 EXEC PGM=GIMUNZIP,COND=(4000,LT)
+//SMPDIR   DD PATHDISP=KEEP,
+// PATH='/u/zos24/OS241147.content'
+//*
+//SMPWKDIR   DD PATHDISP=KEEP,
+// PATH='/tmp/zos24tmp'
+//SMPOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+//SYSUT3   DD UNIT=SYSALLDA,SPACE=(CYL,(50,10))
+//SYSUT4   DD UNIT=SYSALLDA,SPACE=(CYL,(25,5))
+//SYSIN    DD *
+<GIMUNZIP>
+  <ARCHDEF
+    archid="DKANHENU.100"
+    newname="Z24SUP.TIVOLI.DKANHENU"
+  />
+  <ARCHDEF
+    archid="DKANISP.100"
+    newname="Z24SUP.TIVOLI.DKANISP"
+  />
+  <ARCHDEF
+    archid="DKANJAR.100"
+    newname="Z24SUP.TIVOLI.DKANJAR"
+  />
+  <ARCHDEF
+    archid="DKANMAC.100"
+    newname="Z24SUP.TIVOLI.DKANMAC"
+  />
+  <ARCHDEF
+    archid="DKANMOD.100"
+    newname="Z24SUP.TIVOLI.DKANMOD"
+  />
+  <ARCHDEF
+    archid="DKANMODL.100"
+    newname="Z24SUP.TIVOLI.DKANMODL"
+  />
+  <ARCHDEF
+    archid="DKANMODP.100"
+    newname="Z24SUP.TIVOLI.DKANMODP"
+  />
+  <ARCHDEF
+    archid="DKANMODR.100"
+    newname="Z24SUP.TIVOLI.DKANMODR"
+  />
+  <ARCHDEF
+    archid="DKANMODS.100"
+    newname="Z24SUP.TIVOLI.DKANMODS"
+  />
+  <ARCHDEF
+    archid="DKANOSRC.100"
+    newname="Z24SUP.TIVOLI.DKANOSRC"
+  />
+  <ARCHDEF
+    archid="DKANPAR.100"
+    newname="Z24SUP.TIVOLI.DKANPAR"
+  />
+  <ARCHDEF
+    archid="DKANPENU.100"
+    newname="Z24SUP.TIVOLI.DKANPENU"
+  />
+  <ARCHDEF
+    archid="DKANPKGI.100"
+    newname="Z24SUP.TIVOLI.DKANPKGI"
+  />
+  <ARCHDEF
+    archid="DKANSAM.100"
+    newname="Z24SUP.TIVOLI.DKANSAM"
+  />
+  <ARCHDEF
+    archid="DKANSQL.100"
+    newname="Z24SUP.TIVOLI.DKANSQL"
+  />
+  <ARCHDEF
+    archid="DKANUTIN.100"
+    newname="Z24SUP.TIVOLI.DKANUTIN"
+  />
+  <ARCHDEF
+    archid="DKANWENU.100"
+    newname="Z24SUP.TIVOLI.DKANWENU"
+  />
+  <ARCHDEF
+    archid="DKCIINST.100"
+    newname="Z24SUP.TIVOLI.DKCIINST"
+  />
+  <ARCHDEF
+    archid="DKNSLOCL.100"
+    newname="Z24SUP.TIVOLI.DKNSLOCL"
+  />
+  <ARCHDEF
+    archid="DKOBDATF.100"
+    newname="Z24SUP.TIVOLI.DKOBDATF"
+  />
+  <ARCHDEF
+    archid="DKOBHELP.100"
+    newname="Z24SUP.TIVOLI.DKOBHELP"
+  />
+  <ARCHDEF
+    archid="DKOCHELP.100"
+    newname="Z24SUP.TIVOLI.DKOCHELP"
+  />
+  <ARCHDEF
+    archid="DKOCPROC.100"
+    newname="Z24SUP.TIVOLI.DKOCPROC"
+  />
+  <ARCHDEF
+    archid="TKANCMD.100"
+    newname="Z24SUP.TIVOLI.TKANCMD"
+  />
+  <ARCHDEF
+    archid="TKANCUS.100"
+    newname="Z24SUP.TIVOLI.TKANCUS"
+  />
+  <ARCHDEF
+    archid="TKANDATV.100"
+    newname="Z24SUP.TIVOLI.TKANDATV"
+  />
+  <ARCHDEF
+    archid="TKANEXEC.100"
+    newname="Z24SUP.TIVOLI.TKANEXEC"
+  />
+  <ARCHDEF
+    archid="TKANHENU.100"
+    newname="Z24SUP.TIVOLI.TKANHENU"
+  />
+  <ARCHDEF
+    archid="TKANISP.100"
+    newname="Z24SUP.TIVOLI.TKANISP"
+  />
+  <ARCHDEF
+    archid="TKANMAC.100"
+    newname="Z24SUP.TIVOLI.TKANMAC"
+  />
+  <ARCHDEF
+    archid="TKANMOD.100"
+    newname="Z24SUP.TIVOLI.TKANMOD"
+  />
+  <ARCHDEF
+    archid="TKANMODL.100"
+    newname="Z24SUP.TIVOLI.TKANMODL"
+  />
+  <ARCHDEF
+    archid="TKANMODP.100"
+    newname="Z24SUP.TIVOLI.TKANMODP"
+  />
+  <ARCHDEF
+    archid="TKANMODR.100"
+    newname="Z24SUP.TIVOLI.TKANMODR"
+  />
+  <ARCHDEF
+    archid="TKANMODS.100"
+    newname="Z24SUP.TIVOLI.TKANMODS"
+  />
+  <ARCHDEF
+    archid="TKANOSRC.100"
+    newname="Z24SUP.TIVOLI.TKANOSRC"
+  />
+  <ARCHDEF
+    archid="TKANPAR.100"
+    newname="Z24SUP.TIVOLI.TKANPAR"
+  />
+  <ARCHDEF
+    archid="TKANPENU.100"
+    newname="Z24SUP.TIVOLI.TKANPENU"
+  />
+  <ARCHDEF
+    archid="TKANPKGI.100"
+    newname="Z24SUP.TIVOLI.TKANPKGI"
+  />
+  <ARCHDEF
+    archid="TKANSAM.100"
+    newname="Z24SUP.TIVOLI.TKANSAM"
+  />
+  <ARCHDEF
+    archid="TKANSQL.100"
+    newname="Z24SUP.TIVOLI.TKANSQL"
+  />
+  <ARCHDEF
+    archid="TKANUTIN.100"
+    newname="Z24SUP.TIVOLI.TKANUTIN"
+  />
+  <ARCHDEF
+    archid="TKANWENU.100"
+    newname="Z24SUP.TIVOLI.TKANWENU"
+  />
+  <ARCHDEF
+    archid="TKCIINST.100"
+    newname="Z24SUP.TIVOLI.TKCIINST"
+  />
+  <ARCHDEF
+    archid="TKNSLOCL.100"
+    newname="Z24SUP.TIVOLI.TKNSLOCL"
+  />
+  <ARCHDEF
+    archid="TKOBDATF.100"
+    newname="Z24SUP.TIVOLI.TKOBDATF"
+  />
+  <ARCHDEF
+    archid="TKOBHELP.100"
+    newname="Z24SUP.TIVOLI.TKOBHELP"
+  />
+  <ARCHDEF
+    archid="TKOCHELP.100"
+    newname="Z24SUP.TIVOLI.TKOCHELP"
+  />
+  <ARCHDEF
+    archid="TKOCPROC.100"
+    newname="Z24SUP.TIVOLI.TKOCPROC"
+  />
+</GIMUNZIP>
+/*
+//*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((4,GE,UNZIP#12),(4000,LT))
+//*--------------------------------------------------------------------
+//* CREATE ZONEINDEXE(S)
+//* RENAME ZONE(S)
+//* IN ZONEMERGE COMMAND, VERIFY(YES) IS USED AS DEFAULT
+//* DELETE ZONE
+//* UPDATE FMID LIST
+//*--------------------------------------------------------------------
+//UCLIN    EXEC PGM=GIMSMP,COND=(4000,LT),REGION=0M
+//STEPLIB  DD DSN=Z24MST.SYS1.MIGLIB,DISP=SHR
+//SMPCSI   DD DSN=Z24SUP.SMPE.GLOBAL.CSI,DISP=SHR
+//SMPPTS   DD DSN=Z24SUP.SMPE.SMPPTS,DISP=SHR
+//SMPPTS1 DD DSN=Z24SUP.SMPE.SMPPTS1,DISP=SHR
+//SMPOUT   DD SYSOUT=*
+//SMPRPT   DD SYSOUT=*
+//SMPLOG   DD SYSOUT=*
+//SMPLOGA  DD SYSOUT=*
+//SYSUT1   DD SPACE=(CYL,(350,50)),UNIT=VIO
+//SYSUT2   DD SPACE=(CYL,(60,50)),UNIT=VIO
+//SYSUT3   DD SPACE=(CYL,(60,50)),UNIT=VIO
+//SYSUT4   DD SPACE=(CYL,(60,50)),UNIT=VIO
+//SYSPRINT DD SYSOUT=*
+//SMPCNTL  DD *
+  SET BDY(GLOBAL) .
+    UCLIN .
+      REP GLOBALZONE ZONEINDEX (
+      (MVSD111,Z24SUP.SMPE.MVS.DLIB.CSI,DLIB)
+      (MVST111,Z24SUP.SMPE.MVS.TARGET.CSI,TARGET)
+      (MVSD100,Z24SUP.SMPE.MVS.DLIB.CSI,DLIB)
+      (MVST100,Z24SUP.SMPE.MVS.TARGET.CSI,TARGET)
+      (MVSD110,Z24SUP.SMPE.MVS.DLIB.CSI,DLIB)
+      (MVST110,Z24SUP.SMPE.MVS.TARGET.CSI,TARGET)
+                                   ).
+    ENDUCL .
+  SET BDY(MVSD111) .
+    ZONEDELETE DLIBZONE(MVSD111) .
+  SET BDY(MVST111) .
+    ZONEDELETE TARGETZONE(MVST111) .
+  SET BDY(GLOBAL) .
+  REJECT NOFMID DELETEFMID(
+HJS77C0
+                          ) HOLDDATA.
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((4,GE,UCLIN),(4000,LT))
+//*
+//*
+//*--------------------------------------------------------------------
+//* REMOVE DELETED JES PROC AND PARMS
+//* JES INSTALLATION OPTIONS
+//*--------------------------------------------------------------------
+//DELPARM   EXEC PGM=IDCAMS,COND=(4000,LT)
+//SYSPRINT  DD   SYSOUT=*
+//SYSIN     DD   *
+   DELETE Z24MST.CPAC.PROCLIB(JES3)
+   DELETE Z24MST.CPAC.PARMLIB(JES3IN00)
+   DELETE Z24MST.CPAC.PARMLIB(JES3INFT)
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,DELPARM),(4000,LT))
+//*
+//*--------------------------------------------------------------------
+//* ADD DDDEFs
+//*--------------------------------------------------------------------
+//CSIUPD  EXEC PGM=GIMSMP,REGION=0M,COND=(4000,LT)
+//STEPLIB  DD DSN=Z24MST.SYS1.MIGLIB,DISP=SHR
+//SMPCSI   DD DSN=Z24SUP.SMPE.GLOBAL.CSI,DISP=SHR
+//SMPPTS   DD DSN=Z24SUP.SMPE.SMPPTS,DISP=SHR
+//SMPPTS1 DD DSN=Z24SUP.SMPE.SMPPTS1,DISP=SHR
+//SMPLOG   DD SYSOUT=*
+//SMPLOGA  DD SYSOUT=*
+//SMPOUT   DD SYSOUT=*
+//SMPRPT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+//SMPCNTL  DD *
+  SET BDY(GLOBAL) .
+    UCLIN .
+      REP UTILITY(ASMA90)
+          NAME(ASMA90)
+          PRINT(ASMPRINT)
+          RC(0)
+          .
+      REP OPTIONS(ZOSOPT)
+        ASM(ASMA90)
+        RECZGRP(ALLZONES)
+        MSGFILTER(YES)
+        MSGWIDTH(80)
+        COMPACT(YES)
+        RETRYDDN(ALL)
+          .
+    ENDUCL .
+  SET BDY(MVST100) .
+    UCLIN .
+      REP TARGETZONE(MVST100) RELATED(MVSD100) .
+    ENDUCL .
+  SET BDY(MVSD100) .
+    UCLIN .
+      REP DLIBZONE(MVSD100) RELATED(MVST100) .
+    ENDUCL .
+  SET BDY(MVST110) .
+    UCLIN .
+      REP TARGETZONE(MVST110) RELATED(MVSD110) .
+    ENDUCL .
+  SET BDY(MVSD110) .
+    UCLIN .
+      REP DLIBZONE(MVSD110) RELATED(MVST110) .
+    ENDUCL .
+  SET BDY(MVSD100) .
+    UCLIN .
+      REP DDDEF(AAOPEXEC)
+          DA(Z24SUP.AOP.AAOPEXEC)
+          SHR .
+      REP DDDEF(AAOPHFS)
+          DA(Z24SUP.AOP.AAOPHFS)
+          SHR .
+      REP DDDEF(AAOPMENU)
+          DA(Z24SUP.AOP.AAOPMENU)
+          SHR .
+      REP DDDEF(AAOPMOD1)
+          DA(Z24SUP.AOP.AAOPMOD1)
+          SHR .
+      REP DDDEF(AAOPPENU)
+          DA(Z24SUP.AOP.AAOPPENU)
+          SHR .
+      REP DDDEF(AASMMAC1)
+          DA(Z24MST.ASM.AASMMAC1)
+          SHR .
+      REP DDDEF(AASMMAC2)
+          DA(Z24MST.ASM.AASMMAC2)
+          SHR .
+      REP DDDEF(AASMMOD1)
+          DA(Z24MST.ASM.AASMMOD1)
+          SHR .
+      REP DDDEF(AASMMOD2)
+          DA(Z24MST.ASM.AASMMOD2)
+          SHR .
+      REP DDDEF(AASMPUT2)
+          DA(Z24MST.ASM.AASMPUT2)
+          SHR .
+      REP DDDEF(AASMSAM1)
+          DA(Z24MST.ASM.AASMSAM1)
+          SHR .
+      REP DDDEF(AASMSAM2)
+          DA(Z24MST.ASM.AASMSAM2)
+          SHR .
+      REP DDDEF(AAZDFFS)
+          DA(Z24SUP.AZD.AAZDFFS)
+          SHR .
+      REP DDDEF(ABAQCOB)
+          DA(Z24SUP.BAQ.ABAQCOB)
+          SHR .
+      REP DDDEF(ABAQINST)
+          DA(Z24SUP.BAQ.ABAQINST)
+          SHR .
+      REP DDDEF(ABAQLIB1)
+          DA(Z24SUP.BAQ.ABAQLIB1)
+          SHR .
+      REP DDDEF(ABAQMOD)
+          DA(Z24SUP.BAQ.ABAQMOD)
+          SHR .
+      REP DDDEF(ABAQPLI)
+          DA(Z24SUP.BAQ.ABAQPLI)
+          SHR .
+      REP DDDEF(ABAQSAMP)
+          DA(Z24SUP.BAQ.ABAQSAMP)
+          SHR .
+      REP DDDEF(ABAQSCR)
+          DA(Z24SUP.BAQ.ABAQSCR)
+          SHR .
+      REP DDDEF(ABAQZFS)
+          DA(Z24SUP.BAQ.ABAQZFS)
+          SHR .
+      REP DDDEF(ABBLEXEC)
+          DA(Z24SUP.BBL.ABBLEXEC)
+          SHR .
+      REP DDDEF(ABBLJCL)
+          DA(Z24SUP.BBL.ABBLJCL)
+          SHR .
+      REP DDDEF(ABBLLIB)
+          DA(Z24SUP.BBL.ABBLLIB)
+          SHR .
+      REP DDDEF(ACCNCMP)
+          DA(Z24MST.CBC.ACCNCMP)
+          SHR .
+      REP DDDEF(ACCNSR1)
+          DA(Z24MST.CBC.ACCNSR1)
+          SHR .
+      REP DDDEF(ACCNSR2)
+          DA(Z24MST.CBC.ACCNSR2)
+          SHR .
+      REP DDDEF(ACCNSR3)
+          DA(Z24MST.CBC.ACCNSR3)
+          SHR .
+      REP DDDEF(ACCNSR4)
+          DA(Z24MST.CBC.ACCNSR4)
+          SHR .
+      REP DDDEF(ACCNSR5)
+          DA(Z24MST.CBC.ACCNSR5)
+          SHR .
+      REP DDDEF(ACCNSR6)
+          DA(Z24MST.CBC.ACCNSR6)
+          SHR .
+      REP DDDEF(ACCNSR7)
+          DA(Z24MST.CBC.ACCNSR7)
+          SHR .
+      REP DDDEF(ACCNSR8)
+          DA(Z24MST.CBC.ACCNSR8)
+          SHR .
+      REP DDDEF(ACCNSR9)
+          DA(Z24MST.CBC.ACCNSR9)
+          SHR .
+      REP DDDEF(ACLBDLL)
+          DA(Z24MST.CBC.ACLBDLL)
+          SHR .
+      REP DDDEF(ACLBDLL2)
+          DA(Z24MST.CBC.ACLBDLL2)
+          SHR .
+      REP DDDEF(ACLBHFS1)
+          DA(Z24MST.CBC.ACLBHFS1)
+          SHR .
+      REP DDDEF(ACLBOBJ)
+          DA(Z24MST.CBC.ACLBOBJ)
+          SHR .
+      REP DDDEF(ACLBSR1)
+          DA(Z24MST.CBC.ACLBSR1)
+          SHR .
+      REP DDDEF(ACTVMOD)
+          DA(Z24MST.CBC.ACTVMOD)
+          SHR .
+      REP DDDEF(ACTVSRC)
+          DA(Z24MST.CBC.ACTVSRC)
+          SHR .
+      REP DDDEF(ACDSHFS)
+          DA(Z24SUP.CDS.ACDSHFS)
+          SHR .
+      REP DDDEF(ACDSSAMP)
+          DA(Z24SUP.CDS.ACDSSAMP)
+          SHR .
+      REP DDDEF(AAFHMOD1)
+          DA(Z24MST.CEE.AAFHMOD1)
+          SHR .
+      REP DDDEF(AAFHSRC1)
+          DA(Z24MST.CEE.AAFHSRC1)
+          SHR .
+      REP DDDEF(ACEEMOD1)
+          DA(Z24MST.CEE.ACEEMOD1)
+          SHR .
+      REP DDDEF(ACEEMOD2)
+          DA(Z24MST.CEE.ACEEMOD2)
+          SHR .
+      REP DDDEF(ACEESRC1)
+          DA(Z24MST.CEE.ACEESRC1)
+          SHR .
+      REP DDDEF(ACEESRC2)
+          DA(Z24MST.CEE.ACEESRC2)
+          SHR .
+      REP DDDEF(ACEESRC3)
+          DA(Z24MST.CEE.ACEESRC3)
+          SHR .
+      REP DDDEF(AEDCCPP1)
+          DA(Z24MST.CEE.AEDCCPP1)
+          SHR .
+      REP DDDEF(AEDCHFS)
+          DA(Z24MST.CEE.AEDCHFS)
+          SHR .
+      REP DDDEF(AEDCMOD1)
+          DA(Z24MST.CEE.AEDCMOD1)
+          SHR .
+      REP DDDEF(AEDCMOD2)
+          DA(Z24MST.CEE.AEDCMOD2)
+          SHR .
+      REP DDDEF(AEDCMSEP)
+          DA(Z24MST.CEE.AEDCMSEP)
+          SHR .
+      REP DDDEF(AEDCOBJ1)
+          DA(Z24MST.CEE.AEDCOBJ1)
+          SHR .
+      REP DDDEF(AEDCSRC6)
+          DA(Z24MST.CEE.AEDCSRC6)
+          SHR .
+      REP DDDEF(AEDCSRC7)
+          DA(Z24MST.CEE.AEDCSRC7)
+          SHR .
+      REP DDDEF(AIBMMOD3)
+          DA(Z24MST.CEE.AIBMMOD3)
+          SHR .
+      REP DDDEF(AIBMSRC3)
+          DA(Z24MST.CEE.AIBMSRC3)
+          SHR .
+      REP DDDEF(AIGZMOD1)
+          DA(Z24MST.CEE.AIGZMOD1)
+          SHR .
+      REP DDDEF(AIGZSRC1)
+          DA(Z24MST.CEE.AIGZSRC1)
+          SHR .
+      REP DDDEF(ACFZHFS)
+          DA(Z24SUP.CFZ.ACFZHFS)
+          SHR .
+      REP DDDEF(ACSFCLI0)
+          DA(Z24MST.CSF.ACSFCLI0)
+          SHR .
+      REP DDDEF(ACSFHDRS)
+          DA(Z24MST.CSF.ACSFHDRS)
+          SHR .
+      REP DDDEF(ACSFHFS)
+          DA(Z24MST.CSF.ACSFHFS)
+          SHR .
+      REP DDDEF(ACSFMOD0)
+          DA(Z24MST.CSF.ACSFMOD0)
+          SHR .
+      REP DDDEF(ACSFMOD1)
+          DA(Z24MST.CSF.ACSFMOD1)
+          SHR .
+      REP DDDEF(ACSFMSG0)
+          DA(Z24MST.CSF.ACSFMSG0)
+          SHR .
+      REP DDDEF(ACSFOBJ)
+          DA(Z24MST.CSF.ACSFOBJ)
+          SHR .
+      REP DDDEF(ACSFPNL0)
+          DA(Z24MST.CSF.ACSFPNL0)
+          SHR .
+      REP DDDEF(ACSFSKL0)
+          DA(Z24MST.CSF.ACSFSKL0)
+          SHR .
+      REP DDDEF(ACSFTLIB)
+          DA(Z24MST.CSF.ACSFTLIB)
+          SHR .
+      REP DDDEF(ADGACICS)
+          DA(Z24SUP.DGA.ADGACICS)
+          SHR .
+      REP DDDEF(ADGACNTL)
+          DA(Z24SUP.DGA.ADGACNTL)
+          SHR .
+      REP DDDEF(ADGADATA)
+          DA(Z24SUP.DGA.ADGADATA)
+          SHR .
+      REP DDDEF(ADGAISPC)
+          DA(Z24SUP.DGA.ADGAISPC)
+          SHR .
+      REP DDDEF(ADGAJCL)
+          DA(Z24SUP.DGA.ADGAJCL)
+          SHR .
+      REP DDDEF(ADGALINK)
+          DA(Z24SUP.DGA.ADGALINK)
+          SHR .
+      REP DDDEF(ADGAMAC)
+          DA(Z24SUP.DGA.ADGAMAC)
+          SHR .
+      REP DDDEF(ADGAMAP)
+          DA(Z24SUP.DGA.ADGAMAP)
+          SHR .
+      REP DDDEF(ADGAMENU)
+          DA(Z24SUP.DGA.ADGAMENU)
+          SHR .
+      REP DDDEF(ADGAMIB)
+          DA(Z24SUP.DGA.ADGAMIB)
+          SHR .
+      REP DDDEF(ADGAMSGS)
+          DA(Z24SUP.DGA.ADGAMSGS)
+          SHR .
+      REP DDDEF(ADGAOPLS)
+          DA(Z24SUP.DGA.ADGAOPLS)
+          SHR .
+      REP DDDEF(ADGAPARM)
+          DA(Z24SUP.DGA.ADGAPARM)
+          SHR .
+      REP DDDEF(ADGAPENU)
+          DA(Z24SUP.DGA.ADGAPENU)
+          SHR .
+      REP DDDEF(ADGAPROC)
+          DA(Z24SUP.DGA.ADGAPROC)
+          SHR .
+      REP DDDEF(ADGAPROF)
+          DA(Z24SUP.DGA.ADGAPROF)
+          SHR .
+      REP DDDEF(ADGASAMP)
+          DA(Z24SUP.DGA.ADGASAMP)
+          SHR .
+      REP DDDEF(ADGASENU)
+          DA(Z24SUP.DGA.ADGASENU)
+          SHR .
+      REP DDDEF(ADGATRP)
+          DA(Z24SUP.DGA.ADGATRP)
+          SHR .
+      REP DDDEF(AEUVFEXC)
+          DA(Z24SUP.EUVF.AEUVFEXC)
+          SHR .
+      REP DDDEF(AEUVFHFS)
+          DA(Z24SUP.EUVF.AEUVFHFS)
+          SHR .
+      REP DDDEF(AEUVFLIB)
+          DA(Z24SUP.EUVF.AEUVFLIB)
+          SHR .
+      REP DDDEF(AEUVFSAM)
+          DA(Z24SUP.EUVF.AEUVFSAM)
+          SHR .
+      REP DDDEF(AEPWBENU)
+          DA(Z24MST.FFST.V120ESA.AEPWBENU)
+          SHR .
+      REP DDDEF(AEPWMOD1)
+          DA(Z24MST.FFST.V120ESA.AEPWMOD1)
+          SHR .
+      REP DDDEF(AEPWSRC1)
+          DA(Z24MST.FFST.V120ESA.AEPWSRC1)
+          SHR .
+      REP DDDEF(AADMCDA)
+          DA(Z24MST.GDDM.AADMCDA)
+          SHR .
+      REP DDDEF(AADMCFO)
+          DA(Z24MST.GDDM.AADMCFO)
+          SHR .
+      REP DDDEF(AADMDAT)
+          DA(Z24MST.GDDM.AADMDAT)
+          SHR .
+      REP DDDEF(AADMGDF)
+          DA(Z24MST.GDDM.AADMGDF)
+          SHR .
+      REP DDDEF(AADMIMG)
+          DA(Z24MST.GDDM.AADMIMG)
+          SHR .
+      REP DDDEF(AADMMAP)
+          DA(Z24MST.GDDM.AADMMAP)
+          SHR .
+      REP DDDEF(AADMMOD)
+          DA(Z24MST.GDDM.AADMMOD)
+          SHR .
+      REP DDDEF(AADMMSG)
+          DA(Z24MST.GDDM.AADMMSG)
+          SHR .
+      REP DDDEF(AADMOPS)
+          DA(Z24MST.GDDM.AADMOPS)
+          SHR .
+      REP DDDEF(AADMPCF)
+          DA(Z24MST.GDDM.AADMPCF)
+          SHR .
+      REP DDDEF(AADMPNL)
+          DA(Z24MST.GDDM.AADMPNL)
+          SHR .
+      REP DDDEF(AADMSAM)
+          DA(Z24MST.GDDM.AADMSAM)
+          SHR .
+      REP DDDEF(AADMSYM)
+          DA(Z24MST.GDDM.AADMSYM)
+          SHR .
+      REP DDDEF(AGIMBIN)
+          DA(Z24MST.GIM.AGIMBIN)
+          SHR .
+      REP DDDEF(AGIMCLS0)
+          DA(Z24MST.GIM.AGIMCLS0)
+          SHR .
+      REP DDDEF(AGIMMENU)
+          DA(Z24MST.GIM.AGIMMENU)
+          SHR .
+      REP DDDEF(AGIMPENU)
+          DA(Z24MST.GIM.AGIMPENU)
+          SHR .
+      REP DDDEF(AGIMSENU)
+          DA(Z24MST.GIM.AGIMSENU)
+          SHR .
+      REP DDDEF(AGIMTENU)
+          DA(Z24MST.GIM.AGIMTENU)
+          SHR .
+      REP DDDEF(AGLDEXEC)
+          DA(Z24SUP.GLD.AGLDEXEC)
+          SHR .
+      REP DDDEF(AGLDEXPC)
+          DA(Z24SUP.GLD.AGLDEXPC)
+          SHR .
+      REP DDDEF(AGLDHCLI)
+          DA(Z24SUP.GLD.AGLDHCLI)
+          SHR .
+      REP DDDEF(AGLDHDRC)
+          DA(Z24SUP.GLD.AGLDHDRC)
+          SHR .
+      REP DDDEF(AGLDHFS)
+          DA(Z24SUP.GLD.AGLDHFS)
+          SHR .
+      REP DDDEF(AGLDSAMP)
+          DA(Z24SUP.GLD.AGLDSAMP)
+          SHR .
+      REP DDDEF(AGSKHFS)
+          DA(Z24SUP.GSK.AGSKHFS)
+          SHR .
+      REP DDDEF(AGSKSAMP)
+          DA(Z24SUP.GSK.AGSKSAMP)
+          SHR .
+      REP DDDEF(AHAPEXE3)
+          DA(Z24SUP.HAP.AHAPEXE3)
+          SHR .
+      REP DDDEF(AHAPINC3)
+          DA(Z24SUP.HAP.AHAPINC3)
+          SHR .
+      REP DDDEF(AHAPJCL3)
+          DA(Z24SUP.HAP.AHAPJCL3)
+          SHR .
+      REP DDDEF(AHKCKC4Z)
+          DA(Z24SUP.HKC.AHKCKC4Z)
+          SHR .
+      REP DDDEF(AIBMZHFS)
+          DA(Z24MST.IBMZ.AIBMZHFS)
+          SHR .
+      REP DDDEF(AIBMZMOD)
+          DA(Z24MST.IBMZ.AIBMZMOD)
+          SHR .
+      REP DDDEF(AIBMZSRC)
+          DA(Z24MST.IBMZ.AIBMZSRC)
+          SHR .
+      REP DDDEF(AIGYHFS)
+          DA(Z24MST.IGY.AIGYHFS)
+          SHR .
+      REP DDDEF(AIGYMOD1)
+          DA(Z24MST.IGY.AIGYMOD1)
+          SHR .
+      REP DDDEF(AIGYSRC1)
+          DA(Z24MST.IGY.AIGYSRC1)
+          SHR .
+      REP DDDEF(AIOEEXEC)
+          DA(Z24SUP.IOE.AIOEEXEC)
+          SHR .
+      REP DDDEF(AIOEHLIB)
+          DA(Z24SUP.IOE.AIOEHLIB)
+          SHR .
+      REP DDDEF(AIOEPROC)
+          DA(Z24SUP.IOE.AIOEPROC)
+          SHR .
+      REP DDDEF(AIOESAMP)
+          DA(Z24SUP.IOE.AIOESAMP)
+          SHR .
+      REP DDDEF(AISFEXEC)
+          DA(Z24MST.ISF.AISFEXEC)
+          SHR .
+      REP DDDEF(AISFHELP)
+          DA(Z24MST.ISF.AISFHELP)
+          SHR .
+      REP DDDEF(AISFHFS)
+          DA(Z24MST.ISF.AISFHFS)
+          SHR .
+      REP DDDEF(AISFJCL)
+          DA(Z24MST.ISF.AISFJCL)
+          SHR .
+      REP DDDEF(AISFLOAD)
+          DA(Z24MST.ISF.AISFLOAD)
+          SHR .
+      REP DDDEF(AISFMAC)
+          DA(Z24MST.ISF.AISFMAC)
+          SHR .
+      REP DDDEF(AISFMLIB)
+          DA(Z24MST.ISF.AISFMLIB)
+          SHR .
+      REP DDDEF(AISFPLIB)
+          DA(Z24MST.ISF.AISFPLIB)
+          SHR .
+      REP DDDEF(AISFSLIB)
+          DA(Z24MST.ISF.AISFSLIB)
+          SHR .
+      REP DDDEF(AISFSRC)
+          DA(Z24MST.ISF.AISFSRC)
+          SHR .
+      REP DDDEF(AISFTLIB)
+          DA(Z24MST.ISF.AISFTLIB)
+          SHR .
+      REP DDDEF(AISPALIB)
+          DA(Z24MST.ISP.AISPALIB)
+          SHR .
+      REP DDDEF(AISPCLIB)
+          DA(Z24MST.ISP.AISPCLIB)
+          SHR .
+      REP DDDEF(AISPEXEC)
+          DA(Z24MST.ISP.AISPEXEC)
+          SHR .
+      REP DDDEF(AISPGENU)
+          DA(Z24MST.ISP.AISPGENU)
+          SHR .
+      REP DDDEF(AISPGMLI)
+          DA(Z24MST.ISP.AISPGMLI)
+          SHR .
+      REP DDDEF(AISPGUI)
+          DA(Z24MST.ISP.AISPGUI)
+          SHR .
+      REP DDDEF(AISPHELP)
+          DA(Z24MST.ISP.AISPHELP)
+          SHR .
+      REP DDDEF(AISPMACS)
+          DA(Z24MST.ISP.AISPMACS)
+          SHR .
+      REP DDDEF(AISPMENU)
+          DA(Z24MST.ISP.AISPMENU)
+          SHR .
+      REP DDDEF(AISPMOD1)
+          DA(Z24MST.ISP.AISPMOD1)
+          SHR .
+      REP DDDEF(AISPPENU)
+          DA(Z24MST.ISP.AISPPENU)
+          SHR .
+      REP DDDEF(AISPSAMP)
+          DA(Z24MST.ISP.AISPSAMP)
+          SHR .
+      REP DDDEF(AISPSENU)
+          DA(Z24MST.ISP.AISPSENU)
+          SHR .
+      REP DDDEF(AISPSLIB)
+          DA(Z24MST.ISP.AISPSLIB)
+          SHR .
+      REP DDDEF(AISPTENU)
+          DA(Z24MST.ISP.AISPTENU)
+          SHR .
+      REP DDDEF(AIXMEXP)
+          DA(Z24MST.IXM.AIXMEXP)
+          SHR .
+      REP DDDEF(AIXMHFS)
+          DA(Z24MST.IXM.AIXMHFS)
+          SHR .
+      REP DDDEF(AIXMLOD1)
+          DA(Z24MST.IXM.AIXMLOD1)
+          SHR .
+      REP DDDEF(AIZDEXEC)
+          DA(Z24SUP.IZD.AIZDEXEC)
+          SHR .
+      REP DDDEF(AIZDINST)
+          DA(Z24SUP.IZD.AIZDINST)
+          SHR .
+      REP DDDEF(AIZDLOAD)
+          DA(Z24SUP.IZD.AIZDLOAD)
+          SHR .
+      REP DDDEF(AIZDMAPS)
+          DA(Z24SUP.IZD.AIZDMAPS)
+          SHR .
+      REP DDDEF(AIZDMESG)
+          DA(Z24SUP.IZD.AIZDMESG)
+          SHR .
+      REP DDDEF(AIZDSAMP)
+          DA(Z24SUP.IZD.AIZDSAMP)
+          SHR .
+      REP DDDEF(AIZUFS)
+          DA(Z24SUP.IZU.AIZUFS)
+          SHR .
+      REP DDDEF(AAJVHFS)
+          DA(Z24SUP.JAVA.AAJVHFS)
+          SHR .
+      REP DDDEF(AAJVSMP1)
+          DA(Z24SUP.JAVA.AAJVSMP1)
+          SHR .
+      REP DDDEF(ACSQASMS)
+          DA(Z24MST.MQ.V9R1MX.ACSQASMS)
+          SHR .
+      REP DDDEF(ACSQCLST)
+          DA(Z24MST.MQ.V9R1MX.ACSQCLST)
+          SHR .
+      REP DDDEF(ACSQCOBC)
+          DA(Z24MST.MQ.V9R1MX.ACSQCOBC)
+          SHR .
+      REP DDDEF(ACSQCOBS)
+          DA(Z24MST.MQ.V9R1MX.ACSQCOBS)
+          SHR .
+      REP DDDEF(ACSQCPPS)
+          DA(Z24MST.MQ.V9R1MX.ACSQCPPS)
+          SHR .
+      REP DDDEF(ACSQC37S)
+          DA(Z24MST.MQ.V9R1MX.ACSQC37S)
+          SHR .
+      REP DDDEF(ACSQC370)
+          DA(Z24MST.MQ.V9R1MX.ACSQC370)
+          SHR .
+      REP DDDEF(ACSQDEFS)
+          DA(Z24MST.MQ.V9R1MX.ACSQDEFS)
+          SHR .
+      REP DDDEF(ACSQEXEC)
+          DA(Z24MST.MQ.V9R1MX.ACSQEXEC)
+          SHR .
+      REP DDDEF(ACSQHPPS)
+          DA(Z24MST.MQ.V9R1MX.ACSQHPPS)
+          SHR .
+      REP DDDEF(ACSQINST)
+          DA(Z24MST.MQ.V9R1MX.ACSQINST)
+          SHR .
+      REP DDDEF(ACSQMACS)
+          DA(Z24MST.MQ.V9R1MX.ACSQMACS)
+          SHR .
+      REP DDDEF(ACSQMAPS)
+          DA(Z24MST.MQ.V9R1MX.ACSQMAPS)
+          SHR .
+      REP DDDEF(ACSQMOD)
+          DA(Z24MST.MQ.V9R1MX.ACSQMOD)
+          SHR .
+      REP DDDEF(ACSQMSGC)
+          DA(Z24MST.MQ.V9R1MX.ACSQMSGC)
+          SHR .
+      REP DDDEF(ACSQMSGE)
+          DA(Z24MST.MQ.V9R1MX.ACSQMSGE)
+          SHR .
+      REP DDDEF(ACSQMSGF)
+          DA(Z24MST.MQ.V9R1MX.ACSQMSGF)
+          SHR .
+      REP DDDEF(ACSQMSGK)
+          DA(Z24MST.MQ.V9R1MX.ACSQMSGK)
+          SHR .
+      REP DDDEF(ACSQMSGU)
+          DA(Z24MST.MQ.V9R1MX.ACSQMSGU)
+          SHR .
+      REP DDDEF(ACSQOJSH)
+          DA(Z24MST.MQ.V9R1MX.ACSQOJSH)
+          SHR .
+      REP DDDEF(ACSQOJTR)
+          DA(Z24MST.MQ.V9R1MX.ACSQOJTR)
+          SHR .
+      REP DDDEF(ACSQOWPX)
+          DA(Z24MST.MQ.V9R1MX.ACSQOWPX)
+          SHR .
+      REP DDDEF(ACSQOWSH)
+          DA(Z24MST.MQ.V9R1MX.ACSQOWSH)
+          SHR .
+      REP DDDEF(ACSQPLIC)
+          DA(Z24MST.MQ.V9R1MX.ACSQPLIC)
+          SHR .
+      REP DDDEF(ACSQPLIS)
+          DA(Z24MST.MQ.V9R1MX.ACSQPLIS)
+          SHR .
+      REP DDDEF(ACSQPNLA)
+          DA(Z24MST.MQ.V9R1MX.ACSQPNLA)
+          SHR .
+      REP DDDEF(ACSQPNLC)
+          DA(Z24MST.MQ.V9R1MX.ACSQPNLC)
+          SHR .
+      REP DDDEF(ACSQPNLE)
+          DA(Z24MST.MQ.V9R1MX.ACSQPNLE)
+          SHR .
+      REP DDDEF(ACSQPNLF)
+          DA(Z24MST.MQ.V9R1MX.ACSQPNLF)
+          SHR .
+      REP DDDEF(ACSQPNLK)
+          DA(Z24MST.MQ.V9R1MX.ACSQPNLK)
+          SHR .
+      REP DDDEF(ACSQPNLU)
+          DA(Z24MST.MQ.V9R1MX.ACSQPNLU)
+          SHR .
+      REP DDDEF(ACSQPROC)
+          DA(Z24MST.MQ.V9R1MX.ACSQPROC)
+          SHR .
+      REP DDDEF(ACSQTBLC)
+          DA(Z24MST.MQ.V9R1MX.ACSQTBLC)
+          SHR .
+      REP DDDEF(ACSQTBLE)
+          DA(Z24MST.MQ.V9R1MX.ACSQTBLE)
+          SHR .
+      REP DDDEF(ACSQTBLF)
+          DA(Z24MST.MQ.V9R1MX.ACSQTBLF)
+          SHR .
+      REP DDDEF(ACSQTBLK)
+          DA(Z24MST.MQ.V9R1MX.ACSQTBLK)
+          SHR .
+      REP DDDEF(ACSQTBLU)
+          DA(Z24MST.MQ.V9R1MX.ACSQTBLU)
+          SHR .
+      REP DDDEF(AAQNCLST)
+          DA(Z24MST.NETVIEW.AAQNCLST)
+          SHR .
+      REP DDDEF(AAQNLINK)
+          DA(Z24MST.NETVIEW.AAQNLINK)
+          SHR .
+      REP DDDEF(AAQNPARM)
+          DA(Z24MST.NETVIEW.AAQNPARM)
+          SHR .
+      REP DDDEF(AAQNSAMP)
+          DA(Z24MST.NETVIEW.AAQNSAMP)
+          SHR .
+      REP DDDEF(ABNJPNL1)
+          DA(Z24MST.NETVIEW.ABNJPNL1)
+          SHR .
+      REP DDDEF(ABNJPNL2)
+          DA(Z24MST.NETVIEW.ABNJPNL2)
+          SHR .
+      REP DDDEF(ABNJSRC1)
+          DA(Z24MST.NETVIEW.ABNJSRC1)
+          SHR .
+      REP DDDEF(ACNMCLST)
+          DA(Z24MST.NETVIEW.ACNMCLST)
+          SHR .
+      REP DDDEF(ACNMINST)
+          DA(Z24MST.NETVIEW.ACNMINST)
+          SHR .
+      REP DDDEF(ACNMLINK)
+          DA(Z24MST.NETVIEW.ACNMLINK)
+          SHR .
+      REP DDDEF(ACNMMAC1)
+          DA(Z24MST.NETVIEW.ACNMMAC1)
+          SHR .
+      REP DDDEF(ACNMPLIB)
+          DA(Z24MST.NETVIEW.ACNMPLIB)
+          SHR .
+      REP DDDEF(ACNMPNL1)
+          DA(Z24MST.NETVIEW.ACNMPNL1)
+          SHR .
+      REP DDDEF(ACNMSAMP)
+          DA(Z24MST.NETVIEW.ACNMSAMP)
+          SHR .
+      REP DDDEF(ACNMUXCL)
+          DA(Z24MST.NETVIEW.ACNMUXCL)
+          SHR .
+      REP DDDEF(ADSIMSG1)
+          DA(Z24MST.NETVIEW.ADSIMSG1)
+          SHR .
+      REP DDDEF(ADSIOPEN)
+          DA(Z24MST.NETVIEW.ADSIOPEN)
+          SHR .
+      REP DDDEF(ADSIPARM)
+          DA(Z24MST.NETVIEW.ADSIPARM)
+          SHR .
+      REP DDDEF(ADSIPRF)
+          DA(Z24MST.NETVIEW.ADSIPRF)
+          SHR .
+      REP DDDEF(ADUIMSG1)
+          DA(Z24MST.NETVIEW.ADUIMSG1)
+          SHR .
+      REP DDDEF(AEJNUNIX)
+          DA(Z24MST.NETVIEW.AEJNUNIX)
+          SHR .
+      REP DDDEF(AEKGLANG)
+          DA(Z24MST.NETVIEW.AEKGLANG)
+          SHR .
+      REP DDDEF(AFLBDAT1)
+          DA(Z24MST.NETVIEW.AFLBDAT1)
+          SHR .
+      REP DDDEF(ANVULIB)
+          DA(Z24MST.NETVIEW.ANVULIB)
+          SHR .
+      REP DDDEF(AEAGJENU)
+          DA(Z24MST.REXX.AEAGJENU)
+          SHR .
+      REP DDDEF(AEAGMENU)
+          DA(Z24MST.REXX.AEAGMENU)
+          SHR .
+      REP DDDEF(AEAGMOD1)
+          DA(Z24MST.REXX.AEAGMOD1)
+          SHR .
+      REP DDDEF(AEAGSAM)
+          DA(Z24MST.REXX.AEAGSAM)
+          SHR .
+      REP DDDEF(AACBCNTL)
+          DA(Z24MST.SYS1.AACBCNTL)
+          SHR .
+      REP DDDEF(AADFMAC1)
+          DA(Z24MST.SYS1.AADFMAC1)
+          SHR .
+      REP DDDEF(AADRLIB)
+          DA(Z24MST.SYS1.AADRLIB)
+          SHR .
+      REP DDDEF(AADRYLIB)
+          DA(Z24MST.SYS1.AADRYLIB)
+          SHR .
+      REP DDDEF(AAXREXEC)
+          DA(Z24MST.SYS1.AAXREXEC)
+          SHR .
+      REP DDDEF(ABDTCLI0)
+          DA(Z24MST.SYS1.ABDTCLI0)
+          SHR .
+      REP DDDEF(ABDTHELP)
+          DA(Z24MST.SYS1.ABDTHELP)
+          SHR .
+      REP DDDEF(ABDTMAC)
+          DA(Z24MST.SYS1.ABDTMAC)
+          SHR .
+      REP DDDEF(ABDTMOD)
+          DA(Z24MST.SYS1.ABDTMOD)
+          SHR .
+      REP DDDEF(ABDTMSG)
+          DA(Z24MST.SYS1.ABDTMSG)
+          SHR .
+      REP DDDEF(ABDTPNL0)
+          DA(Z24MST.SYS1.ABDTPNL0)
+          SHR .
+      REP DDDEF(ABDTSAMP)
+          DA(Z24MST.SYS1.ABDTSAMP)
+          SHR .
+      REP DDDEF(ABLSCLI0)
+          DA(Z24MST.SYS1.ABLSCLI0)
+          SHR .
+      REP DDDEF(ABLSKEL0)
+          DA(Z24MST.SYS1.ABLSKEL0)
+          SHR .
+      REP DDDEF(ABLSMSG0)
+          DA(Z24MST.SYS1.ABLSMSG0)
+          SHR .
+      REP DDDEF(ABLSPNL0)
+          DA(Z24MST.SYS1.ABLSPNL0)
+          SHR .
+      REP DDDEF(ABLSTBL0)
+          DA(Z24MST.SYS1.ABLSTBL0)
+          SHR .
+      REP DDDEF(ABMFMOD0)
+          DA(Z24MST.SYS1.ABMFMOD0)
+          SHR .
+      REP DDDEF(ABPXEXEC)
+          DA(Z24MST.SYS1.ABPXEXEC)
+          SHR .
+      REP DDDEF(ABPXMENU)
+          DA(Z24MST.SYS1.ABPXMENU)
+          SHR .
+      REP DDDEF(ABPXMOD1)
+          DA(Z24MST.SYS1.ABPXMOD1)
+          SHR .
+      REP DDDEF(ABPXPENU)
+          DA(Z24MST.SYS1.ABPXPENU)
+          SHR .
+      REP DDDEF(ABPXSPC)
+          DA(Z24MST.SYS1.ABPXSPC)
+          SHR .
+      REP DDDEF(ABPXTENU)
+          DA(Z24MST.SYS1.ABPXTENU)
+          SHR .
+      REP DDDEF(ABPXXMLS)
+          DA(Z24MST.SYS1.ABPXXMLS)
+          SHR .
+      REP DDDEF(ACBDCLST)
+          DA(Z24MST.SYS1.ACBDCLST)
+          SHR .
+      REP DDDEF(ACBDHENU)
+          DA(Z24MST.SYS1.ACBDHENU)
+          SHR .
+      REP DDDEF(ACBDMENU)
+          DA(Z24MST.SYS1.ACBDMENU)
+          SHR .
+      REP DDDEF(ACBDMOD1)
+          DA(Z24MST.SYS1.ACBDMOD1)
+          SHR .
+      REP DDDEF(ACBDMOD2)
+          DA(Z24MST.SYS1.ACBDMOD2)
+          SHR .
+      REP DDDEF(ACBDPENU)
+          DA(Z24MST.SYS1.ACBDPENU)
+          SHR .
+      REP DDDEF(ACBDTEMP)
+          DA(Z24MST.SYS1.ACBDTEMP)
+          SHR .
+      REP DDDEF(ACBDTENU)
+          DA(Z24MST.SYS1.ACBDTENU)
+          SHR .
+      REP DDDEF(ACBRDBRM)
+          DA(Z24MST.SYS1.ACBRDBRM)
+          SHR .
+      REP DDDEF(ACBRMOD0)
+          DA(Z24MST.SYS1.ACBRMOD0)
+          SHR .
+      REP DDDEF(ACCRHFS)
+          DA(Z24MST.SYS1.ACCRHFS)
+          SHR .
+      REP DDDEF(ACCRMOD)
+          DA(Z24MST.SYS1.ACCRMOD)
+          SHR .
+      REP DDDEF(ACDMMOD0)
+          DA(Z24MST.SYS1.ACDMMOD0)
+          SHR .
+      REP DDDEF(ACDRMODS)
+          DA(Z24MST.SYS1.ACDRMODS)
+          SHR .
+      REP DDDEF(ACDRTABL)
+          DA(Z24MST.SYS1.ACDRTABL)
+          SHR .
+      REP DDDEF(ACLMMOD0)
+          DA(Z24MST.SYS1.ACLMMOD0)
+          SHR .
+      REP DDDEF(ACMDLIB)
+          DA(Z24MST.SYS1.ACMDLIB)
+          SHR .
+      REP DDDEF(ACSSLIB)
+          DA(Z24MST.SYS1.ACSSLIB)
+          SHR .
+      REP DDDEF(ACUNHF)
+          DA(Z24MST.SYS1.ACUNHF)
+          SHR .
+      REP DDDEF(ACUNJCL)
+          DA(Z24MST.SYS1.ACUNJCL)
+          SHR .
+      REP DDDEF(ACUNLOCL)
+          DA(Z24MST.SYS1.ACUNLOCL)
+          SHR .
+      REP DDDEF(ACUNMAC)
+          DA(Z24MST.SYS1.ACUNMAC)
+          SHR .
+      REP DDDEF(ACUNMENU)
+          DA(Z24MST.SYS1.ACUNMENU)
+          SHR .
+      REP DDDEF(ACUNMOD)
+          DA(Z24MST.SYS1.ACUNMOD)
+          SHR .
+      REP DDDEF(ACUNSAMP)
+          DA(Z24MST.SYS1.ACUNSAMP)
+          SHR .
+      REP DDDEF(ACUNTBL)
+          DA(Z24MST.SYS1.ACUNTBL)
+          SHR .
+      REP DDDEF(ADBBLIB)
+          DA(Z24MST.SYS1.ADBBLIB)
+          SHR .
+      REP DDDEF(ADFPMOD0)
+          DA(Z24MST.SYS1.ADFPMOD0)
+          SHR .
+      REP DDDEF(ADFQMLIB)
+          DA(Z24MST.SYS1.ADFQMLIB)
+          SHR .
+      REP DDDEF(ADFQPLIB)
+          DA(Z24MST.SYS1.ADFQPLIB)
+          SHR .
+      REP DDDEF(ADFQPSRC)
+          DA(Z24MST.SYS1.ADFQPSRC)
+          SHR .
+      REP DDDEF(ADGTCLIB)
+          DA(Z24MST.SYS1.ADGTCLIB)
+          SHR .
+      REP DDDEF(ADGTLLIB)
+          DA(Z24MST.SYS1.ADGTLLIB)
+          SHR .
+      REP DDDEF(ADGTMLIB)
+          DA(Z24MST.SYS1.ADGTMLIB)
+          SHR .
+      REP DDDEF(ADGTPLIB)
+          DA(Z24MST.SYS1.ADGTPLIB)
+          SHR .
+      REP DDDEF(ADGTPSRC)
+          DA(Z24MST.SYS1.ADGTPSRC)
+          SHR .
+      REP DDDEF(ADGTSLIB)
+          DA(Z24MST.SYS1.ADGTSLIB)
+          SHR .
+      REP DDDEF(ADGTTLIB)
+          DA(Z24MST.SYS1.ADGTTLIB)
+          SHR .
+      REP DDDEF(ADGTTSRC)
+          DA(Z24MST.SYS1.ADGTTSRC)
+          SHR .
+      REP DDDEF(ADMSSVM)
+          DA(Z24MST.SYS1.ADMSSVM)
+          SHR .
+      REP DDDEF(AEDGEXE1)
+          DA(Z24MST.SYS1.AEDGEXE1)
+          SHR .
+      REP DDDEF(AEDGHFS)
+          DA(Z24MST.SYS1.AEDGHFS)
+          SHR .
+      REP DDDEF(AEDGMENU)
+          DA(Z24MST.SYS1.AEDGMENU)
+          SHR .
+      REP DDDEF(AEDGMOD1)
+          DA(Z24MST.SYS1.AEDGMOD1)
+          SHR .
+      REP DDDEF(AEDGPENU)
+          DA(Z24MST.SYS1.AEDGPENU)
+          SHR .
+      REP DDDEF(AEDGPSRC)
+          DA(Z24MST.SYS1.AEDGPSRC)
+          SHR .
+      REP DDDEF(AEDGSRC1)
+          DA(Z24MST.SYS1.AEDGSRC1)
+          SHR .
+      REP DDDEF(AEEQINST)
+          DA(Z24MST.SYS1.AEEQINST)
+          SHR .
+      REP DDDEF(AERBCLS)
+          DA(Z24MST.SYS1.AERBCLS)
+          SHR .
+      REP DDDEF(AERBMAC1)
+          DA(Z24MST.SYS1.AERBMAC1)
+          SHR .
+      REP DDDEF(AERBMENU)
+          DA(Z24MST.SYS1.AERBMENU)
+          SHR .
+      REP DDDEF(AERBMOD1)
+          DA(Z24MST.SYS1.AERBMOD1)
+          SHR .
+      REP DDDEF(AERBPENU)
+          DA(Z24MST.SYS1.AERBPENU)
+          SHR .
+      REP DDDEF(AERBPWSV)
+          DA(Z24MST.SYS1.AERBPWSV)
+          SHR .
+      REP DDDEF(AERBT)
+          DA(Z24MST.SYS1.AERBT)
+          SHR .
+      REP DDDEF(AERBTENU)
+          DA(Z24MST.SYS1.AERBTENU)
+          SHR .
+      REP DDDEF(AFNTILIB)
+          DA(Z24MST.SYS1.AFNTILIB)
+          SHR .
+      REP DDDEF(AFNTLIB)
+          DA(Z24MST.SYS1.AFNTLIB)
+          SHR .
+      REP DDDEF(AFNTLIBB)
+          DA(Z24MST.SYS1.AFNTLIBB)
+          SHR .
+      REP DDDEF(AFNT300)
+          DA(Z24MST.SYS1.AFNT300)
+          SHR .
+      REP DDDEF(AFOMHDRS)
+          DA(Z24MST.SYS1.AFOMHDRS)
+          SHR .
+      REP DDDEF(AFOMHFS)
+          DA(Z24MST.SYS1.AFOMHFS)
+          SHR .
+      REP DDDEF(AFOMMOD1)
+          DA(Z24MST.SYS1.AFOMMOD1)
+          SHR .
+      REP DDDEF(AFOMOBJ)
+          DA(Z24MST.SYS1.AFOMOBJ)
+          SHR .
+      REP DDDEF(AFONTHFS)
+          DA(Z24MST.SYS1.AFONTHFS)
+          SHR .
+      REP DDDEF(AGDEMOD0)
+          DA(Z24MST.SYS1.AGDEMOD0)
+          SHR .
+      REP DDDEF(AGENLIB)
+          DA(Z24MST.SYS1.AGENLIB)
+          SHR .
+      REP DDDEF(AGFTAJL1)
+          DA(Z24MST.SYS1.AGFTAJL1)
+          SHR .
+      REP DDDEF(AGFTAMD1)
+          DA(Z24MST.SYS1.AGFTAMD1)
+          SHR .
+      REP DDDEF(AGFUMOD1)
+          DA(Z24MST.SYS1.AGFUMOD1)
+          SHR .
+      REP DDDEF(AHELP)
+          DA(Z24MST.SYS1.AHELP)
+          SHR .
+      REP DDDEF(AHELPENP)
+          DA(Z24MST.SYS1.AHELPENP)
+          SHR .
+      REP DDDEF(AICELIB)
+          DA(Z24MST.SYS1.AICELIB)
+          SHR .
+      REP DDDEF(AICESAMP)
+          DA(Z24MST.SYS1.AICESAMP)
+          SHR .
+      REP DDDEF(AICESRCE)
+          DA(Z24MST.SYS1.AICESRCE)
+          SHR .
+      REP DDDEF(AICEUSER)
+          DA(Z24MST.SYS1.AICEUSER)
+          SHR .
+      REP DDDEF(AICQAB)
+          DA(Z24MST.SYS1.AICQAB)
+          SHR .
+      REP DDDEF(AICQILIB)
+          DA(Z24MST.SYS1.AICQILIB)
+          SHR .
+      REP DDDEF(AICQMAC1)
+          DA(Z24MST.SYS1.AICQMAC1)
+          SHR .
+      REP DDDEF(AICQMAC2)
+          DA(Z24MST.SYS1.AICQMAC2)
+          SHR .
+      REP DDDEF(AICQMAC3)
+          DA(Z24MST.SYS1.AICQMAC3)
+          SHR .
+      REP DDDEF(AICQMAC4)
+          DA(Z24MST.SYS1.AICQMAC4)
+          SHR .
+      REP DDDEF(AICQMAC5)
+          DA(Z24MST.SYS1.AICQMAC5)
+          SHR .
+      REP DDDEF(AIEAHDR)
+          DA(Z24MST.SYS1.AIEAHDR)
+          SHR .
+      REP DDDEF(AIEAHDRV)
+          DA(Z24MST.SYS1.AIEAHDRV)
+          SHR .
+      REP DDDEF(AIEALNKE)
+          DA(Z24MST.SYS1.AIEALNKE)
+          SHR .
+      REP DDDEF(AIEAMIGE)
+          DA(Z24MST.SYS1.AIEAMIGE)
+          SHR .
+      REP DDDEF(AIEASID)
+          DA(Z24MST.SYS1.AIEASID)
+          SHR .
+      REP DDDEF(AIEWMOD0)
+          DA(Z24MST.SYS1.AIEWMOD0)
+          SHR .
+      REP DDDEF(AIFALIB)
+          DA(Z24MST.SYS1.AIFALIB)
+          SHR .
+      REP DDDEF(AIGDVBS1)
+          DA(Z24MST.SYS1.AIGDVBS1)
+          SHR .
+      REP DDDEF(AIKYHFS)
+          DA(Z24MST.SYS1.AIKYHFS)
+          SHR .
+      REP DDDEF(AIMAGE)
+          DA(Z24MST.SYS1.AIMAGE)
+          SHR .
+      REP DDDEF(AIMFMOD0)
+          DA(Z24MST.SYS1.AIMFMOD0)
+          SHR .
+      REP DDDEF(AINDLMD)
+          DA(Z24MST.SYS1.AINDLMD)
+          SHR .
+      REP DDDEF(AISTASGD)
+          DA(Z24MST.SYS1.AISTASGD)
+          SHR .
+      REP DDDEF(AISTASN1)
+          DA(Z24MST.SYS1.AISTASN1)
+          SHR .
+      REP DDDEF(AISTCMIP)
+          DA(Z24MST.SYS1.AISTCMIP)
+          SHR .
+      REP DDDEF(AISTDAT1)
+          DA(Z24MST.SYS1.AISTDAT1)
+          SHR .
+      REP DDDEF(AISTDAT2)
+          DA(Z24MST.SYS1.AISTDAT2)
+          SHR .
+      REP DDDEF(AISTGDMO)
+          DA(Z24MST.SYS1.AISTGDMO)
+          SHR .
+      REP DDDEF(AISTMAC1)
+          DA(Z24MST.SYS1.AISTMAC1)
+          SHR .
+      REP DDDEF(AITYHFS)
+          DA(Z24MST.SYS1.AITYHFS)
+          SHR .
+      REP DDDEF(ALINKLIB)
+          DA(Z24MST.SYS1.ALINKLIB)
+          SHR .
+      REP DDDEF(ALPALIB)
+          DA(Z24MST.SYS1.ALPALIB)
+          SHR .
+      REP DDDEF(AMACLIB)
+          DA(Z24MST.SYS1.AMACLIB)
+          SHR .
+      REP DDDEF(AMIGLIB)
+          DA(Z24MST.SYS1.AMIGLIB)
+          SHR .
+      REP DDDEF(AMODGEN)
+          DA(Z24MST.SYS1.AMODGEN)
+          SHR .
+      REP DDDEF(AMSGENP)
+          DA(Z24MST.SYS1.AMSGENP)
+          SHR .
+      REP DDDEF(AMSGENU)
+          DA(Z24MST.SYS1.AMSGENU)
+          SHR .
+      REP DDDEF(ANFSLIBE)
+          DA(Z24MST.SYS1.ANFSLIBE)
+          SHR .
+      REP DDDEF(ANFSMAC)
+          DA(Z24MST.SYS1.ANFSMAC)
+          SHR .
+      REP DDDEF(ANFSSAMP)
+          DA(Z24MST.SYS1.ANFSSAMP)
+          SHR .
+      REP DDDEF(ANFSTARB)
+          DA(Z24MST.SYS1.ANFSTARB)
+          SHR .
+      REP DDDEF(ANUCLEUS)
+          DA(Z24MST.SYS1.ANUCLEUS)
+          SHR .
+      REP DDDEF(AOSACB)
+          DA(Z24MST.SYS1.AOSACB)
+          SHR .
+      REP DDDEF(AOSA0)
+          DA(Z24MST.SYS1.AOSA0)
+          SHR .
+      REP DDDEF(AOSA1)
+          DA(Z24MST.SYS1.AOSA1)
+          SHR .
+      REP DDDEF(AOSBN)
+          DA(Z24MST.SYS1.AOSBN)
+          SHR .
+      REP DDDEF(AOSB0)
+          DA(Z24MST.SYS1.AOSB0)
+          SHR .
+      REP DDDEF(AOSB3)
+          DA(Z24MST.SYS1.AOSB3)
+          SHR .
+      REP DDDEF(AOSCA)
+          DA(Z24MST.SYS1.AOSCA)
+          SHR .
+      REP DDDEF(AOSCD)
+          DA(Z24MST.SYS1.AOSCD)
+          SHR .
+      REP DDDEF(AOSCE)
+          DA(Z24MST.SYS1.AOSCE)
+          SHR .
+      REP DDDEF(AOSC2)
+          DA(Z24MST.SYS1.AOSC2)
+          SHR .
+      REP DDDEF(AOSC5)
+          DA(Z24MST.SYS1.AOSC5)
+          SHR .
+      REP DDDEF(AOSC6)
+          DA(Z24MST.SYS1.AOSC6)
+          SHR .
+      REP DDDEF(AOSD0)
+          DA(Z24MST.SYS1.AOSD0)
+          SHR .
+      REP DDDEF(AOSD7)
+          DA(Z24MST.SYS1.AOSD7)
+          SHR .
+      REP DDDEF(AOSG0)
+          DA(Z24MST.SYS1.AOSG0)
+          SHR .
+      REP DDDEF(AOSJSC)
+          DA(Z24MST.SYS1.AOSJSC)
+          SHR .
+      REP DDDEF(AOST3)
+          DA(Z24MST.SYS1.AOST3)
+          SHR .
+      REP DDDEF(AOST4)
+          DA(Z24MST.SYS1.AOST4)
+          SHR .
+      REP DDDEF(AOSU0)
+          DA(Z24MST.SYS1.AOSU0)
+          SHR .
+      REP DDDEF(AOSXCF)
+          DA(Z24MST.SYS1.AOSXCF)
+          SHR .
+      REP DDDEF(AOS00)
+          DA(Z24MST.SYS1.AOS00)
+          SHR .
+      REP DDDEF(AOS04)
+          DA(Z24MST.SYS1.AOS04)
+          SHR .
+      REP DDDEF(AOS05)
+          DA(Z24MST.SYS1.AOS05)
+          SHR .
+      REP DDDEF(AOS06)
+          DA(Z24MST.SYS1.AOS06)
+          SHR .
+      REP DDDEF(AOS11)
+          DA(Z24MST.SYS1.AOS11)
+          SHR .
+      REP DDDEF(AOS12)
+          DA(Z24MST.SYS1.AOS12)
+          SHR .
+      REP DDDEF(AOS24)
+          DA(Z24MST.SYS1.AOS24)
+          SHR .
+      REP DDDEF(AOS26)
+          DA(Z24MST.SYS1.AOS26)
+          SHR .
+      REP DDDEF(AOS28)
+          DA(Z24MST.SYS1.AOS28)
+          SHR .
+      REP DDDEF(AOS32)
+          DA(Z24MST.SYS1.AOS32)
+          SHR .
+      REP DDDEF(ASAMPLIB)
+          DA(Z24MST.SYS1.ASAMPLIB)
+          SHR .
+      REP DDDEF(ASSFMOD0)
+          DA(Z24MST.SYS1.ASSFMOD0)
+          SHR .
+      REP DDDEF(ATSOMAC)
+          DA(Z24MST.SYS1.ATSOMAC)
+          SHR .
+      REP DDDEF(AUADS)
+          DA(Z24MST.SYS1.AUADS)
+          SHR .
+      REP DDDEF(CIPLIB)
+          DA(Z24MST.SYS1.CIPLIB)
+          SHR .
+      REP DDDEF(HHRFCLST)
+          DA(Z24MST.SYS1.HHRFCLST)
+          SHR .
+      REP DDDEF(HHRFMSG)
+          DA(Z24MST.SYS1.HHRFMSG)
+          SHR .
+      REP DDDEF(HHRFPANL)
+          DA(Z24MST.SYS1.HHRFPANL)
+          SHR .
+      REP DDDEF(HHRFSKEL)
+          DA(Z24MST.SYS1.HHRFSKEL)
+          SHR .
+      REP DDDEF(APARMLIB)
+          DA(Z24MST.SYS1.IBM.APARMLIB)
+          SHR .
+      REP DDDEF(APROCLIB)
+          DA(Z24MST.SYS1.IBM.APROCLIB)
+          SHR .
+      REP DDDEF(AEZADBR1)
+          DA(Z24MST.TCPIP.AEZADBR1)
+          SHR .
+      REP DDDEF(AEZAMAC1)
+          DA(Z24MST.TCPIP.AEZAMAC1)
+          SHR .
+      REP DDDEF(AEZAMAC2)
+          DA(Z24MST.TCPIP.AEZAMAC2)
+          SHR .
+      REP DDDEF(AEZAMAC3)
+          DA(Z24MST.TCPIP.AEZAMAC3)
+          SHR .
+      REP DDDEF(AEZAMODS)
+          DA(Z24MST.TCPIP.AEZAMODS)
+          SHR .
+      REP DDDEF(AEZARNT1)
+          DA(Z24MST.TCPIP.AEZARNT1)
+          SHR .
+      REP DDDEF(AEZARNT2)
+          DA(Z24MST.TCPIP.AEZARNT2)
+          SHR .
+      REP DDDEF(AEZARNT3)
+          DA(Z24MST.TCPIP.AEZARNT3)
+          SHR .
+      REP DDDEF(AEZARNT4)
+          DA(Z24MST.TCPIP.AEZARNT4)
+          SHR .
+      REP DDDEF(AEZAROE1)
+          DA(Z24MST.TCPIP.AEZAROE1)
+          SHR .
+      REP DDDEF(AEZAROE2)
+          DA(Z24MST.TCPIP.AEZAROE2)
+          SHR .
+      REP DDDEF(AEZAROE3)
+          DA(Z24MST.TCPIP.AEZAROE3)
+          SHR .
+      REP DDDEF(AEZASMP1)
+          DA(Z24MST.TCPIP.AEZASMP1)
+          SHR .
+      REP DDDEF(AEZAXLTD)
+          DA(Z24MST.TCPIP.AEZAXLTD)
+          SHR .
+      REP DDDEF(AEZAXLTK)
+          DA(Z24MST.TCPIP.AEZAXLTK)
+          SHR .
+      REP DDDEF(AEZAXLT1)
+          DA(Z24MST.TCPIP.AEZAXLT1)
+          SHR .
+      REP DDDEF(AEZAXLT2)
+          DA(Z24MST.TCPIP.AEZAXLT2)
+          SHR .
+      REP DDDEF(AEZAXLT3)
+          DA(Z24MST.TCPIP.AEZAXLT3)
+          SHR .
+      REP DDDEF(DKANCMD)
+          DA(Z24SUP.TIVOLI.DKANCMD)
+          SHR .
+      REP DDDEF(DKANCUS)
+          DA(Z24SUP.TIVOLI.DKANCUS)
+          SHR .
+      REP DDDEF(DKANDATV)
+          DA(Z24SUP.TIVOLI.DKANDATV)
+          SHR .
+      REP DDDEF(DKANEXEC)
+          DA(Z24SUP.TIVOLI.DKANEXEC)
+          SHR .
+      REP DDDEF(DKANHENU)
+          DA(Z24SUP.TIVOLI.DKANHENU)
+          SHR .
+      REP DDDEF(DKANISP)
+          DA(Z24SUP.TIVOLI.DKANISP)
+          SHR .
+      REP DDDEF(DKANJAR)
+          DA(Z24SUP.TIVOLI.DKANJAR)
+          SHR .
+      REP DDDEF(DKANMAC)
+          DA(Z24SUP.TIVOLI.DKANMAC)
+          SHR .
+      REP DDDEF(DKANMOD)
+          DA(Z24SUP.TIVOLI.DKANMOD)
+          SHR .
+      REP DDDEF(DKANMODL)
+          DA(Z24SUP.TIVOLI.DKANMODL)
+          SHR .
+      REP DDDEF(DKANMODP)
+          DA(Z24SUP.TIVOLI.DKANMODP)
+          SHR .
+      REP DDDEF(DKANMODR)
+          DA(Z24SUP.TIVOLI.DKANMODR)
+          SHR .
+      REP DDDEF(DKANMODS)
+          DA(Z24SUP.TIVOLI.DKANMODS)
+          SHR .
+      REP DDDEF(DKANOSRC)
+          DA(Z24SUP.TIVOLI.DKANOSRC)
+          SHR .
+      REP DDDEF(DKANPAR)
+          DA(Z24SUP.TIVOLI.DKANPAR)
+          SHR .
+      REP DDDEF(DKANPENU)
+          DA(Z24SUP.TIVOLI.DKANPENU)
+          SHR .
+      REP DDDEF(DKANPKGI)
+          DA(Z24SUP.TIVOLI.DKANPKGI)
+          SHR .
+      REP DDDEF(DKANSAM)
+          DA(Z24SUP.TIVOLI.DKANSAM)
+          SHR .
+      REP DDDEF(DKANSQL)
+          DA(Z24SUP.TIVOLI.DKANSQL)
+          SHR .
+      REP DDDEF(DKANUTIN)
+          DA(Z24SUP.TIVOLI.DKANUTIN)
+          SHR .
+      REP DDDEF(DKANWENU)
+          DA(Z24SUP.TIVOLI.DKANWENU)
+          SHR .
+      REP DDDEF(DKCIINST)
+          DA(Z24SUP.TIVOLI.DKCIINST)
+          SHR .
+      REP DDDEF(DKNSLOCL)
+          DA(Z24SUP.TIVOLI.DKNSLOCL)
+          SHR .
+      REP DDDEF(DKOBDATF)
+          DA(Z24SUP.TIVOLI.DKOBDATF)
+          SHR .
+      REP DDDEF(DKOBHELP)
+          DA(Z24SUP.TIVOLI.DKOBHELP)
+          SHR .
+      REP DDDEF(DKOCHELP)
+          DA(Z24SUP.TIVOLI.DKOCHELP)
+          SHR .
+      REP DDDEF(DKOCPROC)
+          DA(Z24SUP.TIVOLI.DKOCPROC)
+          SHR .
+    ENDUCL .
+  SET BDY(MVSD110) .
+    UCLIN .
+      REP DDDEF(AHASMAC)
+          DA(Z24MST.SYS1.AHASMAC)
+          SHR .
+      REP DDDEF(AHASMENU)
+          DA(Z24MST.SYS1.AHASMENU)
+          SHR .
+      REP DDDEF(AHASMOD)
+          DA(Z24MST.SYS1.AHASMOD)
+          SHR .
+      REP DDDEF(AHASPARM)
+          DA(Z24MST.SYS1.AHASPARM)
+          SHR .
+      REP DDDEF(AHASPNL0)
+          DA(Z24MST.SYS1.AHASPNL0)
+          SHR .
+      REP DDDEF(AHASSAMP)
+          DA(Z24MST.SYS1.AHASSAMP)
+          SHR .
+      REP DDDEF(AHASSRC)
+          DA(Z24MST.SYS1.AHASSRC)
+          SHR .
+      REP DDDEF(AMACLIB)
+          DA(Z24MST.SYS1.AMACLIB)
+          SHR .
+      REP DDDEF(AMODGEN)
+          DA(Z24MST.SYS1.AMODGEN)
+          SHR .
+      REP DDDEF(ATSOMAC)
+          DA(Z24MST.SYS1.ATSOMAC)
+          SHR .
+    ENDUCL .
+  SET BDY(MVST100) .
+    UCLIN .
+      REP DDDEF(AAOPEXEC)
+          DA(Z24SUP.AOP.AAOPEXEC)
+          SHR .
+      REP DDDEF(AAOPHFS)
+          DA(Z24SUP.AOP.AAOPHFS)
+          SHR .
+      REP DDDEF(AAOPMENU)
+          DA(Z24SUP.AOP.AAOPMENU)
+          SHR .
+      REP DDDEF(AAOPMOD1)
+          DA(Z24SUP.AOP.AAOPMOD1)
+          SHR .
+      REP DDDEF(AAOPPENU)
+          DA(Z24SUP.AOP.AAOPPENU)
+          SHR .
+      REP DDDEF(SAOPEXEC)
+          DA(Z24SUP.AOP.SAOPEXEC)
+          SHR .
+      REP DDDEF(SAOPMENU)
+          DA(Z24SUP.AOP.SAOPMENU)
+          SHR .
+      REP DDDEF(SAOPPENU)
+          DA(Z24SUP.AOP.SAOPPENU)
+          SHR .
+      REP DDDEF(AASMMAC1)
+          DA(Z24MST.ASM.AASMMAC1)
+          SHR .
+      REP DDDEF(AASMMAC2)
+          DA(Z24MST.ASM.AASMMAC2)
+          SHR .
+      REP DDDEF(AASMMOD1)
+          DA(Z24MST.ASM.AASMMOD1)
+          SHR .
+      REP DDDEF(AASMMOD2)
+          DA(Z24MST.ASM.AASMMOD2)
+          SHR .
+      REP DDDEF(AASMPUT2)
+          DA(Z24MST.ASM.AASMPUT2)
+          SHR .
+      REP DDDEF(AASMSAM1)
+          DA(Z24MST.ASM.AASMSAM1)
+          SHR .
+      REP DDDEF(AASMSAM2)
+          DA(Z24MST.ASM.AASMSAM2)
+          SHR .
+      REP DDDEF(SASMMAC1)
+          DA(Z24MST.ASM.SASMMAC1)
+          SHR .
+      REP DDDEF(SASMMAC2)
+          DA(Z24MST.ASM.SASMMAC2)
+          SHR .
+      REP DDDEF(SASMMOD1)
+          DA(Z24MST.ASM.SASMMOD1)
+          SHR .
+      REP DDDEF(SASMMOD2)
+          DA(Z24MST.ASM.SASMMOD2)
+          SHR .
+      REP DDDEF(SASMPUT2)
+          DA(Z24MST.ASM.SASMPUT2)
+          SHR .
+      REP DDDEF(SASMSAM1)
+          DA(Z24MST.ASM.SASMSAM1)
+          SHR .
+      REP DDDEF(SASMSAM2)
+          DA(Z24MST.ASM.SASMSAM2)
+          SHR .
+      REP DDDEF(AAZDFFS)
+          DA(Z24SUP.AZD.AAZDFFS)
+          SHR .
+      REP DDDEF(ABAQCOB)
+          DA(Z24SUP.BAQ.ABAQCOB)
+          SHR .
+      REP DDDEF(ABAQINST)
+          DA(Z24SUP.BAQ.ABAQINST)
+          SHR .
+      REP DDDEF(ABAQLIB1)
+          DA(Z24SUP.BAQ.ABAQLIB1)
+          SHR .
+      REP DDDEF(ABAQMOD)
+          DA(Z24SUP.BAQ.ABAQMOD)
+          SHR .
+      REP DDDEF(ABAQPLI)
+          DA(Z24SUP.BAQ.ABAQPLI)
+          SHR .
+      REP DDDEF(ABAQSAMP)
+          DA(Z24SUP.BAQ.ABAQSAMP)
+          SHR .
+      REP DDDEF(ABAQSCR)
+          DA(Z24SUP.BAQ.ABAQSCR)
+          SHR .
+      REP DDDEF(ABAQZFS)
+          DA(Z24SUP.BAQ.ABAQZFS)
+          SHR .
+      REP DDDEF(SBAQCOB)
+          DA(Z24SUP.BAQ.SBAQCOB)
+          SHR .
+      REP DDDEF(SBAQINST)
+          DA(Z24SUP.BAQ.SBAQINST)
+          SHR .
+      REP DDDEF(SBAQLIB)
+          DA(Z24SUP.BAQ.SBAQLIB)
+          SHR .
+      REP DDDEF(SBAQLIB1)
+          DA(Z24SUP.BAQ.SBAQLIB1)
+          SHR .
+      REP DDDEF(SBAQPLI)
+          DA(Z24SUP.BAQ.SBAQPLI)
+          SHR .
+      REP DDDEF(SBAQSAMP)
+          DA(Z24SUP.BAQ.SBAQSAMP)
+          SHR .
+      REP DDDEF(ABBLEXEC)
+          DA(Z24SUP.BBL.ABBLEXEC)
+          SHR .
+      REP DDDEF(ABBLJCL)
+          DA(Z24SUP.BBL.ABBLJCL)
+          SHR .
+      REP DDDEF(ABBLLIB)
+          DA(Z24SUP.BBL.ABBLLIB)
+          SHR .
+      REP DDDEF(SBBLEXEC)
+          DA(Z24SUP.BBL.SBBLEXEC)
+          SHR .
+      REP DDDEF(SBBLJCL)
+          DA(Z24SUP.BBL.SBBLJCL)
+          SHR .
+      REP DDDEF(ACCNCMP)
+          DA(Z24MST.CBC.ACCNCMP)
+          SHR .
+      REP DDDEF(ACCNSR1)
+          DA(Z24MST.CBC.ACCNSR1)
+          SHR .
+      REP DDDEF(ACCNSR2)
+          DA(Z24MST.CBC.ACCNSR2)
+          SHR .
+      REP DDDEF(ACCNSR3)
+          DA(Z24MST.CBC.ACCNSR3)
+          SHR .
+      REP DDDEF(ACCNSR4)
+          DA(Z24MST.CBC.ACCNSR4)
+          SHR .
+      REP DDDEF(ACCNSR5)
+          DA(Z24MST.CBC.ACCNSR5)
+          SHR .
+      REP DDDEF(ACCNSR6)
+          DA(Z24MST.CBC.ACCNSR6)
+          SHR .
+      REP DDDEF(ACCNSR7)
+          DA(Z24MST.CBC.ACCNSR7)
+          SHR .
+      REP DDDEF(ACCNSR8)
+          DA(Z24MST.CBC.ACCNSR8)
+          SHR .
+      REP DDDEF(ACCNSR9)
+          DA(Z24MST.CBC.ACCNSR9)
+          SHR .
+      REP DDDEF(ACLBDLL)
+          DA(Z24MST.CBC.ACLBDLL)
+          SHR .
+      REP DDDEF(ACLBDLL2)
+          DA(Z24MST.CBC.ACLBDLL2)
+          SHR .
+      REP DDDEF(ACLBHFS1)
+          DA(Z24MST.CBC.ACLBHFS1)
+          SHR .
+      REP DDDEF(ACLBOBJ)
+          DA(Z24MST.CBC.ACLBOBJ)
+          SHR .
+      REP DDDEF(ACLBSR1)
+          DA(Z24MST.CBC.ACLBSR1)
+          SHR .
+      REP DDDEF(ACTVMOD)
+          DA(Z24MST.CBC.ACTVMOD)
+          SHR .
+      REP DDDEF(ACTVSRC)
+          DA(Z24MST.CBC.ACTVSRC)
+          SHR .
+      REP DDDEF(SCCNCMP)
+          DA(Z24MST.CBC.SCCNCMP)
+          SHR .
+      REP DDDEF(SCCNDOC)
+          DA(Z24MST.CBC.SCCNDOC)
+          SHR .
+      REP DDDEF(SCCNJCL)
+          DA(Z24MST.CBC.SCCNJCL)
+          SHR .
+      REP DDDEF(SCCNM10)
+          DA(Z24MST.CBC.SCCNM10)
+          SHR .
+      REP DDDEF(SCCNM11)
+          DA(Z24MST.CBC.SCCNM11)
+          SHR .
+      REP DDDEF(SCCNM12)
+          DA(Z24MST.CBC.SCCNM12)
+          SHR .
+      REP DDDEF(SCCNM13)
+          DA(Z24MST.CBC.SCCNM13)
+          SHR .
+      REP DDDEF(SCCNN10)
+          DA(Z24MST.CBC.SCCNN10)
+          SHR .
+      REP DDDEF(SCCNN11)
+          DA(Z24MST.CBC.SCCNN11)
+          SHR .
+      REP DDDEF(SCCNN12)
+          DA(Z24MST.CBC.SCCNN12)
+          SHR .
+      REP DDDEF(SCCNN13)
+          DA(Z24MST.CBC.SCCNN13)
+          SHR .
+      REP DDDEF(SCCNOBJ)
+          DA(Z24MST.CBC.SCCNOBJ)
+          SHR .
+      REP DDDEF(SCCNPRC)
+          DA(Z24MST.CBC.SCCNPRC)
+          SHR .
+      REP DDDEF(SCCNSAM)
+          DA(Z24MST.CBC.SCCNSAM)
+          SHR .
+      REP DDDEF(SCCNUTL)
+          DA(Z24MST.CBC.SCCNUTL)
+          SHR .
+      REP DDDEF(SCLBCPP)
+          DA(Z24MST.CBC.SCLBCPP)
+          SHR .
+      REP DDDEF(SCLBDLL)
+          DA(Z24MST.CBC.SCLBDLL)
+          SHR .
+      REP DDDEF(SCLBDLL2)
+          DA(Z24MST.CBC.SCLBDLL2)
+          SHR .
+      REP DDDEF(SCLBHH)
+          DA(Z24MST.CBC.SCLBH.H)
+          SHR .
+      REP DDDEF(SCLBJCL)
+          DA(Z24MST.CBC.SCLBJCL)
+          SHR .
+      REP DDDEF(SCLBSID)
+          DA(Z24MST.CBC.SCLBSID)
+          SHR .
+      REP DDDEF(SCTVJCL)
+          DA(Z24MST.CBC.SCTVJCL)
+          SHR .
+      REP DDDEF(SCTVMOD)
+          DA(Z24MST.CBC.SCTVMOD)
+          SHR .
+      REP DDDEF(ACDSHFS)
+          DA(Z24SUP.CDS.ACDSHFS)
+          SHR .
+      REP DDDEF(ACDSSAMP)
+          DA(Z24SUP.CDS.ACDSSAMP)
+          SHR .
+      REP DDDEF(SCDSSAMP)
+          DA(Z24SUP.CDS.SCDSSAMP)
+          SHR .
+      REP DDDEF(AAFHMOD1)
+          DA(Z24MST.CEE.AAFHMOD1)
+          SHR .
+      REP DDDEF(AAFHSRC1)
+          DA(Z24MST.CEE.AAFHSRC1)
+          SHR .
+      REP DDDEF(ACEEMOD1)
+          DA(Z24MST.CEE.ACEEMOD1)
+          SHR .
+      REP DDDEF(ACEEMOD2)
+          DA(Z24MST.CEE.ACEEMOD2)
+          SHR .
+      REP DDDEF(ACEESRC1)
+          DA(Z24MST.CEE.ACEESRC1)
+          SHR .
+      REP DDDEF(ACEESRC2)
+          DA(Z24MST.CEE.ACEESRC2)
+          SHR .
+      REP DDDEF(ACEESRC3)
+          DA(Z24MST.CEE.ACEESRC3)
+          SHR .
+      REP DDDEF(AEDCCPP1)
+          DA(Z24MST.CEE.AEDCCPP1)
+          SHR .
+      REP DDDEF(AEDCHFS)
+          DA(Z24MST.CEE.AEDCHFS)
+          SHR .
+      REP DDDEF(AEDCMOD1)
+          DA(Z24MST.CEE.AEDCMOD1)
+          SHR .
+      REP DDDEF(AEDCMOD2)
+          DA(Z24MST.CEE.AEDCMOD2)
+          SHR .
+      REP DDDEF(AEDCMSEP)
+          DA(Z24MST.CEE.AEDCMSEP)
+          SHR .
+      REP DDDEF(AEDCOBJ1)
+          DA(Z24MST.CEE.AEDCOBJ1)
+          SHR .
+      REP DDDEF(AEDCSRC6)
+          DA(Z24MST.CEE.AEDCSRC6)
+          SHR .
+      REP DDDEF(AEDCSRC7)
+          DA(Z24MST.CEE.AEDCSRC7)
+          SHR .
+      REP DDDEF(AIBMMOD3)
+          DA(Z24MST.CEE.AIBMMOD3)
+          SHR .
+      REP DDDEF(AIBMSRC3)
+          DA(Z24MST.CEE.AIBMSRC3)
+          SHR .
+      REP DDDEF(AIGZMOD1)
+          DA(Z24MST.CEE.AIGZMOD1)
+          SHR .
+      REP DDDEF(AIGZSRC1)
+          DA(Z24MST.CEE.AIGZSRC1)
+          SHR .
+      REP DDDEF(SAFHFORT)
+          DA(Z24MST.CEE.SAFHFORT)
+          SHR .
+      REP DDDEF(SCEEBIND)
+          DA(Z24MST.CEE.SCEEBIND)
+          SHR .
+      REP DDDEF(SCEEBND2)
+          DA(Z24MST.CEE.SCEEBND2)
+          SHR .
+      REP DDDEF(SCEECICS)
+          DA(Z24MST.CEE.SCEECICS)
+          SHR .
+      REP DDDEF(SCEECLST)
+          DA(Z24MST.CEE.SCEECLST)
+          SHR .
+      REP DDDEF(SCEECMAP)
+          DA(Z24MST.CEE.SCEECMAP)
+          SHR .
+      REP DDDEF(SCEECPP)
+          DA(Z24MST.CEE.SCEECPP)
+          SHR .
+      REP DDDEF(SCEEGXLT)
+          DA(Z24MST.CEE.SCEEGXLT)
+          SHR .
+      REP DDDEF(SCEEH)
+          DA(Z24MST.CEE.SCEEH)
+          SHR .
+      REP DDDEF(SCEEHARP)
+          DA(Z24MST.CEE.SCEEH.ARPA.H)
+          SHR .
+      REP DDDEF(SCEEHH)
+          DA(Z24MST.CEE.SCEEH.H)
+          SHR .
+      REP DDDEF(SCEEHNET)
+          DA(Z24MST.CEE.SCEEH.NET.H)
+          SHR .
+      REP DDDEF(SCEEHNEI)
+          DA(Z24MST.CEE.SCEEH.NETINET.H)
+          SHR .
+      REP DDDEF(SCEEHSYS)
+          DA(Z24MST.CEE.SCEEH.SYS.H)
+          SHR .
+      REP DDDEF(SCEEHT)
+          DA(Z24MST.CEE.SCEEH.T)
+          SHR .
+      REP DDDEF(SCEELIB)
+          DA(Z24MST.CEE.SCEELIB)
+          SHR .
+      REP DDDEF(PLIBASE)
+          DA(Z24MST.CEE.SCEELKED)
+          SHR .
+      REP DDDEF(SCEELKED)
+          DA(Z24MST.CEE.SCEELKED)
+          SHR .
+      REP DDDEF(SEDCBASE)
+          DA(Z24MST.CEE.SCEELKED)
+          SHR .
+      REP DDDEF(SCEELKEX)
+          DA(Z24MST.CEE.SCEELKEX)
+          SHR .
+      REP DDDEF(SCEELOCL)
+          DA(Z24MST.CEE.SCEELOCL)
+          SHR .
+      REP DDDEF(SCEELOCX)
+          DA(Z24MST.CEE.SCEELOCX)
+          SHR .
+      REP DDDEF(SCEELPA)
+          DA(Z24MST.CEE.SCEELPA)
+          SHR .
+      REP DDDEF(SCEEMAC)
+          DA(Z24MST.CEE.SCEEMAC)
+          SHR .
+      REP DDDEF(SCEEMSGP)
+          DA(Z24MST.CEE.SCEEMSGP)
+          SHR .
+      REP DDDEF(SCEEOBJ)
+          DA(Z24MST.CEE.SCEEOBJ)
+          SHR .
+      REP DDDEF(SCEEPROC)
+          DA(Z24MST.CEE.SCEEPROC)
+          SHR .
+      REP DDDEF(SCEERUN)
+          DA(Z24MST.CEE.SCEERUN)
+          SHR .
+      REP DDDEF(SCEERUN2)
+          DA(Z24MST.CEE.SCEERUN2)
+          SHR .
+      REP DDDEF(SCEESAMP)
+          DA(Z24MST.CEE.SCEESAMP)
+          SHR .
+      REP DDDEF(SCEESPC)
+          DA(Z24MST.CEE.SCEESPC)
+          SHR .
+      REP DDDEF(SCEESPCO)
+          DA(Z24MST.CEE.SCEESPCO)
+          SHR .
+      REP DDDEF(SIBMAM24)
+          DA(Z24MST.CEE.SIBMAM24)
+          SHR .
+      REP DDDEF(SIBMCALL)
+          DA(Z24MST.CEE.SIBMCALL)
+          SHR .
+      REP DDDEF(SIBMCAL2)
+          DA(Z24MST.CEE.SIBMCAL2)
+          SHR .
+      REP DDDEF(SIBMMATH)
+          DA(Z24MST.CEE.SIBMMATH)
+          SHR .
+      REP DDDEF(SIBMTASK)
+          DA(Z24MST.CEE.SIBMTASK)
+          SHR .
+      REP DDDEF(ACFZHFS)
+          DA(Z24SUP.CFZ.ACFZHFS)
+          SHR .
+      REP DDDEF(ACSFCLI0)
+          DA(Z24MST.CSF.ACSFCLI0)
+          SHR .
+      REP DDDEF(ACSFHDRS)
+          DA(Z24MST.CSF.ACSFHDRS)
+          SHR .
+      REP DDDEF(ACSFHFS)
+          DA(Z24MST.CSF.ACSFHFS)
+          SHR .
+      REP DDDEF(ACSFMOD0)
+          DA(Z24MST.CSF.ACSFMOD0)
+          SHR .
+      REP DDDEF(ACSFMOD1)
+          DA(Z24MST.CSF.ACSFMOD1)
+          SHR .
+      REP DDDEF(ACSFMSG0)
+          DA(Z24MST.CSF.ACSFMSG0)
+          SHR .
+      REP DDDEF(ACSFOBJ)
+          DA(Z24MST.CSF.ACSFOBJ)
+          SHR .
+      REP DDDEF(ACSFPNL0)
+          DA(Z24MST.CSF.ACSFPNL0)
+          SHR .
+      REP DDDEF(ACSFSKL0)
+          DA(Z24MST.CSF.ACSFSKL0)
+          SHR .
+      REP DDDEF(ACSFTLIB)
+          DA(Z24MST.CSF.ACSFTLIB)
+          SHR .
+      REP DDDEF(SCSFCLI0)
+          DA(Z24MST.CSF.SCSFCLI0)
+          SHR .
+      REP DDDEF(SCSFHDRS)
+          DA(Z24MST.CSF.SCSFHDRS)
+          SHR .
+      REP DDDEF(SCSFMOD0)
+          DA(Z24MST.CSF.SCSFMOD0)
+          SHR .
+      REP DDDEF(SCSFMOD1)
+          DA(Z24MST.CSF.SCSFMOD1)
+          SHR .
+      REP DDDEF(SCSFMSG0)
+          DA(Z24MST.CSF.SCSFMSG0)
+          SHR .
+      REP DDDEF(SCSFOBJ)
+          DA(Z24MST.CSF.SCSFOBJ)
+          SHR .
+      REP DDDEF(SCSFPNL0)
+          DA(Z24MST.CSF.SCSFPNL0)
+          SHR .
+      REP DDDEF(SCSFSKL0)
+          DA(Z24MST.CSF.SCSFSKL0)
+          SHR .
+      REP DDDEF(SCSFSTUB)
+          DA(Z24MST.CSF.SCSFSTUB)
+          SHR .
+      REP DDDEF(SCSFTLIB)
+          DA(Z24MST.CSF.SCSFTLIB)
+          SHR .
+      REP DDDEF(ADGACICS)
+          DA(Z24SUP.DGA.ADGACICS)
+          SHR .
+      REP DDDEF(ADGACNTL)
+          DA(Z24SUP.DGA.ADGACNTL)
+          SHR .
+      REP DDDEF(ADGADATA)
+          DA(Z24SUP.DGA.ADGADATA)
+          SHR .
+      REP DDDEF(ADGAISPC)
+          DA(Z24SUP.DGA.ADGAISPC)
+          SHR .
+      REP DDDEF(ADGAJCL)
+          DA(Z24SUP.DGA.ADGAJCL)
+          SHR .
+      REP DDDEF(ADGALINK)
+          DA(Z24SUP.DGA.ADGALINK)
+          SHR .
+      REP DDDEF(ADGAMAC)
+          DA(Z24SUP.DGA.ADGAMAC)
+          SHR .
+      REP DDDEF(ADGAMAP)
+          DA(Z24SUP.DGA.ADGAMAP)
+          SHR .
+      REP DDDEF(ADGAMENU)
+          DA(Z24SUP.DGA.ADGAMENU)
+          SHR .
+      REP DDDEF(ADGAMIB)
+          DA(Z24SUP.DGA.ADGAMIB)
+          SHR .
+      REP DDDEF(ADGAMSGS)
+          DA(Z24SUP.DGA.ADGAMSGS)
+          SHR .
+      REP DDDEF(ADGAOPLS)
+          DA(Z24SUP.DGA.ADGAOPLS)
+          SHR .
+      REP DDDEF(ADGAPARM)
+          DA(Z24SUP.DGA.ADGAPARM)
+          SHR .
+      REP DDDEF(ADGAPENU)
+          DA(Z24SUP.DGA.ADGAPENU)
+          SHR .
+      REP DDDEF(ADGAPROC)
+          DA(Z24SUP.DGA.ADGAPROC)
+          SHR .
+      REP DDDEF(ADGAPROF)
+          DA(Z24SUP.DGA.ADGAPROF)
+          SHR .
+      REP DDDEF(ADGASAMP)
+          DA(Z24SUP.DGA.ADGASAMP)
+          SHR .
+      REP DDDEF(ADGASENU)
+          DA(Z24SUP.DGA.ADGASENU)
+          SHR .
+      REP DDDEF(ADGATRP)
+          DA(Z24SUP.DGA.ADGATRP)
+          SHR .
+      REP DDDEF(SDGACICS)
+          DA(Z24SUP.DGA.SDGACICS)
+          SHR .
+      REP DDDEF(SDGACNTL)
+          DA(Z24SUP.DGA.SDGACNTL)
+          SHR .
+      REP DDDEF(SDGADATA)
+          DA(Z24SUP.DGA.SDGADATA)
+          SHR .
+      REP DDDEF(SDGAISPC)
+          DA(Z24SUP.DGA.SDGAISPC)
+          SHR .
+      REP DDDEF(SDGAJCL)
+          DA(Z24SUP.DGA.SDGAJCL)
+          SHR .
+      REP DDDEF(SDGALINK)
+          DA(Z24SUP.DGA.SDGALINK)
+          SHR .
+      REP DDDEF(SDGAMAC)
+          DA(Z24SUP.DGA.SDGAMAC)
+          SHR .
+      REP DDDEF(SDGAMAP)
+          DA(Z24SUP.DGA.SDGAMAP)
+          SHR .
+      REP DDDEF(SDGAMENU)
+          DA(Z24SUP.DGA.SDGAMENU)
+          SHR .
+      REP DDDEF(SDGAMIB)
+          DA(Z24SUP.DGA.SDGAMIB)
+          SHR .
+      REP DDDEF(SDGAMSGS)
+          DA(Z24SUP.DGA.SDGAMSGS)
+          SHR .
+      REP DDDEF(SDGAOPLS)
+          DA(Z24SUP.DGA.SDGAOPLS)
+          SHR .
+      REP DDDEF(SDGAPARM)
+          DA(Z24SUP.DGA.SDGAPARM)
+          SHR .
+      REP DDDEF(SDGAPENU)
+          DA(Z24SUP.DGA.SDGAPENU)
+          SHR .
+      REP DDDEF(SDGAPROC)
+          DA(Z24SUP.DGA.SDGAPROC)
+          SHR .
+      REP DDDEF(SDGAPROF)
+          DA(Z24SUP.DGA.SDGAPROF)
+          SHR .
+      REP DDDEF(SDGASAMP)
+          DA(Z24SUP.DGA.SDGASAMP)
+          SHR .
+      REP DDDEF(SDGASENU)
+          DA(Z24SUP.DGA.SDGASENU)
+          SHR .
+      REP DDDEF(SDGATRP)
+          DA(Z24SUP.DGA.SDGATRP)
+          SHR .
+      REP DDDEF(AEUVFEXC)
+          DA(Z24SUP.EUVF.AEUVFEXC)
+          SHR .
+      REP DDDEF(AEUVFHFS)
+          DA(Z24SUP.EUVF.AEUVFHFS)
+          SHR .
+      REP DDDEF(AEUVFLIB)
+          DA(Z24SUP.EUVF.AEUVFLIB)
+          SHR .
+      REP DDDEF(AEUVFSAM)
+          DA(Z24SUP.EUVF.AEUVFSAM)
+          SHR .
+      REP DDDEF(SEUVFEXC)
+          DA(Z24SUP.EUVF.SEUVFEXC)
+          SHR .
+      REP DDDEF(SEUVFLIB)
+          DA(Z24SUP.EUVF.SEUVFLIB)
+          SHR .
+      REP DDDEF(SEUVFSAM)
+          DA(Z24SUP.EUVF.SEUVFSAM)
+          SHR .
+      REP DDDEF(AEPWBENU)
+          DA(Z24MST.FFST.V120ESA.AEPWBENU)
+          SHR .
+      REP DDDEF(AEPWMOD1)
+          DA(Z24MST.FFST.V120ESA.AEPWMOD1)
+          SHR .
+      REP DDDEF(AEPWSRC1)
+          DA(Z24MST.FFST.V120ESA.AEPWSRC1)
+          SHR .
+      REP DDDEF(SEPWBENU)
+          DA(Z24MST.FFST.V120ESA.SEPWBENU)
+          SHR .
+      REP DDDEF(SEPWCENU)
+          DA(Z24MST.FFST.V120ESA.SEPWCENU)
+          SHR .
+      REP DDDEF(SEPWMAC1)
+          DA(Z24MST.FFST.V120ESA.SEPWMAC1)
+          SHR .
+      REP DDDEF(SEPWMOD1)
+          DA(Z24MST.FFST.V120ESA.SEPWMOD1)
+          SHR .
+      REP DDDEF(SEPWMOD2)
+          DA(Z24MST.FFST.V120ESA.SEPWMOD2)
+          SHR .
+      REP DDDEF(SEPWMOD3)
+          DA(Z24MST.FFST.V120ESA.SEPWMOD3)
+          SHR .
+      REP DDDEF(SEPWMOD4)
+          DA(Z24MST.FFST.V120ESA.SEPWMOD4)
+          SHR .
+      REP DDDEF(SEPWPENU)
+          DA(Z24MST.FFST.V120ESA.SEPWPENU)
+          SHR .
+      REP DDDEF(SEPWSRC1)
+          DA(Z24MST.FFST.V120ESA.SEPWSRC1)
+          SHR .
+      REP DDDEF(SEPWSRC2)
+          DA(Z24MST.FFST.V120ESA.SEPWSRC2)
+          SHR .
+      REP DDDEF(AADMCDA)
+          DA(Z24MST.GDDM.AADMCDA)
+          SHR .
+      REP DDDEF(AADMCFO)
+          DA(Z24MST.GDDM.AADMCFO)
+          SHR .
+      REP DDDEF(AADMDAT)
+          DA(Z24MST.GDDM.AADMDAT)
+          SHR .
+      REP DDDEF(AADMGDF)
+          DA(Z24MST.GDDM.AADMGDF)
+          SHR .
+      REP DDDEF(AADMIMG)
+          DA(Z24MST.GDDM.AADMIMG)
+          SHR .
+      REP DDDEF(AADMMAP)
+          DA(Z24MST.GDDM.AADMMAP)
+          SHR .
+      REP DDDEF(AADMMOD)
+          DA(Z24MST.GDDM.AADMMOD)
+          SHR .
+      REP DDDEF(AADMMSG)
+          DA(Z24MST.GDDM.AADMMSG)
+          SHR .
+      REP DDDEF(AADMOPS)
+          DA(Z24MST.GDDM.AADMOPS)
+          SHR .
+      REP DDDEF(AADMPCF)
+          DA(Z24MST.GDDM.AADMPCF)
+          SHR .
+      REP DDDEF(AADMPNL)
+          DA(Z24MST.GDDM.AADMPNL)
+          SHR .
+      REP DDDEF(AADMSAM)
+          DA(Z24MST.GDDM.AADMSAM)
+          SHR .
+      REP DDDEF(AADMSYM)
+          DA(Z24MST.GDDM.AADMSYM)
+          SHR .
+      REP DDDEF(SADMCDA)
+          DA(Z24MST.GDDM.SADMCDA)
+          SHR .
+      REP DDDEF(SADMCFO)
+          DA(Z24MST.GDDM.SADMCFO)
+          SHR .
+      REP DDDEF(SADMDAT)
+          DA(Z24MST.GDDM.SADMDAT)
+          SHR .
+      REP DDDEF(SADMGDF)
+          DA(Z24MST.GDDM.SADMGDF)
+          SHR .
+      REP DDDEF(SADMIMG)
+          DA(Z24MST.GDDM.SADMIMG)
+          SHR .
+      REP DDDEF(SADMMAP)
+          DA(Z24MST.GDDM.SADMMAP)
+          SHR .
+      REP DDDEF(SADMMOD)
+          DA(Z24MST.GDDM.SADMMOD)
+          SHR .
+      REP DDDEF(SADMMSG)
+          DA(Z24MST.GDDM.SADMMSG)
+          SHR .
+      REP DDDEF(SADMOPS)
+          DA(Z24MST.GDDM.SADMOPS)
+          SHR .
+      REP DDDEF(SADMPCF)
+          DA(Z24MST.GDDM.SADMPCF)
+          SHR .
+      REP DDDEF(SADMPNL)
+          DA(Z24MST.GDDM.SADMPNL)
+          SHR .
+      REP DDDEF(SADMSAM)
+          DA(Z24MST.GDDM.SADMSAM)
+          SHR .
+      REP DDDEF(SADMSYM)
+          DA(Z24MST.GDDM.SADMSYM)
+          SHR .
+      REP DDDEF(AGIMBIN)
+          DA(Z24MST.GIM.AGIMBIN)
+          SHR .
+      REP DDDEF(AGIMCLS0)
+          DA(Z24MST.GIM.AGIMCLS0)
+          SHR .
+      REP DDDEF(AGIMMENU)
+          DA(Z24MST.GIM.AGIMMENU)
+          SHR .
+      REP DDDEF(AGIMPENU)
+          DA(Z24MST.GIM.AGIMPENU)
+          SHR .
+      REP DDDEF(AGIMSENU)
+          DA(Z24MST.GIM.AGIMSENU)
+          SHR .
+      REP DDDEF(AGIMTENU)
+          DA(Z24MST.GIM.AGIMTENU)
+          SHR .
+      REP DDDEF(SGIMCLS0)
+          DA(Z24MST.GIM.SGIMCLS0)
+          SHR .
+      REP DDDEF(SGIMLMD0)
+          DA(Z24MST.GIM.SGIMLMD0)
+          SHR .
+      REP DDDEF(SGIMMENU)
+          DA(Z24MST.GIM.SGIMMENU)
+          SHR .
+      REP DDDEF(SGIMPENU)
+          DA(Z24MST.GIM.SGIMPENU)
+          SHR .
+      REP DDDEF(SGIMSENU)
+          DA(Z24MST.GIM.SGIMSENU)
+          SHR .
+      REP DDDEF(SGIMTENU)
+          DA(Z24MST.GIM.SGIMTENU)
+          SHR .
+      REP DDDEF(AGLDEXEC)
+          DA(Z24SUP.GLD.AGLDEXEC)
+          SHR .
+      REP DDDEF(AGLDEXPC)
+          DA(Z24SUP.GLD.AGLDEXPC)
+          SHR .
+      REP DDDEF(AGLDHCLI)
+          DA(Z24SUP.GLD.AGLDHCLI)
+          SHR .
+      REP DDDEF(AGLDHDRC)
+          DA(Z24SUP.GLD.AGLDHDRC)
+          SHR .
+      REP DDDEF(AGLDHFS)
+          DA(Z24SUP.GLD.AGLDHFS)
+          SHR .
+      REP DDDEF(AGLDSAMP)
+          DA(Z24SUP.GLD.AGLDSAMP)
+          SHR .
+      REP DDDEF(SGLDEXEC)
+          DA(Z24SUP.GLD.SGLDEXEC)
+          SHR .
+      REP DDDEF(SGLDEXPC)
+          DA(Z24SUP.GLD.SGLDEXPC)
+          SHR .
+      REP DDDEF(SGLDHDRC)
+          DA(Z24SUP.GLD.SGLDHDRC)
+          SHR .
+      REP DDDEF(SGLDSAMP)
+          DA(Z24SUP.GLD.SGLDSAMP)
+          SHR .
+      REP DDDEF(AGSKHFS)
+          DA(Z24SUP.GSK.AGSKHFS)
+          SHR .
+      REP DDDEF(AGSKSAMP)
+          DA(Z24SUP.GSK.AGSKSAMP)
+          SHR .
+      REP DDDEF(SGSKSAMP)
+          DA(Z24SUP.GSK.SGSKSAMP)
+          SHR .
+      REP DDDEF(AHAPEXE3)
+          DA(Z24SUP.HAP.AHAPEXE3)
+          SHR .
+      REP DDDEF(AHAPINC3)
+          DA(Z24SUP.HAP.AHAPINC3)
+          SHR .
+      REP DDDEF(AHAPJCL3)
+          DA(Z24SUP.HAP.AHAPJCL3)
+          SHR .
+      REP DDDEF(SHAPEXE3)
+          DA(Z24SUP.HAP.SHAPEXE3)
+          SHR .
+      REP DDDEF(SHAPJCL3)
+          DA(Z24SUP.HAP.SHAPJCL3)
+          SHR .
+      REP DDDEF(AHKCKC4Z)
+          DA(Z24SUP.HKC.AHKCKC4Z)
+          SHR .
+      REP DDDEF(AIBMZHFS)
+          DA(Z24MST.IBMZ.AIBMZHFS)
+          SHR .
+      REP DDDEF(AIBMZMOD)
+          DA(Z24MST.IBMZ.AIBMZMOD)
+          SHR .
+      REP DDDEF(AIBMZSRC)
+          DA(Z24MST.IBMZ.AIBMZSRC)
+          SHR .
+      REP DDDEF(SIBMZCMP)
+          DA(Z24MST.IBMZ.SIBMZCMP)
+          SHR .
+      REP DDDEF(SIBMZPRC)
+          DA(Z24MST.IBMZ.SIBMZPRC)
+          SHR .
+      REP DDDEF(SIBMZSAM)
+          DA(Z24MST.IBMZ.SIBMZSAM)
+          SHR .
+      REP DDDEF(ICQABTXT)
+          DA(Z24SUP.ICQ.ICQABTXT)
+          SHR .
+      REP DDDEF(ICQCCLIB)
+          DA(Z24SUP.ICQ.ICQCCLIB)
+          SHR .
+      REP DDDEF(ICQILIB)
+          DA(Z24SUP.ICQ.ICQILIB)
+          SHR .
+      REP DDDEF(ICQMLIB)
+          DA(Z24SUP.ICQ.ICQMLIB)
+          SHR .
+      REP DDDEF(ICQPLIB)
+          DA(Z24SUP.ICQ.ICQPLIB)
+          SHR .
+      REP DDDEF(ICQSLIB)
+          DA(Z24SUP.ICQ.ICQSLIB)
+          SHR .
+      REP DDDEF(ICQTABLS)
+          DA(Z24SUP.ICQ.ICQTABLS)
+          SHR .
+      REP DDDEF(AIGYHFS)
+          DA(Z24MST.IGY.AIGYHFS)
+          SHR .
+      REP DDDEF(AIGYMOD1)
+          DA(Z24MST.IGY.AIGYMOD1)
+          SHR .
+      REP DDDEF(AIGYSRC1)
+          DA(Z24MST.IGY.AIGYSRC1)
+          SHR .
+      REP DDDEF(SIGYCOMP)
+          DA(Z24MST.IGY.SIGYCOMP)
+          SHR .
+      REP DDDEF(SIGYMAC)
+          DA(Z24MST.IGY.SIGYMAC)
+          SHR .
+      REP DDDEF(SIGYPROC)
+          DA(Z24MST.IGY.SIGYPROC)
+          SHR .
+      REP DDDEF(SIGYSAMP)
+          DA(Z24MST.IGY.SIGYSAMP)
+          SHR .
+      REP DDDEF(AIOEEXEC)
+          DA(Z24SUP.IOE.AIOEEXEC)
+          SHR .
+      REP DDDEF(AIOEHLIB)
+          DA(Z24SUP.IOE.AIOEHLIB)
+          SHR .
+      REP DDDEF(AIOEPROC)
+          DA(Z24SUP.IOE.AIOEPROC)
+          SHR .
+      REP DDDEF(AIOESAMP)
+          DA(Z24SUP.IOE.AIOESAMP)
+          SHR .
+      REP DDDEF(SIOEEXEC)
+          DA(Z24SUP.IOE.SIOEEXEC)
+          SHR .
+      REP DDDEF(SIOEPROC)
+          DA(Z24SUP.IOE.SIOEPROC)
+          SHR .
+      REP DDDEF(SIOESAMP)
+          DA(Z24SUP.IOE.SIOESAMP)
+          SHR .
+      REP DDDEF(AISFEXEC)
+          DA(Z24MST.ISF.AISFEXEC)
+          SHR .
+      REP DDDEF(AISFHELP)
+          DA(Z24MST.ISF.AISFHELP)
+          SHR .
+      REP DDDEF(AISFHFS)
+          DA(Z24MST.ISF.AISFHFS)
+          SHR .
+      REP DDDEF(AISFJCL)
+          DA(Z24MST.ISF.AISFJCL)
+          SHR .
+      REP DDDEF(AISFLOAD)
+          DA(Z24MST.ISF.AISFLOAD)
+          SHR .
+      REP DDDEF(AISFMAC)
+          DA(Z24MST.ISF.AISFMAC)
+          SHR .
+      REP DDDEF(AISFMLIB)
+          DA(Z24MST.ISF.AISFMLIB)
+          SHR .
+      REP DDDEF(AISFPLIB)
+          DA(Z24MST.ISF.AISFPLIB)
+          SHR .
+      REP DDDEF(AISFSLIB)
+          DA(Z24MST.ISF.AISFSLIB)
+          SHR .
+      REP DDDEF(AISFSRC)
+          DA(Z24MST.ISF.AISFSRC)
+          SHR .
+      REP DDDEF(AISFTLIB)
+          DA(Z24MST.ISF.AISFTLIB)
+          SHR .
+      REP DDDEF(SISFEXEC)
+          DA(Z24MST.ISF.SISFEXEC)
+          SHR .
+      REP DDDEF(SISFHELP)
+          DA(Z24MST.ISF.SISFHELP)
+          SHR .
+      REP DDDEF(SISFJCL)
+          DA(Z24MST.ISF.SISFJCL)
+          SHR .
+      REP DDDEF(SISFLINK)
+          DA(Z24MST.ISF.SISFLINK)
+          SHR .
+      REP DDDEF(SISFLOAD)
+          DA(Z24MST.ISF.SISFLOAD)
+          SHR .
+      REP DDDEF(SISFLPA)
+          DA(Z24MST.ISF.SISFLPA)
+          SHR .
+      REP DDDEF(SISFMAC)
+          DA(Z24MST.ISF.SISFMAC)
+          SHR .
+      REP DDDEF(SISFMIG)
+          DA(Z24MST.ISF.SISFMIG)
+          SHR .
+      REP DDDEF(SISFMLIB)
+          DA(Z24MST.ISF.SISFMLIB)
+          SHR .
+      REP DDDEF(SISFPLIB)
+          DA(Z24MST.ISF.SISFPLIB)
+          SHR .
+      REP DDDEF(SISFSLIB)
+          DA(Z24MST.ISF.SISFSLIB)
+          SHR .
+      REP DDDEF(SISFSRC)
+          DA(Z24MST.ISF.SISFSRC)
+          SHR .
+      REP DDDEF(SISFTLIB)
+          DA(Z24MST.ISF.SISFTLIB)
+          SHR .
+      REP DDDEF(AISPALIB)
+          DA(Z24MST.ISP.AISPALIB)
+          SHR .
+      REP DDDEF(AISPCLIB)
+          DA(Z24MST.ISP.AISPCLIB)
+          SHR .
+      REP DDDEF(AISPEXEC)
+          DA(Z24MST.ISP.AISPEXEC)
+          SHR .
+      REP DDDEF(AISPGENU)
+          DA(Z24MST.ISP.AISPGENU)
+          SHR .
+      REP DDDEF(AISPGMLI)
+          DA(Z24MST.ISP.AISPGMLI)
+          SHR .
+      REP DDDEF(AISPGUI)
+          DA(Z24MST.ISP.AISPGUI)
+          SHR .
+      REP DDDEF(AISPHELP)
+          DA(Z24MST.ISP.AISPHELP)
+          SHR .
+      REP DDDEF(AISPMACS)
+          DA(Z24MST.ISP.AISPMACS)
+          SHR .
+      REP DDDEF(AISPMENU)
+          DA(Z24MST.ISP.AISPMENU)
+          SHR .
+      REP DDDEF(AISPMOD1)
+          DA(Z24MST.ISP.AISPMOD1)
+          SHR .
+      REP DDDEF(AISPPENU)
+          DA(Z24MST.ISP.AISPPENU)
+          SHR .
+      REP DDDEF(AISPSAMP)
+          DA(Z24MST.ISP.AISPSAMP)
+          SHR .
+      REP DDDEF(AISPSENU)
+          DA(Z24MST.ISP.AISPSENU)
+          SHR .
+      REP DDDEF(AISPSLIB)
+          DA(Z24MST.ISP.AISPSLIB)
+          SHR .
+      REP DDDEF(AISPTENU)
+          DA(Z24MST.ISP.AISPTENU)
+          SHR .
+      REP DDDEF(SISPALIB)
+          DA(Z24MST.ISP.SISPALIB)
+          SHR .
+      REP DDDEF(SISPCLIB)
+          DA(Z24MST.ISP.SISPCLIB)
+          SHR .
+      REP DDDEF(SISPEXEC)
+          DA(Z24MST.ISP.SISPEXEC)
+          SHR .
+      REP DDDEF(SISPGENU)
+          DA(Z24MST.ISP.SISPGENU)
+          SHR .
+      REP DDDEF(SISPGMLI)
+          DA(Z24MST.ISP.SISPGMLI)
+          SHR .
+      REP DDDEF(SISPGUI)
+          DA(Z24MST.ISP.SISPGUI)
+          SHR .
+      REP DDDEF(SISPHELP)
+          DA(Z24MST.ISP.SISPHELP)
+          SHR .
+      REP DDDEF(SISPLOAD)
+          DA(Z24MST.ISP.SISPLOAD)
+          SHR .
+      REP DDDEF(SISPLPA)
+          DA(Z24MST.ISP.SISPLPA)
+          SHR .
+      REP DDDEF(SISPMACS)
+          DA(Z24MST.ISP.SISPMACS)
+          SHR .
+      REP DDDEF(SISPMENU)
+          DA(Z24MST.ISP.SISPMENU)
+          SHR .
+      REP DDDEF(SISPPENU)
+          DA(Z24MST.ISP.SISPPENU)
+          SHR .
+      REP DDDEF(SISPSAMP)
+          DA(Z24MST.ISP.SISPSAMP)
+          SHR .
+      REP DDDEF(SISPSENU)
+          DA(Z24MST.ISP.SISPSENU)
+          SHR .
+      REP DDDEF(SISPSLIB)
+          DA(Z24MST.ISP.SISPSLIB)
+          SHR .
+      REP DDDEF(SISPTENU)
+          DA(Z24MST.ISP.SISPTENU)
+          SHR .
+      REP DDDEF(AIXMEXP)
+          DA(Z24MST.IXM.AIXMEXP)
+          SHR .
+      REP DDDEF(AIXMHFS)
+          DA(Z24MST.IXM.AIXMHFS)
+          SHR .
+      REP DDDEF(AIXMLOD1)
+          DA(Z24MST.IXM.AIXMLOD1)
+          SHR .
+      REP DDDEF(SIXMEXP)
+          DA(Z24MST.IXM.SIXMEXP)
+          SHR .
+      REP DDDEF(SIXMLOD1)
+          DA(Z24MST.IXM.SIXMLOD1)
+          SHR .
+      REP DDDEF(AIZDEXEC)
+          DA(Z24SUP.IZD.AIZDEXEC)
+          SHR .
+      REP DDDEF(AIZDINST)
+          DA(Z24SUP.IZD.AIZDINST)
+          SHR .
+      REP DDDEF(AIZDLOAD)
+          DA(Z24SUP.IZD.AIZDLOAD)
+          SHR .
+      REP DDDEF(AIZDMAPS)
+          DA(Z24SUP.IZD.AIZDMAPS)
+          SHR .
+      REP DDDEF(AIZDMESG)
+          DA(Z24SUP.IZD.AIZDMESG)
+          SHR .
+      REP DDDEF(AIZDSAMP)
+          DA(Z24SUP.IZD.AIZDSAMP)
+          SHR .
+      REP DDDEF(SIZDEXEC)
+          DA(Z24SUP.IZD.SIZDEXEC)
+          SHR .
+      REP DDDEF(SIZDINST)
+          DA(Z24SUP.IZD.SIZDINST)
+          SHR .
+      REP DDDEF(SIZDLOAD)
+          DA(Z24SUP.IZD.SIZDLOAD)
+          SHR .
+      REP DDDEF(SIZDMAPS)
+          DA(Z24SUP.IZD.SIZDMAPS)
+          SHR .
+      REP DDDEF(SIZDMESG)
+          DA(Z24SUP.IZD.SIZDMESG)
+          SHR .
+      REP DDDEF(SIZDSAMP)
+          DA(Z24SUP.IZD.SIZDSAMP)
+          SHR .
+      REP DDDEF(AIZUFS)
+          DA(Z24SUP.IZU.AIZUFS)
+          SHR .
+      REP DDDEF(AAJVHFS)
+          DA(Z24SUP.JAVA.AAJVHFS)
+          SHR .
+      REP DDDEF(AAJVSMP1)
+          DA(Z24SUP.JAVA.AAJVSMP1)
+          SHR .
+      REP DDDEF(SAJVSMP1)
+          DA(Z24SUP.JAVA.SAJVSMP1)
+          SHR .
+      REP DDDEF(ACSQASMS)
+          DA(Z24MST.MQ.V9R1MX.ACSQASMS)
+          SHR .
+      REP DDDEF(ACSQCLST)
+          DA(Z24MST.MQ.V9R1MX.ACSQCLST)
+          SHR .
+      REP DDDEF(ACSQCOBC)
+          DA(Z24MST.MQ.V9R1MX.ACSQCOBC)
+          SHR .
+      REP DDDEF(ACSQCOBS)
+          DA(Z24MST.MQ.V9R1MX.ACSQCOBS)
+          SHR .
+      REP DDDEF(ACSQCPPS)
+          DA(Z24MST.MQ.V9R1MX.ACSQCPPS)
+          SHR .
+      REP DDDEF(ACSQC37S)
+          DA(Z24MST.MQ.V9R1MX.ACSQC37S)
+          SHR .
+      REP DDDEF(ACSQC370)
+          DA(Z24MST.MQ.V9R1MX.ACSQC370)
+          SHR .
+      REP DDDEF(ACSQDEFS)
+          DA(Z24MST.MQ.V9R1MX.ACSQDEFS)
+          SHR .
+      REP DDDEF(ACSQEXEC)
+          DA(Z24MST.MQ.V9R1MX.ACSQEXEC)
+          SHR .
+      REP DDDEF(ACSQHPPS)
+          DA(Z24MST.MQ.V9R1MX.ACSQHPPS)
+          SHR .
+      REP DDDEF(ACSQINST)
+          DA(Z24MST.MQ.V9R1MX.ACSQINST)
+          SHR .
+      REP DDDEF(ACSQMACS)
+          DA(Z24MST.MQ.V9R1MX.ACSQMACS)
+          SHR .
+      REP DDDEF(ACSQMAPS)
+          DA(Z24MST.MQ.V9R1MX.ACSQMAPS)
+          SHR .
+      REP DDDEF(ACSQMOD)
+          DA(Z24MST.MQ.V9R1MX.ACSQMOD)
+          SHR .
+      REP DDDEF(ACSQMSGC)
+          DA(Z24MST.MQ.V9R1MX.ACSQMSGC)
+          SHR .
+      REP DDDEF(ACSQMSGE)
+          DA(Z24MST.MQ.V9R1MX.ACSQMSGE)
+          SHR .
+      REP DDDEF(ACSQMSGF)
+          DA(Z24MST.MQ.V9R1MX.ACSQMSGF)
+          SHR .
+      REP DDDEF(ACSQMSGK)
+          DA(Z24MST.MQ.V9R1MX.ACSQMSGK)
+          SHR .
+      REP DDDEF(ACSQMSGU)
+          DA(Z24MST.MQ.V9R1MX.ACSQMSGU)
+          SHR .
+      REP DDDEF(ACSQOJSH)
+          DA(Z24MST.MQ.V9R1MX.ACSQOJSH)
+          SHR .
+      REP DDDEF(ACSQOJTR)
+          DA(Z24MST.MQ.V9R1MX.ACSQOJTR)
+          SHR .
+      REP DDDEF(ACSQOWPX)
+          DA(Z24MST.MQ.V9R1MX.ACSQOWPX)
+          SHR .
+      REP DDDEF(ACSQOWSH)
+          DA(Z24MST.MQ.V9R1MX.ACSQOWSH)
+          SHR .
+      REP DDDEF(ACSQPLIC)
+          DA(Z24MST.MQ.V9R1MX.ACSQPLIC)
+          SHR .
+      REP DDDEF(ACSQPLIS)
+          DA(Z24MST.MQ.V9R1MX.ACSQPLIS)
+          SHR .
+      REP DDDEF(ACSQPNLA)
+          DA(Z24MST.MQ.V9R1MX.ACSQPNLA)
+          SHR .
+      REP DDDEF(ACSQPNLC)
+          DA(Z24MST.MQ.V9R1MX.ACSQPNLC)
+          SHR .
+      REP DDDEF(ACSQPNLE)
+          DA(Z24MST.MQ.V9R1MX.ACSQPNLE)
+          SHR .
+      REP DDDEF(ACSQPNLF)
+          DA(Z24MST.MQ.V9R1MX.ACSQPNLF)
+          SHR .
+      REP DDDEF(ACSQPNLK)
+          DA(Z24MST.MQ.V9R1MX.ACSQPNLK)
+          SHR .
+      REP DDDEF(ACSQPNLU)
+          DA(Z24MST.MQ.V9R1MX.ACSQPNLU)
+          SHR .
+      REP DDDEF(ACSQPROC)
+          DA(Z24MST.MQ.V9R1MX.ACSQPROC)
+          SHR .
+      REP DDDEF(ACSQTBLC)
+          DA(Z24MST.MQ.V9R1MX.ACSQTBLC)
+          SHR .
+      REP DDDEF(ACSQTBLE)
+          DA(Z24MST.MQ.V9R1MX.ACSQTBLE)
+          SHR .
+      REP DDDEF(ACSQTBLF)
+          DA(Z24MST.MQ.V9R1MX.ACSQTBLF)
+          SHR .
+      REP DDDEF(ACSQTBLK)
+          DA(Z24MST.MQ.V9R1MX.ACSQTBLK)
+          SHR .
+      REP DDDEF(ACSQTBLU)
+          DA(Z24MST.MQ.V9R1MX.ACSQTBLU)
+          SHR .
+      REP DDDEF(SCSQANLC)
+          DA(Z24MST.MQ.V9R1MX.SCSQANLC)
+          SHR .
+      REP DDDEF(SCSQANLE)
+          DA(Z24MST.MQ.V9R1MX.SCSQANLE)
+          SHR .
+      REP DDDEF(SCSQANLF)
+          DA(Z24MST.MQ.V9R1MX.SCSQANLF)
+          SHR .
+      REP DDDEF(SCSQANLK)
+          DA(Z24MST.MQ.V9R1MX.SCSQANLK)
+          SHR .
+      REP DDDEF(SCSQANLU)
+          DA(Z24MST.MQ.V9R1MX.SCSQANLU)
+          SHR .
+      REP DDDEF(SCSQASMS)
+          DA(Z24MST.MQ.V9R1MX.SCSQASMS)
+          SHR .
+      REP DDDEF(SCSQAUTH)
+          DA(Z24MST.MQ.V9R1MX.SCSQAUTH)
+          SHR .
+      REP DDDEF(SCSQCICS)
+          DA(Z24MST.MQ.V9R1MX.SCSQCICS)
+          SHR .
+      REP DDDEF(SCSQCLST)
+          DA(Z24MST.MQ.V9R1MX.SCSQCLST)
+          SHR .
+      REP DDDEF(SCSQCOBC)
+          DA(Z24MST.MQ.V9R1MX.SCSQCOBC)
+          SHR .
+      REP DDDEF(SCSQCOBS)
+          DA(Z24MST.MQ.V9R1MX.SCSQCOBS)
+          SHR .
+      REP DDDEF(SCSQCPPS)
+          DA(Z24MST.MQ.V9R1MX.SCSQCPPS)
+          SHR .
+      REP DDDEF(SCSQC37S)
+          DA(Z24MST.MQ.V9R1MX.SCSQC37S)
+          SHR .
+      REP DDDEF(SCSQC370)
+          DA(Z24MST.MQ.V9R1MX.SCSQC370)
+          SHR .
+      REP DDDEF(SCSQDEFS)
+          DA(Z24MST.MQ.V9R1MX.SCSQDEFS)
+          SHR .
+      REP DDDEF(SCSQEXEC)
+          DA(Z24MST.MQ.V9R1MX.SCSQEXEC)
+          SHR .
+      REP DDDEF(SCSQHPPS)
+          DA(Z24MST.MQ.V9R1MX.SCSQHPPS)
+          SHR .
+      REP DDDEF(SCSQINST)
+          DA(Z24MST.MQ.V9R1MX.SCSQINST)
+          SHR .
+      REP DDDEF(SCSQLINK)
+          DA(Z24MST.MQ.V9R1MX.SCSQLINK)
+          SHR .
+      REP DDDEF(SCSQLOAD)
+          DA(Z24MST.MQ.V9R1MX.SCSQLOAD)
+          SHR .
+      REP DDDEF(SCSQMACS)
+          DA(Z24MST.MQ.V9R1MX.SCSQMACS)
+          SHR .
+      REP DDDEF(SCSQMAPS)
+          DA(Z24MST.MQ.V9R1MX.SCSQMAPS)
+          SHR .
+      REP DDDEF(SCSQMSGC)
+          DA(Z24MST.MQ.V9R1MX.SCSQMSGC)
+          SHR .
+      REP DDDEF(SCSQMSGE)
+          DA(Z24MST.MQ.V9R1MX.SCSQMSGE)
+          SHR .
+      REP DDDEF(SCSQMSGF)
+          DA(Z24MST.MQ.V9R1MX.SCSQMSGF)
+          SHR .
+      REP DDDEF(SCSQMSGK)
+          DA(Z24MST.MQ.V9R1MX.SCSQMSGK)
+          SHR .
+      REP DDDEF(SCSQMSGU)
+          DA(Z24MST.MQ.V9R1MX.SCSQMSGU)
+          SHR .
+      REP DDDEF(SCSQMVR1)
+          DA(Z24MST.MQ.V9R1MX.SCSQMVR1)
+          SHR .
+      REP DDDEF(SCSQPLIC)
+          DA(Z24MST.MQ.V9R1MX.SCSQPLIC)
+          SHR .
+      REP DDDEF(SCSQPLIS)
+          DA(Z24MST.MQ.V9R1MX.SCSQPLIS)
+          SHR .
+      REP DDDEF(SCSQPNLA)
+          DA(Z24MST.MQ.V9R1MX.SCSQPNLA)
+          SHR .
+      REP DDDEF(SCSQPNLC)
+          DA(Z24MST.MQ.V9R1MX.SCSQPNLC)
+          SHR .
+      REP DDDEF(SCSQPNLE)
+          DA(Z24MST.MQ.V9R1MX.SCSQPNLE)
+          SHR .
+      REP DDDEF(SCSQPNLF)
+          DA(Z24MST.MQ.V9R1MX.SCSQPNLF)
+          SHR .
+      REP DDDEF(SCSQPNLK)
+          DA(Z24MST.MQ.V9R1MX.SCSQPNLK)
+          SHR .
+      REP DDDEF(SCSQPNLU)
+          DA(Z24MST.MQ.V9R1MX.SCSQPNLU)
+          SHR .
+      REP DDDEF(SCSQPROC)
+          DA(Z24MST.MQ.V9R1MX.SCSQPROC)
+          SHR .
+      REP DDDEF(SCSQSNLC)
+          DA(Z24MST.MQ.V9R1MX.SCSQSNLC)
+          SHR .
+      REP DDDEF(SCSQSNLE)
+          DA(Z24MST.MQ.V9R1MX.SCSQSNLE)
+          SHR .
+      REP DDDEF(SCSQSNLF)
+          DA(Z24MST.MQ.V9R1MX.SCSQSNLF)
+          SHR .
+      REP DDDEF(SCSQSNLK)
+          DA(Z24MST.MQ.V9R1MX.SCSQSNLK)
+          SHR .
+      REP DDDEF(SCSQSNLU)
+          DA(Z24MST.MQ.V9R1MX.SCSQSNLU)
+          SHR .
+      REP DDDEF(SCSQTBLC)
+          DA(Z24MST.MQ.V9R1MX.SCSQTBLC)
+          SHR .
+      REP DDDEF(SCSQTBLE)
+          DA(Z24MST.MQ.V9R1MX.SCSQTBLE)
+          SHR .
+      REP DDDEF(SCSQTBLF)
+          DA(Z24MST.MQ.V9R1MX.SCSQTBLF)
+          SHR .
+      REP DDDEF(SCSQTBLK)
+          DA(Z24MST.MQ.V9R1MX.SCSQTBLK)
+          SHR .
+      REP DDDEF(SCSQTBLU)
+          DA(Z24MST.MQ.V9R1MX.SCSQTBLU)
+          SHR .
+      REP DDDEF(AAQNCLST)
+          DA(Z24MST.NETVIEW.AAQNCLST)
+          SHR .
+      REP DDDEF(AAQNLINK)
+          DA(Z24MST.NETVIEW.AAQNLINK)
+          SHR .
+      REP DDDEF(AAQNPARM)
+          DA(Z24MST.NETVIEW.AAQNPARM)
+          SHR .
+      REP DDDEF(AAQNSAMP)
+          DA(Z24MST.NETVIEW.AAQNSAMP)
+          SHR .
+      REP DDDEF(ABNJPNL1)
+          DA(Z24MST.NETVIEW.ABNJPNL1)
+          SHR .
+      REP DDDEF(ABNJPNL2)
+          DA(Z24MST.NETVIEW.ABNJPNL2)
+          SHR .
+      REP DDDEF(ABNJSRC1)
+          DA(Z24MST.NETVIEW.ABNJSRC1)
+          SHR .
+      REP DDDEF(ACNMCLST)
+          DA(Z24MST.NETVIEW.ACNMCLST)
+          SHR .
+      REP DDDEF(ACNMINST)
+          DA(Z24MST.NETVIEW.ACNMINST)
+          SHR .
+      REP DDDEF(ACNMLINK)
+          DA(Z24MST.NETVIEW.ACNMLINK)
+          SHR .
+      REP DDDEF(ACNMMAC1)
+          DA(Z24MST.NETVIEW.ACNMMAC1)
+          SHR .
+      REP DDDEF(ACNMPLIB)
+          DA(Z24MST.NETVIEW.ACNMPLIB)
+          SHR .
+      REP DDDEF(ACNMPNL1)
+          DA(Z24MST.NETVIEW.ACNMPNL1)
+          SHR .
+      REP DDDEF(ACNMSAMP)
+          DA(Z24MST.NETVIEW.ACNMSAMP)
+          SHR .
+      REP DDDEF(ACNMUXCL)
+          DA(Z24MST.NETVIEW.ACNMUXCL)
+          SHR .
+      REP DDDEF(ADSIMSG1)
+          DA(Z24MST.NETVIEW.ADSIMSG1)
+          SHR .
+      REP DDDEF(ADSIOPEN)
+          DA(Z24MST.NETVIEW.ADSIOPEN)
+          SHR .
+      REP DDDEF(ADSIPARM)
+          DA(Z24MST.NETVIEW.ADSIPARM)
+          SHR .
+      REP DDDEF(ADSIPRF)
+          DA(Z24MST.NETVIEW.ADSIPRF)
+          SHR .
+      REP DDDEF(ADUIMSG1)
+          DA(Z24MST.NETVIEW.ADUIMSG1)
+          SHR .
+      REP DDDEF(AEJNUNIX)
+          DA(Z24MST.NETVIEW.AEJNUNIX)
+          SHR .
+      REP DDDEF(AEKGLANG)
+          DA(Z24MST.NETVIEW.AEKGLANG)
+          SHR .
+      REP DDDEF(AFLBDAT1)
+          DA(Z24MST.NETVIEW.AFLBDAT1)
+          SHR .
+      REP DDDEF(ANVULIB)
+          DA(Z24MST.NETVIEW.ANVULIB)
+          SHR .
+      REP DDDEF(BNJPNL1)
+          DA(Z24MST.NETVIEW.BNJPNL1)
+          SHR .
+      REP DDDEF(BNJPNL2)
+          DA(Z24MST.NETVIEW.BNJPNL2)
+          SHR .
+      REP DDDEF(BNJSRC1)
+          DA(Z24MST.NETVIEW.BNJSRC1)
+          SHR .
+      REP DDDEF(CNMCLST)
+          DA(Z24MST.NETVIEW.CNMCLST)
+          SHR .
+      REP DDDEF(CNMINST)
+          DA(Z24MST.NETVIEW.CNMINST)
+          SHR .
+      REP DDDEF(CNMLINK)
+          DA(Z24MST.NETVIEW.CNMLINK)
+          SHR .
+      REP DDDEF(CNMPNL1)
+          DA(Z24MST.NETVIEW.CNMPNL1)
+          SHR .
+      REP DDDEF(CNMSAMP)
+          DA(Z24MST.NETVIEW.CNMSAMP)
+          SHR .
+      REP DDDEF(DSIPARM)
+          DA(Z24MST.NETVIEW.DSIPARM)
+          SHR .
+      REP DDDEF(DSIPRF)
+          DA(Z24MST.NETVIEW.DSIPRF)
+          SHR .
+      REP DDDEF(NVULIB)
+          DA(Z24MST.NETVIEW.NVULIB)
+          SHR .
+      REP DDDEF(SAQNCLST)
+          DA(Z24MST.NETVIEW.SAQNCLST)
+          SHR .
+      REP DDDEF(SAQNLINK)
+          DA(Z24MST.NETVIEW.SAQNLINK)
+          SHR .
+      REP DDDEF(SAQNPARM)
+          DA(Z24MST.NETVIEW.SAQNPARM)
+          SHR .
+      REP DDDEF(SAQNSAMP)
+          DA(Z24MST.NETVIEW.SAQNSAMP)
+          SHR .
+      REP DDDEF(SCNMLNKN)
+          DA(Z24MST.NETVIEW.SCNMLNKN)
+          SHR .
+      REP DDDEF(SCNMLNK1)
+          DA(Z24MST.NETVIEW.SCNMLNK1)
+          SHR .
+      REP DDDEF(SCNMLPA1)
+          DA(Z24MST.NETVIEW.SCNMLPA1)
+          SHR .
+      REP DDDEF(SCNMMAC1)
+          DA(Z24MST.NETVIEW.SCNMMAC1)
+          SHR .
+      REP DDDEF(SCNMPLIB)
+          DA(Z24MST.NETVIEW.SCNMPLIB)
+          SHR .
+      REP DDDEF(SCNMUXCL)
+          DA(Z24MST.NETVIEW.SCNMUXCL)
+          SHR .
+      REP DDDEF(SDSIMSG1)
+          DA(Z24MST.NETVIEW.SDSIMSG1)
+          SHR .
+      REP DDDEF(SDSIOPEN)
+          DA(Z24MST.NETVIEW.SDSIOPEN)
+          SHR .
+      REP DDDEF(SDUIMSG1)
+          DA(Z24MST.NETVIEW.SDUIMSG1)
+          SHR .
+      REP DDDEF(SEKGLANG)
+          DA(Z24MST.NETVIEW.SEKGLANG)
+          SHR .
+      REP DDDEF(SFLBDAT1)
+          DA(Z24MST.NETVIEW.SFLBDAT1)
+          SHR .
+      REP DDDEF(AEAGJENU)
+          DA(Z24MST.REXX.AEAGJENU)
+          SHR .
+      REP DDDEF(AEAGMENU)
+          DA(Z24MST.REXX.AEAGMENU)
+          SHR .
+      REP DDDEF(AEAGMOD1)
+          DA(Z24MST.REXX.AEAGMOD1)
+          SHR .
+      REP DDDEF(AEAGSAM)
+          DA(Z24MST.REXX.AEAGSAM)
+          SHR .
+      REP DDDEF(SEAGALT)
+          DA(Z24MST.REXX.SEAGALT)
+          SHR .
+      REP DDDEF(SEAGJENU)
+          DA(Z24MST.REXX.SEAGJENU)
+          SHR .
+      REP DDDEF(SEAGMENU)
+          DA(Z24MST.REXX.SEAGMENU)
+          SHR .
+      REP DDDEF(SEAGSAM)
+          DA(Z24MST.REXX.SEAGSAM)
+          SHR .
+      REP DDDEF(SMPLTS)
+          DA(Z24SUP.SMPE.MVST100.SMPLTS)
+          SHR .
+      REP DDDEF(AACBCNTL)
+          DA(Z24MST.SYS1.AACBCNTL)
+          SHR .
+      REP DDDEF(AADFMAC1)
+          DA(Z24MST.SYS1.AADFMAC1)
+          SHR .
+      REP DDDEF(AADRLIB)
+          DA(Z24MST.SYS1.AADRLIB)
+          SHR .
+      REP DDDEF(AADRYLIB)
+          DA(Z24MST.SYS1.AADRYLIB)
+          SHR .
+      REP DDDEF(AAXREXEC)
+          DA(Z24MST.SYS1.AAXREXEC)
+          SHR .
+      REP DDDEF(ABDTCLI0)
+          DA(Z24MST.SYS1.ABDTCLI0)
+          SHR .
+      REP DDDEF(ABDTHELP)
+          DA(Z24MST.SYS1.ABDTHELP)
+          SHR .
+      REP DDDEF(ABDTMAC)
+          DA(Z24MST.SYS1.ABDTMAC)
+          SHR .
+      REP DDDEF(ABDTMOD)
+          DA(Z24MST.SYS1.ABDTMOD)
+          SHR .
+      REP DDDEF(ABDTMSG)
+          DA(Z24MST.SYS1.ABDTMSG)
+          SHR .
+      REP DDDEF(ABDTPNL0)
+          DA(Z24MST.SYS1.ABDTPNL0)
+          SHR .
+      REP DDDEF(ABDTSAMP)
+          DA(Z24MST.SYS1.ABDTSAMP)
+          SHR .
+      REP DDDEF(ABLSCLI0)
+          DA(Z24MST.SYS1.ABLSCLI0)
+          SHR .
+      REP DDDEF(ABLSKEL0)
+          DA(Z24MST.SYS1.ABLSKEL0)
+          SHR .
+      REP DDDEF(ABLSMSG0)
+          DA(Z24MST.SYS1.ABLSMSG0)
+          SHR .
+      REP DDDEF(ABLSPNL0)
+          DA(Z24MST.SYS1.ABLSPNL0)
+          SHR .
+      REP DDDEF(ABLSTBL0)
+          DA(Z24MST.SYS1.ABLSTBL0)
+          SHR .
+      REP DDDEF(ABMFMOD0)
+          DA(Z24MST.SYS1.ABMFMOD0)
+          SHR .
+      REP DDDEF(ABPXEXEC)
+          DA(Z24MST.SYS1.ABPXEXEC)
+          SHR .
+      REP DDDEF(ABPXMENU)
+          DA(Z24MST.SYS1.ABPXMENU)
+          SHR .
+      REP DDDEF(ABPXMOD1)
+          DA(Z24MST.SYS1.ABPXMOD1)
+          SHR .
+      REP DDDEF(ABPXPENU)
+          DA(Z24MST.SYS1.ABPXPENU)
+          SHR .
+      REP DDDEF(ABPXSPC)
+          DA(Z24MST.SYS1.ABPXSPC)
+          SHR .
+      REP DDDEF(ABPXTENU)
+          DA(Z24MST.SYS1.ABPXTENU)
+          SHR .
+      REP DDDEF(ABPXXMLS)
+          DA(Z24MST.SYS1.ABPXXMLS)
+          SHR .
+      REP DDDEF(ACBDCLST)
+          DA(Z24MST.SYS1.ACBDCLST)
+          SHR .
+      REP DDDEF(ACBDHENU)
+          DA(Z24MST.SYS1.ACBDHENU)
+          SHR .
+      REP DDDEF(ACBDMENU)
+          DA(Z24MST.SYS1.ACBDMENU)
+          SHR .
+      REP DDDEF(ACBDMOD1)
+          DA(Z24MST.SYS1.ACBDMOD1)
+          SHR .
+      REP DDDEF(ACBDMOD2)
+          DA(Z24MST.SYS1.ACBDMOD2)
+          SHR .
+      REP DDDEF(ACBDPENU)
+          DA(Z24MST.SYS1.ACBDPENU)
+          SHR .
+      REP DDDEF(ACBDTEMP)
+          DA(Z24MST.SYS1.ACBDTEMP)
+          SHR .
+      REP DDDEF(ACBDTENU)
+          DA(Z24MST.SYS1.ACBDTENU)
+          SHR .
+      REP DDDEF(ACBRDBRM)
+          DA(Z24MST.SYS1.ACBRDBRM)
+          SHR .
+      REP DDDEF(ACBRMOD0)
+          DA(Z24MST.SYS1.ACBRMOD0)
+          SHR .
+      REP DDDEF(ACCRHFS)
+          DA(Z24MST.SYS1.ACCRHFS)
+          SHR .
+      REP DDDEF(ACCRMOD)
+          DA(Z24MST.SYS1.ACCRMOD)
+          SHR .
+      REP DDDEF(ACDMMOD0)
+          DA(Z24MST.SYS1.ACDMMOD0)
+          SHR .
+      REP DDDEF(ACDRMODS)
+          DA(Z24MST.SYS1.ACDRMODS)
+          SHR .
+      REP DDDEF(ACDRTABL)
+          DA(Z24MST.SYS1.ACDRTABL)
+          SHR .
+      REP DDDEF(ACLMMOD0)
+          DA(Z24MST.SYS1.ACLMMOD0)
+          SHR .
+      REP DDDEF(ACMDLIB)
+          DA(Z24MST.SYS1.ACMDLIB)
+          SHR .
+      REP DDDEF(ACSSLIB)
+          DA(Z24MST.SYS1.ACSSLIB)
+          SHR .
+      REP DDDEF(ACUNHF)
+          DA(Z24MST.SYS1.ACUNHF)
+          SHR .
+      REP DDDEF(ACUNJCL)
+          DA(Z24MST.SYS1.ACUNJCL)
+          SHR .
+      REP DDDEF(ACUNLOCL)
+          DA(Z24MST.SYS1.ACUNLOCL)
+          SHR .
+      REP DDDEF(ACUNMAC)
+          DA(Z24MST.SYS1.ACUNMAC)
+          SHR .
+      REP DDDEF(ACUNMENU)
+          DA(Z24MST.SYS1.ACUNMENU)
+          SHR .
+      REP DDDEF(ACUNMOD)
+          DA(Z24MST.SYS1.ACUNMOD)
+          SHR .
+      REP DDDEF(ACUNSAMP)
+          DA(Z24MST.SYS1.ACUNSAMP)
+          SHR .
+      REP DDDEF(ACUNTBL)
+          DA(Z24MST.SYS1.ACUNTBL)
+          SHR .
+      REP DDDEF(ADBBLIB)
+          DA(Z24MST.SYS1.ADBBLIB)
+          SHR .
+      REP DDDEF(ADFMAC1)
+          DA(Z24MST.SYS1.ADFMAC1)
+          SHR .
+      REP DDDEF(ADFPMOD0)
+          DA(Z24MST.SYS1.ADFPMOD0)
+          SHR .
+      REP DDDEF(ADFQMLIB)
+          DA(Z24MST.SYS1.ADFQMLIB)
+          SHR .
+      REP DDDEF(ADFQPLIB)
+          DA(Z24MST.SYS1.ADFQPLIB)
+          SHR .
+      REP DDDEF(ADFQPSRC)
+          DA(Z24MST.SYS1.ADFQPSRC)
+          SHR .
+      REP DDDEF(ADGTCLIB)
+          DA(Z24MST.SYS1.ADGTCLIB)
+          SHR .
+      REP DDDEF(ADGTLLIB)
+          DA(Z24MST.SYS1.ADGTLLIB)
+          SHR .
+      REP DDDEF(ADGTMLIB)
+          DA(Z24MST.SYS1.ADGTMLIB)
+          SHR .
+      REP DDDEF(ADGTPLIB)
+          DA(Z24MST.SYS1.ADGTPLIB)
+          SHR .
+      REP DDDEF(ADGTPSRC)
+          DA(Z24MST.SYS1.ADGTPSRC)
+          SHR .
+      REP DDDEF(ADGTSLIB)
+          DA(Z24MST.SYS1.ADGTSLIB)
+          SHR .
+      REP DDDEF(ADGTTLIB)
+          DA(Z24MST.SYS1.ADGTTLIB)
+          SHR .
+      REP DDDEF(ADGTTSRC)
+          DA(Z24MST.SYS1.ADGTTSRC)
+          SHR .
+      REP DDDEF(ADMSSVM)
+          DA(Z24MST.SYS1.ADMSSVM)
+          SHR .
+      REP DDDEF(AEDGEXE1)
+          DA(Z24MST.SYS1.AEDGEXE1)
+          SHR .
+      REP DDDEF(AEDGHFS)
+          DA(Z24MST.SYS1.AEDGHFS)
+          SHR .
+      REP DDDEF(AEDGMENU)
+          DA(Z24MST.SYS1.AEDGMENU)
+          SHR .
+      REP DDDEF(AEDGMOD1)
+          DA(Z24MST.SYS1.AEDGMOD1)
+          SHR .
+      REP DDDEF(AEDGPENU)
+          DA(Z24MST.SYS1.AEDGPENU)
+          SHR .
+      REP DDDEF(AEDGPSRC)
+          DA(Z24MST.SYS1.AEDGPSRC)
+          SHR .
+      REP DDDEF(AEDGSRC1)
+          DA(Z24MST.SYS1.AEDGSRC1)
+          SHR .
+      REP DDDEF(AEEQINST)
+          DA(Z24MST.SYS1.AEEQINST)
+          SHR .
+      REP DDDEF(AERBCLS)
+          DA(Z24MST.SYS1.AERBCLS)
+          SHR .
+      REP DDDEF(AERBMAC1)
+          DA(Z24MST.SYS1.AERBMAC1)
+          SHR .
+      REP DDDEF(AERBMENU)
+          DA(Z24MST.SYS1.AERBMENU)
+          SHR .
+      REP DDDEF(AERBMOD1)
+          DA(Z24MST.SYS1.AERBMOD1)
+          SHR .
+      REP DDDEF(AERBPENU)
+          DA(Z24MST.SYS1.AERBPENU)
+          SHR .
+      REP DDDEF(AERBPWSV)
+          DA(Z24MST.SYS1.AERBPWSV)
+          SHR .
+      REP DDDEF(AERBT)
+          DA(Z24MST.SYS1.AERBT)
+          SHR .
+      REP DDDEF(AERBTENU)
+          DA(Z24MST.SYS1.AERBTENU)
+          SHR .
+      REP DDDEF(AFNTILIB)
+          DA(Z24MST.SYS1.AFNTILIB)
+          SHR .
+      REP DDDEF(AFNTLIB)
+          DA(Z24MST.SYS1.AFNTLIB)
+          SHR .
+      REP DDDEF(AFNTLIBB)
+          DA(Z24MST.SYS1.AFNTLIBB)
+          SHR .
+      REP DDDEF(AFNT300)
+          DA(Z24MST.SYS1.AFNT300)
+          SHR .
+      REP DDDEF(AFOMHDRS)
+          DA(Z24MST.SYS1.AFOMHDRS)
+          SHR .
+      REP DDDEF(AFOMHFS)
+          DA(Z24MST.SYS1.AFOMHFS)
+          SHR .
+      REP DDDEF(AFOMMOD1)
+          DA(Z24MST.SYS1.AFOMMOD1)
+          SHR .
+      REP DDDEF(AFOMOBJ)
+          DA(Z24MST.SYS1.AFOMOBJ)
+          SHR .
+      REP DDDEF(AFONTHFS)
+          DA(Z24MST.SYS1.AFONTHFS)
+          SHR .
+      REP DDDEF(AGDEMOD0)
+          DA(Z24MST.SYS1.AGDEMOD0)
+          SHR .
+      REP DDDEF(AGENLIB)
+          DA(Z24MST.SYS1.AGENLIB)
+          SHR .
+      REP DDDEF(AGFTAJL1)
+          DA(Z24MST.SYS1.AGFTAJL1)
+          SHR .
+      REP DDDEF(AGFTAMD1)
+          DA(Z24MST.SYS1.AGFTAMD1)
+          SHR .
+      REP DDDEF(AGFUMOD1)
+          DA(Z24MST.SYS1.AGFUMOD1)
+          SHR .
+      REP DDDEF(AHELP)
+          DA(Z24MST.SYS1.AHELP)
+          SHR .
+      REP DDDEF(AHELPENP)
+          DA(Z24MST.SYS1.AHELPENP)
+          SHR .
+      REP DDDEF(AICELIB)
+          DA(Z24MST.SYS1.AICELIB)
+          SHR .
+      REP DDDEF(AICESAMP)
+          DA(Z24MST.SYS1.AICESAMP)
+          SHR .
+      REP DDDEF(AICESRCE)
+          DA(Z24MST.SYS1.AICESRCE)
+          SHR .
+      REP DDDEF(AICEUSER)
+          DA(Z24MST.SYS1.AICEUSER)
+          SHR .
+      REP DDDEF(AICQAB)
+          DA(Z24MST.SYS1.AICQAB)
+          SHR .
+      REP DDDEF(AICQILIB)
+          DA(Z24MST.SYS1.AICQILIB)
+          SHR .
+      REP DDDEF(AICQMAC1)
+          DA(Z24MST.SYS1.AICQMAC1)
+          SHR .
+      REP DDDEF(AICQMAC2)
+          DA(Z24MST.SYS1.AICQMAC2)
+          SHR .
+      REP DDDEF(AICQMAC3)
+          DA(Z24MST.SYS1.AICQMAC3)
+          SHR .
+      REP DDDEF(AICQMAC4)
+          DA(Z24MST.SYS1.AICQMAC4)
+          SHR .
+      REP DDDEF(AICQMAC5)
+          DA(Z24MST.SYS1.AICQMAC5)
+          SHR .
+      REP DDDEF(AIEAHDR)
+          DA(Z24MST.SYS1.AIEAHDR)
+          SHR .
+      REP DDDEF(AIEAHDRV)
+          DA(Z24MST.SYS1.AIEAHDRV)
+          SHR .
+      REP DDDEF(AIEALNKE)
+          DA(Z24MST.SYS1.AIEALNKE)
+          SHR .
+      REP DDDEF(AIEAMIGE)
+          DA(Z24MST.SYS1.AIEAMIGE)
+          SHR .
+      REP DDDEF(AIEASID)
+          DA(Z24MST.SYS1.AIEASID)
+          SHR .
+      REP DDDEF(AIEWMOD0)
+          DA(Z24MST.SYS1.AIEWMOD0)
+          SHR .
+      REP DDDEF(AIFALIB)
+          DA(Z24MST.SYS1.AIFALIB)
+          SHR .
+      REP DDDEF(AIGDVBS1)
+          DA(Z24MST.SYS1.AIGDVBS1)
+          SHR .
+      REP DDDEF(AIKYHFS)
+          DA(Z24MST.SYS1.AIKYHFS)
+          SHR .
+      REP DDDEF(AIMAGE)
+          DA(Z24MST.SYS1.AIMAGE)
+          SHR .
+      REP DDDEF(AIMFMOD0)
+          DA(Z24MST.SYS1.AIMFMOD0)
+          SHR .
+      REP DDDEF(AINDLMD)
+          DA(Z24MST.SYS1.AINDLMD)
+          SHR .
+      REP DDDEF(AISTASGD)
+          DA(Z24MST.SYS1.AISTASGD)
+          SHR .
+      REP DDDEF(AISTASN1)
+          DA(Z24MST.SYS1.AISTASN1)
+          SHR .
+      REP DDDEF(AISTCMIP)
+          DA(Z24MST.SYS1.AISTCMIP)
+          SHR .
+      REP DDDEF(AISTDAT1)
+          DA(Z24MST.SYS1.AISTDAT1)
+          SHR .
+      REP DDDEF(AISTDAT2)
+          DA(Z24MST.SYS1.AISTDAT2)
+          SHR .
+      REP DDDEF(AISTGDMO)
+          DA(Z24MST.SYS1.AISTGDMO)
+          SHR .
+      REP DDDEF(AISTMAC1)
+          DA(Z24MST.SYS1.AISTMAC1)
+          SHR .
+      REP DDDEF(AITYHFS)
+          DA(Z24MST.SYS1.AITYHFS)
+          SHR .
+      REP DDDEF(ALINKLIB)
+          DA(Z24MST.SYS1.ALINKLIB)
+          SHR .
+      REP DDDEF(ALPALIB)
+          DA(Z24MST.SYS1.ALPALIB)
+          SHR .
+      REP DDDEF(AMACLIB)
+          DA(Z24MST.SYS1.AMACLIB)
+          SHR .
+      REP DDDEF(AMIGLIB)
+          DA(Z24MST.SYS1.AMIGLIB)
+          SHR .
+      REP DDDEF(AMODGEN)
+          DA(Z24MST.SYS1.AMODGEN)
+          SHR .
+      REP DDDEF(AMSGENP)
+          DA(Z24MST.SYS1.AMSGENP)
+          SHR .
+      REP DDDEF(AMSGENU)
+          DA(Z24MST.SYS1.AMSGENU)
+          SHR .
+      REP DDDEF(ANFSLIBE)
+          DA(Z24MST.SYS1.ANFSLIBE)
+          SHR .
+      REP DDDEF(ANFSMAC)
+          DA(Z24MST.SYS1.ANFSMAC)
+          SHR .
+      REP DDDEF(ANFSSAMP)
+          DA(Z24MST.SYS1.ANFSSAMP)
+          SHR .
+      REP DDDEF(ANFSTARB)
+          DA(Z24MST.SYS1.ANFSTARB)
+          SHR .
+      REP DDDEF(ANUCLEUS)
+          DA(Z24MST.SYS1.ANUCLEUS)
+          SHR .
+      REP DDDEF(AOSACB)
+          DA(Z24MST.SYS1.AOSACB)
+          SHR .
+      REP DDDEF(AOSA0)
+          DA(Z24MST.SYS1.AOSA0)
+          SHR .
+      REP DDDEF(AOSA1)
+          DA(Z24MST.SYS1.AOSA1)
+          SHR .
+      REP DDDEF(AOSBN)
+          DA(Z24MST.SYS1.AOSBN)
+          SHR .
+      REP DDDEF(AOSB0)
+          DA(Z24MST.SYS1.AOSB0)
+          SHR .
+      REP DDDEF(AOSB3)
+          DA(Z24MST.SYS1.AOSB3)
+          SHR .
+      REP DDDEF(AOSCA)
+          DA(Z24MST.SYS1.AOSCA)
+          SHR .
+      REP DDDEF(AOSCD)
+          DA(Z24MST.SYS1.AOSCD)
+          SHR .
+      REP DDDEF(AOSCE)
+          DA(Z24MST.SYS1.AOSCE)
+          SHR .
+      REP DDDEF(AOSC2)
+          DA(Z24MST.SYS1.AOSC2)
+          SHR .
+      REP DDDEF(AOSC5)
+          DA(Z24MST.SYS1.AOSC5)
+          SHR .
+      REP DDDEF(AOSC6)
+          DA(Z24MST.SYS1.AOSC6)
+          SHR .
+      REP DDDEF(AOSD0)
+          DA(Z24MST.SYS1.AOSD0)
+          SHR .
+      REP DDDEF(AOSD7)
+          DA(Z24MST.SYS1.AOSD7)
+          SHR .
+      REP DDDEF(AOSG0)
+          DA(Z24MST.SYS1.AOSG0)
+          SHR .
+      REP DDDEF(AOSJSC)
+          DA(Z24MST.SYS1.AOSJSC)
+          SHR .
+      REP DDDEF(AOST3)
+          DA(Z24MST.SYS1.AOST3)
+          SHR .
+      REP DDDEF(AOST4)
+          DA(Z24MST.SYS1.AOST4)
+          SHR .
+      REP DDDEF(AOSU0)
+          DA(Z24MST.SYS1.AOSU0)
+          SHR .
+      REP DDDEF(AOSXCF)
+          DA(Z24MST.SYS1.AOSXCF)
+          SHR .
+      REP DDDEF(AOS00)
+          DA(Z24MST.SYS1.AOS00)
+          SHR .
+      REP DDDEF(AOS04)
+          DA(Z24MST.SYS1.AOS04)
+          SHR .
+      REP DDDEF(AOS05)
+          DA(Z24MST.SYS1.AOS05)
+          SHR .
+      REP DDDEF(AOS06)
+          DA(Z24MST.SYS1.AOS06)
+          SHR .
+      REP DDDEF(AOS11)
+          DA(Z24MST.SYS1.AOS11)
+          SHR .
+      REP DDDEF(AOS12)
+          DA(Z24MST.SYS1.AOS12)
+          SHR .
+      REP DDDEF(AOS24)
+          DA(Z24MST.SYS1.AOS24)
+          SHR .
+      REP DDDEF(AOS26)
+          DA(Z24MST.SYS1.AOS26)
+          SHR .
+      REP DDDEF(AOS28)
+          DA(Z24MST.SYS1.AOS28)
+          SHR .
+      REP DDDEF(AOS32)
+          DA(Z24MST.SYS1.AOS32)
+          SHR .
+      REP DDDEF(ASAMPLIB)
+          DA(Z24MST.SYS1.ASAMPLIB)
+          SHR .
+      REP DDDEF(ASSFMOD0)
+          DA(Z24MST.SYS1.ASSFMOD0)
+          SHR .
+      REP DDDEF(ATSOMAC)
+          DA(Z24MST.SYS1.ATSOMAC)
+          SHR .
+      REP DDDEF(AUADS)
+          DA(Z24MST.SYS1.AUADS)
+          SHR .
+      REP DDDEF(CBRDBRM)
+          DA(Z24MST.SYS1.CBRDBRM)
+          SHR .
+      REP DDDEF(CIPLIB)
+          DA(Z24MST.SYS1.CIPLIB)
+          SHR .
+      REP DDDEF(CMDLIB)
+          DA(Z24MST.SYS1.CMDLIB)
+          SHR .
+      REP DDDEF(CSSLIB)
+          DA(Z24MST.SYS1.CSSLIB)
+          SHR .
+      REP DDDEF(DBBLIB)
+          DA(Z24MST.SYS1.DBBLIB)
+          SHR .
+      REP DDDEF(DFQLLIB)
+          DA(Z24MST.SYS1.DFQLLIB)
+          SHR .
+      REP DDDEF(DFQMLIB)
+          DA(Z24MST.SYS1.DFQMLIB)
+          SHR .
+      REP DDDEF(DFQPLIB)
+          DA(Z24MST.SYS1.DFQPLIB)
+          SHR .
+      REP DDDEF(DGTCLIB)
+          DA(Z24MST.SYS1.DGTCLIB)
+          SHR .
+      REP DDDEF(DGTLLIB)
+          DA(Z24MST.SYS1.DGTLLIB)
+          SHR .
+      REP DDDEF(DGTMLIB)
+          DA(Z24MST.SYS1.DGTMLIB)
+          SHR .
+      REP DDDEF(DGTPLIB)
+          DA(Z24MST.SYS1.DGTPLIB)
+          SHR .
+      REP DDDEF(DGTSLIB)
+          DA(Z24MST.SYS1.DGTSLIB)
+          SHR .
+      REP DDDEF(DGTTLIB)
+          DA(Z24MST.SYS1.DGTTLIB)
+          SHR .
+      REP DDDEF(FONTLIB)
+          DA(Z24MST.SYS1.FONTLIB)
+          SHR .
+      REP DDDEF(FONTLIBB)
+          DA(Z24MST.SYS1.FONTLIBB)
+          SHR .
+      REP DDDEF(FONT300)
+          DA(Z24MST.SYS1.FONT300)
+          SHR .
+      REP DDDEF(HELP)
+          DA(Z24MST.SYS1.HELP)
+          SHR .
+      REP DDDEF(HELPENP)
+          DA(Z24MST.SYS1.HELPENP)
+          SHR .
+      REP DDDEF(HHRFCLST)
+          DA(Z24MST.SYS1.HHRFCLST)
+          SHR .
+      REP DDDEF(HHRFMSG)
+          DA(Z24MST.SYS1.HHRFMSG)
+          SHR .
+      REP DDDEF(HHRFPANL)
+          DA(Z24MST.SYS1.HHRFPANL)
+          SHR .
+      REP DDDEF(HHRFSKEL)
+          DA(Z24MST.SYS1.HHRFSKEL)
+          SHR .
+      REP DDDEF(HRFCLST)
+          DA(Z24MST.SYS1.HRFCLST)
+          SHR .
+      REP DDDEF(HRFMSG)
+          DA(Z24MST.SYS1.HRFMSG)
+          SHR .
+      REP DDDEF(HRFPANL)
+          DA(Z24MST.SYS1.HRFPANL)
+          SHR .
+      REP DDDEF(HRFSKEL)
+          DA(Z24MST.SYS1.HRFSKEL)
+          SHR .
+      REP DDDEF(APARMLIB)
+          DA(Z24MST.SYS1.IBM.APARMLIB)
+          SHR .
+      REP DDDEF(APROCLIB)
+          DA(Z24MST.SYS1.IBM.APROCLIB)
+          SHR .
+      REP DDDEF(PARMLIB)
+          DA(Z24MST.SYS1.IBM.PARMLIB)
+          SHR .
+      REP DDDEF(PROCLIB)
+          DA(Z24MST.SYS1.IBM.PROCLIB)
+          SHR .
+      REP DDDEF(IGDVBS1)
+          DA(Z24MST.SYS1.IGDVBS1)
+          SHR .
+      REP DDDEF(IMAGELIB)
+          DA(Z24MST.SYS1.IMAGELIB)
+          SHR .
+      REP DDDEF(LINKLIB)
+          DA(Z24MST.SYS1.LINKLIB)
+          SHR .
+      REP DDDEF(LPALIB)
+          DA(Z24MST.SYS1.LPALIB)
+          SHR .
+      REP DDDEF(MACLIB)
+          DA(Z24MST.SYS1.MACLIB)
+          SHR .
+      REP DDDEF(MIGLIB)
+          DA(Z24MST.SYS1.MIGLIB)
+          SHR .
+      REP DDDEF(MODGEN)
+          DA(Z24MST.SYS1.MODGEN)
+          SHR .
+      REP DDDEF(MSGENP)
+          DA(Z24MST.SYS1.MSGENP)
+          SHR .
+      REP DDDEF(MSGENU)
+          DA(Z24MST.SYS1.MSGENU)
+          SHR .
+      REP DDDEF(NFSLIBE)
+          DA(Z24MST.SYS1.NFSLIBE)
+          SHR .
+      REP DDDEF(NFSMAC)
+          DA(Z24MST.SYS1.NFSMAC)
+          SHR .
+      REP DDDEF(NFSSAMP)
+          DA(Z24MST.SYS1.NFSSAMP)
+          SHR .
+      REP DDDEF(NFSTARB)
+          DA(Z24MST.SYS1.NFSTARB)
+          SHR .
+      REP DDDEF(NUCLEUS)
+          DA(Z24MST.SYS1.NUCLEUS)
+          SHR .
+      REP DDDEF(SACBCNTL)
+          DA(Z24MST.SYS1.SACBCNTL)
+          SHR .
+      REP DDDEF(SADRYLIB)
+          DA(Z24MST.SYS1.SADRYLIB)
+          SHR .
+      REP DDDEF(SAMPLIB)
+          DA(Z24MST.SYS1.SAMPLIB)
+          SHR .
+      REP DDDEF(SAXREXEC)
+          DA(Z24MST.SYS1.SAXREXEC)
+          SHR .
+      REP DDDEF(SBDTCLI0)
+          DA(Z24MST.SYS1.SBDTCLI0)
+          SHR .
+      REP DDDEF(SBDTCMD)
+          DA(Z24MST.SYS1.SBDTCMD)
+          SHR .
+      REP DDDEF(SBDTHELP)
+          DA(Z24MST.SYS1.SBDTHELP)
+          SHR .
+      REP DDDEF(SBDTLIB)
+          DA(Z24MST.SYS1.SBDTLIB)
+          SHR .
+      REP DDDEF(SBDTLINK)
+          DA(Z24MST.SYS1.SBDTLINK)
+          SHR .
+      REP DDDEF(SBDTLPA)
+          DA(Z24MST.SYS1.SBDTLPA)
+          SHR .
+      REP DDDEF(SBDTMAC)
+          DA(Z24MST.SYS1.SBDTMAC)
+          SHR .
+      REP DDDEF(SBDTMSG)
+          DA(Z24MST.SYS1.SBDTMSG)
+          SHR .
+      REP DDDEF(SBDTPNL0)
+          DA(Z24MST.SYS1.SBDTPNL0)
+          SHR .
+      REP DDDEF(SBDTSAMP)
+          DA(Z24MST.SYS1.SBDTSAMP)
+          SHR .
+      REP DDDEF(SBLSCLI0)
+          DA(Z24MST.SYS1.SBLSCLI0)
+          SHR .
+      REP DDDEF(SBLSKEL0)
+          DA(Z24MST.SYS1.SBLSKEL0)
+          SHR .
+      REP DDDEF(SBLSMSG0)
+          DA(Z24MST.SYS1.SBLSMSG0)
+          SHR .
+      REP DDDEF(SBLSPNL0)
+          DA(Z24MST.SYS1.SBLSPNL0)
+          SHR .
+      REP DDDEF(SBLSTBL0)
+          DA(Z24MST.SYS1.SBLSTBL0)
+          SHR .
+      REP DDDEF(SBPXEXEC)
+          DA(Z24MST.SYS1.SBPXEXEC)
+          SHR .
+      REP DDDEF(SBPXMENU)
+          DA(Z24MST.SYS1.SBPXMENU)
+          SHR .
+      REP DDDEF(SBPXPENU)
+          DA(Z24MST.SYS1.SBPXPENU)
+          SHR .
+      REP DDDEF(SBPXTENU)
+          DA(Z24MST.SYS1.SBPXTENU)
+          SHR .
+      REP DDDEF(SCBDCLST)
+          DA(Z24MST.SYS1.SCBDCLST)
+          SHR .
+      REP DDDEF(SCBDHENU)
+          DA(Z24MST.SYS1.SCBDHENU)
+          SHR .
+      REP DDDEF(SCBDMENU)
+          DA(Z24MST.SYS1.SCBDMENU)
+          SHR .
+      REP DDDEF(SCBDPENU)
+          DA(Z24MST.SYS1.SCBDPENU)
+          SHR .
+      REP DDDEF(SCBDTEMP)
+          DA(Z24MST.SYS1.SCBDTEMP)
+          SHR .
+      REP DDDEF(SCBDTENU)
+          DA(Z24MST.SYS1.SCBDTENU)
+          SHR .
+      REP DDDEF(SCCR3BND)
+          DA(Z24MST.SYS1.SCCR3BND)
+          SHR .
+      REP DDDEF(SCCR6BND)
+          DA(Z24MST.SYS1.SCCR6BND)
+          SHR .
+      REP DDDEF(SCDRTABL)
+          DA(Z24MST.SYS1.SCDRTABL)
+          SHR .
+      REP DDDEF(SCUNHF)
+          DA(Z24MST.SYS1.SCUNHF)
+          SHR .
+      REP DDDEF(SCUNJCL)
+          DA(Z24MST.SYS1.SCUNJCL)
+          SHR .
+      REP DDDEF(SCUNLOCL)
+          DA(Z24MST.SYS1.SCUNLOCL)
+          SHR .
+      REP DDDEF(SCUNMENU)
+          DA(Z24MST.SYS1.SCUNMENU)
+          SHR .
+      REP DDDEF(SCUNTBL)
+          DA(Z24MST.SYS1.SCUNTBL)
+          SHR .
+      REP DDDEF(SDFQPSRC)
+          DA(Z24MST.SYS1.SDFQPSRC)
+          SHR .
+      REP DDDEF(SDGTPSRC)
+          DA(Z24MST.SYS1.SDGTPSRC)
+          SHR .
+      REP DDDEF(SDGTTSRC)
+          DA(Z24MST.SYS1.SDGTTSRC)
+          SHR .
+      REP DDDEF(SDMSSVM)
+          DA(Z24MST.SYS1.SDMSSVM)
+          SHR .
+      REP DDDEF(SDMSSVMS)
+          DA(Z24MST.SYS1.SDMSSVMS)
+          SHR .
+      REP DDDEF(SDWWDLPA)
+          DA(Z24MST.SYS1.SDWWDLPA)
+          SHR .
+      REP DDDEF(SEDGEXE1)
+          DA(Z24MST.SYS1.SEDGEXE1)
+          SHR .
+      REP DDDEF(SEDGMENU)
+          DA(Z24MST.SYS1.SEDGMENU)
+          SHR .
+      REP DDDEF(SEDGPENU)
+          DA(Z24MST.SYS1.SEDGPENU)
+          SHR .
+      REP DDDEF(SEDGPSRC)
+          DA(Z24MST.SYS1.SEDGPSRC)
+          SHR .
+      REP DDDEF(SEEQINST)
+          DA(Z24MST.SYS1.SEEQINST)
+          SHR .
+      REP DDDEF(SERBCLS)
+          DA(Z24MST.SYS1.SERBCLS)
+          SHR .
+      REP DDDEF(SERBLINK)
+          DA(Z24MST.SYS1.SERBLINK)
+          SHR .
+      REP DDDEF(SERBLPA)
+          DA(Z24MST.SYS1.SERBLPA)
+          SHR .
+      REP DDDEF(SERBMENU)
+          DA(Z24MST.SYS1.SERBMENU)
+          SHR .
+      REP DDDEF(SERBPENU)
+          DA(Z24MST.SYS1.SERBPENU)
+          SHR .
+      REP DDDEF(SERBPWSV)
+          DA(Z24MST.SYS1.SERBPWSV)
+          SHR .
+      REP DDDEF(SERBT)
+          DA(Z24MST.SYS1.SERBT)
+          SHR .
+      REP DDDEF(SERBTENU)
+          DA(Z24MST.SYS1.SERBTENU)
+          SHR .
+      REP DDDEF(SFNTILIB)
+          DA(Z24MST.SYS1.SFNTILIB)
+          SHR .
+      REP DDDEF(SFOMHDRS)
+          DA(Z24MST.SYS1.SFOMHDRS)
+          SHR .
+      REP DDDEF(SFOMOBJ)
+          DA(Z24MST.SYS1.SFOMOBJ)
+          SHR .
+      REP DDDEF(SICELINK)
+          DA(Z24MST.SYS1.SICELINK)
+          SHR .
+      REP DDDEF(SICELPA)
+          DA(Z24MST.SYS1.SICELPA)
+          SHR .
+      REP DDDEF(SICEPROC)
+          DA(Z24MST.SYS1.SICEPROC)
+          SHR .
+      REP DDDEF(SICESAMP)
+          DA(Z24MST.SYS1.SICESAMP)
+          SHR .
+      REP DDDEF(SICESRCE)
+          DA(Z24MST.SYS1.SICESRCE)
+          SHR .
+      REP DDDEF(SICEUSER)
+          DA(Z24MST.SYS1.SICEUSER)
+          SHR .
+      REP DDDEF(SIEAHDR)
+          DA(Z24MST.SYS1.SIEAHDR.H)
+          SHR .
+      REP DDDEF(SIEAHDRV)
+          DA(Z24MST.SYS1.SIEAHDRV.H)
+          SHR .
+      REP DDDEF(SIEALNKE)
+          DA(Z24MST.SYS1.SIEALNKE)
+          SHR .
+      REP DDDEF(SIEAMIGE)
+          DA(Z24MST.SYS1.SIEAMIGE)
+          SHR .
+      REP DDDEF(SIEASID)
+          DA(Z24MST.SYS1.SIEASID)
+          SHR .
+      REP DDDEF(SIFALIB)
+          DA(Z24MST.SYS1.SIFALIB)
+          SHR .
+      REP DDDEF(SISTASGD)
+          DA(Z24MST.SYS1.SISTASGD)
+          SHR .
+      REP DDDEF(SISTASN1)
+          DA(Z24MST.SYS1.SISTASN1)
+          SHR .
+      REP DDDEF(SISTCLIB)
+          DA(Z24MST.SYS1.SISTCLIB)
+          SHR .
+      REP DDDEF(SISTCMIP)
+          DA(Z24MST.SYS1.SISTCMIP)
+          SHR .
+      REP DDDEF(SISTDAT1)
+          DA(Z24MST.SYS1.SISTDAT1)
+          SHR .
+      REP DDDEF(SISTDAT2)
+          DA(Z24MST.SYS1.SISTDAT2)
+          SHR .
+      REP DDDEF(SISTGDMO)
+          DA(Z24MST.SYS1.SISTGDMO)
+          SHR .
+      REP DDDEF(SISTMAC1)
+          DA(Z24MST.SYS1.SISTMAC1)
+          SHR .
+      REP DDDEF(SORTLIB)
+          DA(Z24MST.SYS1.SORTLIB)
+          SHR .
+      REP DDDEF(SORTLPA)
+          DA(Z24MST.SYS1.SORTLPA)
+          SHR .
+      REP DDDEF(SVCLIB)
+          DA(Z24MST.SYS1.SVCLIB)
+          SHR .
+      REP DDDEF(UADS)
+          DA(Z24MST.SYS1.UADS)
+          SHR .
+      REP DDDEF(VTAMLIB)
+          DA(Z24MST.SYS1.VTAMLIB)
+          SHR .
+      REP DDDEF(AEZADBR1)
+          DA(Z24MST.TCPIP.AEZADBR1)
+          SHR .
+      REP DDDEF(AEZAMAC1)
+          DA(Z24MST.TCPIP.AEZAMAC1)
+          SHR .
+      REP DDDEF(AEZAMAC2)
+          DA(Z24MST.TCPIP.AEZAMAC2)
+          SHR .
+      REP DDDEF(AEZAMAC3)
+          DA(Z24MST.TCPIP.AEZAMAC3)
+          SHR .
+      REP DDDEF(AEZAMODS)
+          DA(Z24MST.TCPIP.AEZAMODS)
+          SHR .
+      REP DDDEF(AEZARNT1)
+          DA(Z24MST.TCPIP.AEZARNT1)
+          SHR .
+      REP DDDEF(AEZARNT2)
+          DA(Z24MST.TCPIP.AEZARNT2)
+          SHR .
+      REP DDDEF(AEZARNT3)
+          DA(Z24MST.TCPIP.AEZARNT3)
+          SHR .
+      REP DDDEF(AEZARNT4)
+          DA(Z24MST.TCPIP.AEZARNT4)
+          SHR .
+      REP DDDEF(AEZAROE1)
+          DA(Z24MST.TCPIP.AEZAROE1)
+          SHR .
+      REP DDDEF(AEZAROE2)
+          DA(Z24MST.TCPIP.AEZAROE2)
+          SHR .
+      REP DDDEF(AEZAROE3)
+          DA(Z24MST.TCPIP.AEZAROE3)
+          SHR .
+      REP DDDEF(AEZASMP1)
+          DA(Z24MST.TCPIP.AEZASMP1)
+          SHR .
+      REP DDDEF(AEZAXLTD)
+          DA(Z24MST.TCPIP.AEZAXLTD)
+          SHR .
+      REP DDDEF(AEZAXLTK)
+          DA(Z24MST.TCPIP.AEZAXLTK)
+          SHR .
+      REP DDDEF(AEZAXLT1)
+          DA(Z24MST.TCPIP.AEZAXLT1)
+          SHR .
+      REP DDDEF(AEZAXLT2)
+          DA(Z24MST.TCPIP.AEZAXLT2)
+          SHR .
+      REP DDDEF(AEZAXLT3)
+          DA(Z24MST.TCPIP.AEZAXLT3)
+          SHR .
+      REP DDDEF(SEZACMAC)
+          DA(Z24MST.TCPIP.SEZACMAC)
+          SHR .
+      REP DDDEF(SEZACMTX)
+          DA(Z24MST.TCPIP.SEZACMTX)
+          SHR .
+      REP DDDEF(SEZADBCX)
+          DA(Z24MST.TCPIP.SEZADBCX)
+          SHR .
+      REP DDDEF(SEZADBRM)
+          DA(Z24MST.TCPIP.SEZADBRM)
+          SHR .
+      REP DDDEF(SEZADPIL)
+          DA(Z24MST.TCPIP.SEZADPIL)
+          SHR .
+      REP DDDEF(SEZADSIL)
+          DA(Z24MST.TCPIP.SEZADSIL)
+          SHR .
+      REP DDDEF(SEZADSIM)
+          DA(Z24MST.TCPIP.SEZADSIM)
+          SHR .
+      REP DDDEF(SEZADSIP)
+          DA(Z24MST.TCPIP.SEZADSIP)
+          SHR .
+      REP DDDEF(SEZAEXEC)
+          DA(Z24MST.TCPIP.SEZAEXEC)
+          SHR .
+      REP DDDEF(SEZAINST)
+          DA(Z24MST.TCPIP.SEZAINST)
+          SHR .
+      REP DDDEF(SEZALIBN)
+          DA(Z24MST.TCPIP.SEZALIBN)
+          SHR .
+      REP DDDEF(SEZALNK2)
+          DA(Z24MST.TCPIP.SEZALNK2)
+          SHR .
+      REP DDDEF(SEZALOAD)
+          DA(Z24MST.TCPIP.SEZALOAD)
+          SHR .
+      REP DDDEF(SEZALPA)
+          DA(Z24MST.TCPIP.SEZALPA)
+          SHR .
+      REP DDDEF(SEZAMENU)
+          DA(Z24MST.TCPIP.SEZAMENU)
+          SHR .
+      REP DDDEF(SEZANCLS)
+          DA(Z24MST.TCPIP.SEZANCLS)
+          SHR .
+      REP DDDEF(SEZANMAC)
+          DA(Z24MST.TCPIP.SEZANMAC)
+          SHR .
+      REP DDDEF(SEZANPNL)
+          DA(Z24MST.TCPIP.SEZANPNL)
+          SHR .
+      REP DDDEF(SEZAOLDX)
+          DA(Z24MST.TCPIP.SEZAOLDX)
+          SHR .
+      REP DDDEF(SEZAPENU)
+          DA(Z24MST.TCPIP.SEZAPENU)
+          SHR .
+      REP DDDEF(SEZARNT1)
+          DA(Z24MST.TCPIP.SEZARNT1)
+          SHR .
+      REP DDDEF(SEZARNT2)
+          DA(Z24MST.TCPIP.SEZARNT2)
+          SHR .
+      REP DDDEF(SEZARNT3)
+          DA(Z24MST.TCPIP.SEZARNT3)
+          SHR .
+      REP DDDEF(SEZARNT4)
+          DA(Z24MST.TCPIP.SEZARNT4)
+          SHR .
+      REP DDDEF(SEZAROE1)
+          DA(Z24MST.TCPIP.SEZAROE1)
+          SHR .
+      REP DDDEF(SEZAROE2)
+          DA(Z24MST.TCPIP.SEZAROE2)
+          SHR .
+      REP DDDEF(SEZAROE3)
+          DA(Z24MST.TCPIP.SEZAROE3)
+          SHR .
+      REP DDDEF(SEZARPCL)
+          DA(Z24MST.TCPIP.SEZARPCL)
+          SHR .
+      REP DDDEF(SEZATCP)
+          DA(Z24MST.TCPIP.SEZATCP)
+          SHR .
+      REP DDDEF(SEZATCPX)
+          DA(Z24MST.TCPIP.SEZATCPX)
+          SHR .
+      REP DDDEF(SEZATELX)
+          DA(Z24MST.TCPIP.SEZATELX)
+          SHR .
+      REP DDDEF(SEZAXAWL)
+          DA(Z24MST.TCPIP.SEZAXAWL)
+          SHR .
+      REP DDDEF(SEZAXLD1)
+          DA(Z24MST.TCPIP.SEZAXLD1)
+          SHR .
+      REP DDDEF(SEZAXLD2)
+          DA(Z24MST.TCPIP.SEZAXLD2)
+          SHR .
+      REP DDDEF(SEZAXMLB)
+          DA(Z24MST.TCPIP.SEZAXMLB)
+          SHR .
+      REP DDDEF(SEZAXTLB)
+          DA(Z24MST.TCPIP.SEZAXTLB)
+          SHR .
+      REP DDDEF(SEZAX11L)
+          DA(Z24MST.TCPIP.SEZAX11L)
+          SHR .
+      REP DDDEF(DKANCMD)
+          DA(Z24SUP.TIVOLI.DKANCMD)
+          SHR .
+      REP DDDEF(DKANCUS)
+          DA(Z24SUP.TIVOLI.DKANCUS)
+          SHR .
+      REP DDDEF(DKANDATV)
+          DA(Z24SUP.TIVOLI.DKANDATV)
+          SHR .
+      REP DDDEF(DKANEXEC)
+          DA(Z24SUP.TIVOLI.DKANEXEC)
+          SHR .
+      REP DDDEF(DKANHENU)
+          DA(Z24SUP.TIVOLI.DKANHENU)
+          SHR .
+      REP DDDEF(DKANISP)
+          DA(Z24SUP.TIVOLI.DKANISP)
+          SHR .
+      REP DDDEF(DKANJAR)
+          DA(Z24SUP.TIVOLI.DKANJAR)
+          SHR .
+      REP DDDEF(DKANMAC)
+          DA(Z24SUP.TIVOLI.DKANMAC)
+          SHR .
+      REP DDDEF(DKANMOD)
+          DA(Z24SUP.TIVOLI.DKANMOD)
+          SHR .
+      REP DDDEF(DKANMODL)
+          DA(Z24SUP.TIVOLI.DKANMODL)
+          SHR .
+      REP DDDEF(DKANMODP)
+          DA(Z24SUP.TIVOLI.DKANMODP)
+          SHR .
+      REP DDDEF(DKANMODR)
+          DA(Z24SUP.TIVOLI.DKANMODR)
+          SHR .
+      REP DDDEF(DKANMODS)
+          DA(Z24SUP.TIVOLI.DKANMODS)
+          SHR .
+      REP DDDEF(DKANOSRC)
+          DA(Z24SUP.TIVOLI.DKANOSRC)
+          SHR .
+      REP DDDEF(DKANPAR)
+          DA(Z24SUP.TIVOLI.DKANPAR)
+          SHR .
+      REP DDDEF(DKANPENU)
+          DA(Z24SUP.TIVOLI.DKANPENU)
+          SHR .
+      REP DDDEF(DKANPKGI)
+          DA(Z24SUP.TIVOLI.DKANPKGI)
+          SHR .
+      REP DDDEF(DKANSAM)
+          DA(Z24SUP.TIVOLI.DKANSAM)
+          SHR .
+      REP DDDEF(DKANSQL)
+          DA(Z24SUP.TIVOLI.DKANSQL)
+          SHR .
+      REP DDDEF(DKANUTIN)
+          DA(Z24SUP.TIVOLI.DKANUTIN)
+          SHR .
+      REP DDDEF(DKANWENU)
+          DA(Z24SUP.TIVOLI.DKANWENU)
+          SHR .
+      REP DDDEF(DKCIINST)
+          DA(Z24SUP.TIVOLI.DKCIINST)
+          SHR .
+      REP DDDEF(DKNSLOCL)
+          DA(Z24SUP.TIVOLI.DKNSLOCL)
+          SHR .
+      REP DDDEF(DKOBDATF)
+          DA(Z24SUP.TIVOLI.DKOBDATF)
+          SHR .
+      REP DDDEF(DKOBHELP)
+          DA(Z24SUP.TIVOLI.DKOBHELP)
+          SHR .
+      REP DDDEF(DKOCHELP)
+          DA(Z24SUP.TIVOLI.DKOCHELP)
+          SHR .
+      REP DDDEF(DKOCPROC)
+          DA(Z24SUP.TIVOLI.DKOCPROC)
+          SHR .
+      REP DDDEF(TKANCMD)
+          DA(Z24SUP.TIVOLI.TKANCMD)
+          SHR .
+      REP DDDEF(TKANCUS)
+          DA(Z24SUP.TIVOLI.TKANCUS)
+          SHR .
+      REP DDDEF(TKANDATV)
+          DA(Z24SUP.TIVOLI.TKANDATV)
+          SHR .
+      REP DDDEF(TKANEXEC)
+          DA(Z24SUP.TIVOLI.TKANEXEC)
+          SHR .
+      REP DDDEF(TKANHENU)
+          DA(Z24SUP.TIVOLI.TKANHENU)
+          SHR .
+      REP DDDEF(TKANISP)
+          DA(Z24SUP.TIVOLI.TKANISP)
+          SHR .
+      REP DDDEF(TKANMAC)
+          DA(Z24SUP.TIVOLI.TKANMAC)
+          SHR .
+      REP DDDEF(TKANMOD)
+          DA(Z24SUP.TIVOLI.TKANMOD)
+          SHR .
+      REP DDDEF(TKANMODL)
+          DA(Z24SUP.TIVOLI.TKANMODL)
+          SHR .
+      REP DDDEF(TKANMODP)
+          DA(Z24SUP.TIVOLI.TKANMODP)
+          SHR .
+      REP DDDEF(TKANMODR)
+          DA(Z24SUP.TIVOLI.TKANMODR)
+          SHR .
+      REP DDDEF(TKANMODS)
+          DA(Z24SUP.TIVOLI.TKANMODS)
+          SHR .
+      REP DDDEF(TKANOSRC)
+          DA(Z24SUP.TIVOLI.TKANOSRC)
+          SHR .
+      REP DDDEF(TKANPAR)
+          DA(Z24SUP.TIVOLI.TKANPAR)
+          SHR .
+      REP DDDEF(TKANPENU)
+          DA(Z24SUP.TIVOLI.TKANPENU)
+          SHR .
+      REP DDDEF(TKANPKGI)
+          DA(Z24SUP.TIVOLI.TKANPKGI)
+          SHR .
+      REP DDDEF(TKANSAM)
+          DA(Z24SUP.TIVOLI.TKANSAM)
+          SHR .
+      REP DDDEF(TKANSQL)
+          DA(Z24SUP.TIVOLI.TKANSQL)
+          SHR .
+      REP DDDEF(TKANUTIN)
+          DA(Z24SUP.TIVOLI.TKANUTIN)
+          SHR .
+      REP DDDEF(TKANWENU)
+          DA(Z24SUP.TIVOLI.TKANWENU)
+          SHR .
+      REP DDDEF(TKCIINST)
+          DA(Z24SUP.TIVOLI.TKCIINST)
+          SHR .
+      REP DDDEF(TKNSLOCL)
+          DA(Z24SUP.TIVOLI.TKNSLOCL)
+          SHR .
+      REP DDDEF(TKOBDATF)
+          DA(Z24SUP.TIVOLI.TKOBDATF)
+          SHR .
+      REP DDDEF(TKOBHELP)
+          DA(Z24SUP.TIVOLI.TKOBHELP)
+          SHR .
+      REP DDDEF(TKOCHELP)
+          DA(Z24SUP.TIVOLI.TKOCHELP)
+          SHR .
+      REP DDDEF(TKOCPROC)
+          DA(Z24SUP.TIVOLI.TKOCPROC)
+          SHR .
+    ENDUCL .
+  SET BDY(MVST110) .
+    UCLIN .
+      REP DDDEF(SMPLTS)
+          DA(Z24SUP.SMPE.MVST110.SMPLTS)
+          SHR .
+      REP DDDEF(AHASMAC)
+          DA(Z24MST.SYS1.AHASMAC)
+          SHR .
+      REP DDDEF(AHASMENU)
+          DA(Z24MST.SYS1.AHASMENU)
+          SHR .
+      REP DDDEF(AHASMOD)
+          DA(Z24MST.SYS1.AHASMOD)
+          SHR .
+      REP DDDEF(AHASPARM)
+          DA(Z24MST.SYS1.AHASPARM)
+          SHR .
+      REP DDDEF(AHASPNL0)
+          DA(Z24MST.SYS1.AHASPNL0)
+          SHR .
+      REP DDDEF(AHASSAMP)
+          DA(Z24MST.SYS1.AHASSAMP)
+          SHR .
+      REP DDDEF(AHASSRC)
+          DA(Z24MST.SYS1.AHASSRC)
+          SHR .
+      REP DDDEF(AMACLIB)
+          DA(Z24MST.SYS1.AMACLIB)
+          SHR .
+      REP DDDEF(AMODGEN)
+          DA(Z24MST.SYS1.AMODGEN)
+          SHR .
+      REP DDDEF(ATSOMAC)
+          DA(Z24MST.SYS1.ATSOMAC)
+          SHR .
+      REP DDDEF(MACLIB)
+          DA(Z24MST.SYS1.MACLIB)
+          SHR .
+      REP DDDEF(MODGEN)
+          DA(Z24MST.SYS1.MODGEN)
+          SHR .
+      REP DDDEF(SHASLNKE)
+          DA(Z24MST.SYS1.SHASLNKE)
+          SHR .
+      REP DDDEF(SHASMAC)
+          DA(Z24MST.SYS1.SHASMAC)
+          SHR .
+      REP DDDEF(SHASMENU)
+          DA(Z24MST.SYS1.SHASMENU)
+          SHR .
+      REP DDDEF(SHASMIG)
+          DA(Z24MST.SYS1.SHASMIG)
+          SHR .
+      REP DDDEF(SHASPARM)
+          DA(Z24MST.SYS1.SHASPARM)
+          SHR .
+      REP DDDEF(SHASPNL0)
+          DA(Z24MST.SYS1.SHASPNL0)
+          SHR .
+      REP DDDEF(SHASSAMP)
+          DA(Z24MST.SYS1.SHASSAMP)
+          SHR .
+      REP DDDEF(SHASSRC)
+          DA(Z24MST.SYS1.SHASSRC)
+          SHR .
+      REP DDDEF(SEZACMAC)
+          DA(Z24MST.TCPIP.SEZACMAC)
+          SHR .
+    ENDUCL .
+  RESETRC .
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((4,GE,CSIUPD),(4000,LT))
+//*
+//*--------------------------------------------------------------------
+//* LIST A FUNCTION SYSMOD IN EACH ZONE TO VERIFY EVERYTHING IS OK
+//*--------------------------------------------------------------------
+//ZTEST   EXEC PGM=GIMSMP,REGION=0M,COND=(4000,LT)
+//STEPLIB  DD DSN=Z24MST.SYS1.MIGLIB,DISP=SHR
+//SMPCSI   DD DSN=Z24SUP.SMPE.GLOBAL.CSI,DISP=SHR
+//SMPPTS   DD DSN=Z24SUP.SMPE.SMPPTS,DISP=SHR
+//SMPPTS1 DD DSN=Z24SUP.SMPE.SMPPTS1,DISP=SHR
+//SMPLOG   DD SYSOUT=*
+//SMPLOGA  DD SYSOUT=*
+//SMPLIST  DD SYSOUT=*
+//SMPOUT   DD SYSOUT=*
+//SMPRPT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+//SMPCNTL  DD *
+   SET BDY(MVST100) .
+   LIST SYSMOD(EDU1H01) .
+   SET BDY(MVSD100) .
+   LIST SYSMOD(EDU1H01) .
+   SET BDY(MVST110) .
+   LIST SYSMOD(HJE77C0) .
+   SET BDY(MVSD110) .
+   LIST SYSMOD(HJE77C0) .
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,ZTEST),(4000,LT))
+//*
+//*
+//*************************************************************
+//* This step does the following:
+//*
+//* 1. Run IEBUPDTE to create the BPXPRMFS member in your
+//*    PARMLIB dataset with the new filesystem structure
+//*
+//* NOTES:
+//* 1. Concatenate this FS member in your IEASYSxx member
+//*
+//* 2. The job CPPUPDT which follows in the install path will
+//*    modify the dataset names in the BPXPRMFS being created
+//*    below to the names that were specified during modify
+//*    system layout.
+//*
+//*************************************************************
+//*
+//BPXFS01 EXEC PGM=IEBUPDTE,PARM=NEW,COND=(4000,LT)
+//SYSPRINT DD   SYSOUT=*
+//SYSUT1   DD DSN=Z24MST.CPAC.PARMLIB,
+//            DISP=SHR
+//SYSUT2   DD DSN=Z24MST.CPAC.PARMLIB,
+//            DISP=SHR
+//SYSIN    DD   DATA,DLM='%%'
+./    ADD  NAME=BPXPRMFS,LIST=ALL
+/*************************************************************/
+/*  This member, as specified in IEASYS00, will cause Unix   */
+/*  System Services to come up with all filesystems mounted. */
+/*************************************************************/
+  ROOT  FILESYSTEM('OMVS.ROOT')
+        TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.ETC')
+  MOUNTPOINT('/etc')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.SIZUUSRD')
+  MOUNTPOINT('/global/zosmf')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('FNT.OMVS.ZFS')
+  MOUNTPOINT('/usr/lpp/fonts')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.SIXMHFS')
+  MOUNTPOINT('/usr/lpp/ixm')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.JV31V80')
+  MOUNTPOINT('/usr/lpp/java/J8.0')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.JAVA64V8')
+  MOUNTPOINT('/usr/lpp/java/J8.0_64')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.TKANROOT')
+  MOUNTPOINT('/usr/lpp/kan')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.SBBLZFS')
+  MOUNTPOINT('/usr/lpp/liberty_zos')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.V9R1MX.MQROOT')
+  MOUNTPOINT('/usr/lpp/mqm/V9R1MX')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.NETVHFS')
+  MOUNTPOINT('/usr/lpp/netview/v6r3')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.SAZDZFS')
+  MOUNTPOINT('/usr/lpp/zcx_zos')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.SIGYROOT')
+  MOUNTPOINT('/usr/lpp/IBM/cobol/igyv6r3')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.SIBMROOT')
+  MOUNTPOINT('/usr/lpp/IBM/pli/v5r3')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.SBAQROOT')
+  MOUNTPOINT('/usr/lpp/IBM/zosconnect/v3r0')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.VAR')
+  MOUNTPOINT('/var')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('OMVS.SCFZHFS2')
+  MOUNTPOINT('/var/wbem')
+  TYPE(ZFS) MODE(RDWR)
+ MOUNT FILESYSTEM('/tmp')      /* TFS for /tmp directory   */
+  MOUNTPOINT('/tmp')
+  TYPE(TFS)               /* Filesystem type TFS      */
+  MODE(RDWR)              /* Mounted for read/write   */
+  PARM('-s 100')          /* 100 Meg                  */
+ MOUNT FILESYSTEM('/dev')      /* TFS for /dev directory   */
+  MOUNTPOINT('/dev')
+  TYPE(TFS)               /* Filesystem type TFS      */
+  MODE(RDWR)              /* Mounted for read/write   */
+  PARM('-s 4')
+                                /*                          */
+%%
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,BPXFS01),(4000,LT))
+//*
+//*
+//*
+//SYNCIT   EXEC PGM=IKJEFT01,COND=(4000,LT)
+//SYSTSPRT DD SYSOUT=*
+//SYSLBC   DD DSN=Z24MST.SYS1.BRODCAST,DISP=SHR
+//SYSUADS  DD DSN=Z24MST.SYS1.UADS,DISP=SHR
+//SYSTSIN  DD *
+  SYNC UADS
+/*
+//*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((0,GE,SYNCIT),(4000,LT))
+//*

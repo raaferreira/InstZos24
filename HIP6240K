@@ -1,0 +1,77 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//********************************************************************
+//* JOB: HIP6240K (no product-supplied job)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job updates the TCPIP.HOSTS.LOCAL file and runs TSO
+//*      command MAKESITE.
+//*
+//********************************************************************
+//*
+//********************************************************************
+//*  Antes editar e corrigir TCPIP.HOSTS.LOCAL                     ***
+//********************************************************************
+//SITES2   EXEC PGM=IKJEFT1B,COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSTSPRT DD SYSOUT=*
+//SYSTSIN  DD *
+MAKESITE HLQ=TCPIP,VOL=ZOS243,UNIT=SYSALLDA
+END
+/*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((0,GE,SITES2),(4000,LT))
+//*
+//HOMETST3 EXEC PGM=IKJEFT1B,COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSTSPRT DD SYSOUT=*
+//SYSTSIN  DD *
+HOMETEST
+END
+/*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((0,GE,HOMETST3),(4000,LT))
+//*
+//*----------------------------------------------------------------
+//*     Create the ivp.syslog.log
+//*----------------------------------------------------------------
+//BPXBATCH   EXEC PGM=BPXBATCH,COND=(4000,LT),
+//  PARM='SH touch /tmp/ivp.syslog.log'
+//STDOUT     DD   PATH='/tmp/out',
+//             PATHOPTS=(OCREAT,OTRUNC,OWRONLY),PATHMODE=SIRWXU
+//STDIN      DD   PATH='/tmp/null',
+//             PATHOPTS=(OCREAT,ORDONLY),PATHMODE=SIRWXU
+//STDERR     DD   PATH='/tmp/error',
+//             PATHOPTS=(OCREAT,OTRUNC,OWRONLY),PATHMODE=SIRWXU
+/*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((0,GE,BPXBATCH),(4000,LT))
+//*
+//*------------------------------------------------------------------
+//*     Copy the error file output to JES output spool.
+//*------------------------------------------------------------------
+//ERRDFR   EXEC PGM=IKJEFT1B,COND=(4000,LT)
+//JES      DD  SYSOUT=*,DCB=(RECFM=V,LRECL=256)
+//ERRORF   DD  PATH='/tmp/error',
+//             PATHOPTS=ORDONLY
+//OUT      DD  PATH='/tmp/out',
+//             PATHOPTS=ORDONLY
+//SYSTSPRT DD  DUMMY
+//SYSTSIN  DD  *
+  OCOPY INDD(ERRORF) OUTDD(JES)
+  OCOPY INDD(OUT) OUTDD(JES)
+//*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((0,GE,ERRDFR),(4000,LT))
+//*

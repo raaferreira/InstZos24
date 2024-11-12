@@ -1,0 +1,86 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*--------------------------------------------------------------------
+//* JOB: HPG77C0B (no product-supplied job)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job does the following:
+//*
+//*    1. Defines ownerships and permissions for CIM directories
+//*
+//*    2. Copies /usr/lpp/wbem/install/profile.add to /u/CFZSRV
+//*       directory
+//*
+//* MRC: The maximum expected return code is 0.
+//*
+//*--------------------------------------------------------------------
+//*
+//*
+//********************************************************************
+//CHOWN EXEC PGM=BPXBATCH,COND=(4000,LT)
+//STDPARM DD *
+sh
+chown -R CFZSRV:CFZSRVGP /etc/wbem
+                               /var/wbem
+/*
+//STDOUT DD SYSOUT=*
+//*
+//#NOTOK   EXEC PGM=CPPMAXRC,COND=((4,GE,CHOWN),(4000,LT))
+//*
+//CRREXX  EXEC PGM=IEBGENER,COND=(4000,LT)
+//SYSIN    DD DUMMY
+//SYSUT2   DD DSN=&&REXX(MEM1),
+//         DISP=(,PASS),UNIT=SYSALLDA,
+//         DCB=(LRECL=80,RECFM=FB,BLKSIZE=8000),
+//         SPACE=(TRK,(1,1,1))
+//SYSPRINT DD SYSOUT=*
+//SYSUT1   DD *,DLM=@@
+/* REXX */
+ stat = msg('on')
+ trace all
+ call syscalls('ON')
+ address syscall "mkdir /u/CFZSRV 700"
+ address syscall "getpwnam (CFZSRV) pw."
+ address syscall "chown /u/CFZSRV" pw.pw_uid pw.pw_gid
+ address syscall "chown (WBEM_ETC)" pw.pw_uid pw.pw_gid
+ address syscall "chown (WBEM_VAR)" pw.pw_uid pw.pw_gid
+ address syscall "chmod (WBEM_ETC) 775"
+ address syscall "chmod (WBEM_VAR) 775"
+ address syscall "chmod /etc/wbem/cimserver.env 644"
+ call syscalls('OFF')
+ exit 0
+ return
+@@
+//*
+//#NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,CRREXX),(4000,LT))
+//*
+//EXECREXX  EXEC PGM=IKJEFT1B,COND=(4000,LT),PARM='MEM1'
+//SYSPROC  DD   DSNAME=&&REXX,DISP=(OLD,DELETE)
+//SYSTSPRT DD   SYSOUT=*
+//SYSTSIN  DD   DUMMY
+//#NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,EXECREXX),(4000,LT))
+//*
+//MKDIR1   EXEC PGM=IKJEFT01,COND=(4000,LT)
+//SYSPROC  DD DISP=SHR,
+//         DSN=SYS1.SBPXEXEC
+//SYSTSPRT DD SYSOUT=*
+//SYSTSIN  DD   *
+  oshell cp /usr/lpp/wbem/install/profile.add /u/CFZSRV/.profile
+/*
+//#NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,MKDIR1),(4000,LT))
+//*

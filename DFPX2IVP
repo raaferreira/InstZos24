@@ -1,0 +1,1323 @@
+//DFPX2IVP JOB 60798,E002884,CLASS=W,NOTIFY=ROSCAAO,MSGCLASS=Q
+//********************************************************************* 00100000
+//*                                                                   * 00150000
+//*PROPRIETARY V3 STATEMENT                                           * 00200000
+//*LICENSED MATERIALS - PROPERTY OF IBM                               * 00250000
+//*5650-ZOS                                                           * 00350000
+//*COPYRIGHT IBM CORP. 1983,1997                                      * 00400000
+//*END PROPRIETARY V3 STATEMENT                                       * 00450000
+//*                                                                   * 00500000
+//********************************************************************* 00550000
+//*   IVP FOR 31-BIT VSAM FUNCTION AND THE 31-BIT VIO FUNCTION        * 00569200
+//*          NOSMS-MANAGED VERSION   UPDATED: 3/17/97                 * 00588400
+//********************************************************************* 00607600
+//* NOTE:  YOU MAY NEED TO MAKE CHANGES TO THIS JCL TO EXECUTE          00626800
+//*        ON YOUR SYSTEM                                               00646000
+//*                                                                     00665200
+//*  THE FOLLOWING STRINGS REPRESENT CHANGES YOU WANT TO MAKE:          00684400
+//*    ZOST70    -    A NON-SMS MANAGED VOLUME (PREFERABLY EMPTY)       01950000
+//*    ZOST71    -    A DIFFERENT NON-SMS MANAGED VOLUME                02000000
+//*    CATALOG.ZOS24.MASTER  -    THE NAME OF THE MASTER CATALOG
+//*                                                                     00703600
+//*    NZOST71   -  A NON-SMS MANAGED VOLUME (PREFERABLY EMPTY)         00722800
+//*    CATALOG.ZOS24.MASTER  -  THE NAME OF THE MASTER CATALOG
+//********************************************************************* 00780400
+//* THIS IVP CONSISTS OF THREE JOBS WITH VARIOUS STEPS TO VERIFY      * 00800000
+//* THE 31-BIT VSAM FUNCTION AND THE 31-BIT VIO FUNCTION.             * 00850000
+//********************************************************************* 00866600
+//* JOBSTEPS                                                          * 00883200
+//*                                                                   * 00900000
+//* JOB1: DFPX2IVP                                                    * 00934400
+//*    DELETE1  -- DELETE TEMPORARY LOAD LIBRARY.    (CLEANUP)        * 00968800
+//*    CREATE   -- CREATE TEMPORARY LOAD LIBRARY.                     * 01003200
+//*    CLEANUP1 -- CLEANUP ICF CATALOG AND ANY VSAM DATASETS.         * 01037600
+//*    DEFCAT   -- DEFINE DFX2UCAT ON SCRATCH PACK.        (3 CYL)    * 01072000
+//*    HOLD1    -- IEBGENER UTILITY ISSUED TO HOLD THE NEXT JOB.      * 01106400
+//* JOB2: DFPX2IV2                                                    * 01140800
+//*    DEFKSDS  -- DEFINE CLUSTER DFPX2IVP.KSDS01.           (10 TRK) * 01175200
+//*    ASSEM1   -- ASSEMBLE 3 VSAM 31-BIT PROGRAMS (DFPXIVP1,         * 01209600
+//*    ASSEM2       DFPXIVP2, & DFPXIVP3) TO TEST MULTIPLE LSR POOLS. * 01244000
+//*    ASSEM3       (NOTE: ANY AVAILABLE ASSEMBLER CAN BE USED)       * 01278400
+//*    LINK1    -- LINK-IN 3 TEST PROGRAMS.                           * 01312800
+//*    HOLD2    -- IEBGENER UTILITY ISSUED TO HOLD THE NEXT JOB.      * 01347200
+//* JOB3: DFPX2IV3                                                    * 01381600
+//*    EXECIVP1 -- EXECUTE DFPXIVP1 PROGRAM.                          * 01416000
+//*    EXECIVP2 -- EXECUTE DFPXIVP2 PROGRAM.                          * 01450400
+//*    EXECIVP3 -- EXECUTE DFPXIVP3 PROGRAM.                          * 01484800
+//*    LINK2    -- LINK-IN OBJECT DECK FOR 31-BIT VIO TEST            * 01519200
+//*    VIOTEST  -- EXECUTE VIO 31-BIT VIO PROGRAM.                    * 01553600
+//*    CLEANUP2 -- DELETE TEMPORARY LOAD LIBRARY AND ICF CATALOG      * 01588000
+//*               WITH DFPX2IVP.KSDS01.                               * 01622400
+//********************************************************************* 01656800
+//*  SETUP:                                                           * 01691200
+//*        THE USER MUST FIRST MOUNT NON-SMS SCRATCH VOLUMES.         * 01725600
+//*        A SCRATCH VOLUME IS DEFINED AS A VOLUME THAT DOES NOT      * 01760000
+//*        HAVE ANY DATA SETS THAT WILL REQUIRE FURTHER USE.          * 01794400
+//*        IN THE FOLLOWING JOBSTREAM, ADJUST VALUES FOR              * 01828800
+//*        THESE DEVICES AS INDICATED BY COMMENT FLAGS.               * 01863200
+//********************************************************************* 01900000
+//*                                                                   * 01950000
+//*      NORMAL COMPLETION RESULTS:                                   * 02000000
+//*                 ALL STEPS SHOULD HAVE ZERO RETURN CODES.          * 02050000
+//*                                                                   * 02100000
+//*      ABNORMAL COMPLETION RESULTS:                                 * 02150000
+//*                 USER 100 ABENDS ARE ISSUED FOR ANY ERROR RETURN   * 02200000
+//*                     CODES FROM VSAM AND FROM VIO.                 * 02250000
+//*                 USER 0001 ABEND MAY BE ISSUED FROM THE        @P1A* 02260000
+//*                     VIOTEST STEP IF THE VIO DATA SET          @P1A* 02270000
+//*                     REFERENCED IN THAT STEP IS NOT ACTUALLY   @P1A* 02280000
+//*                     ALLOCATED TO VIO.                         @P1A* 02290000
+//*                                                                   * 02300000
+//********************************************************************* 02350000
+//*  SETUP:                                                             02360000
+//*        THE USER MUST FIRST MOUNT A NON-SMS SCRATCH VOLUME.          02370000
+//*        SCRATCH VOLUME IS DEFINED AS A VOLUME THAT DOES NOT          02380000
+//*        HAVE ANY DATA SETS THAT WILL REQUIRE FURTHER USE.            02390000
+//*                                                                     02400000
+//*        IN THE FOLLOWING JOBSTREAM, ADJUST VALUES FOR                02450000
+//*        THESE DEVICES AS INDICATED BY COMMENT FLAGS.                 02500000
+//********************************************************************* 03100000
+//* CHANGE ACTIVITY =                                                 * 03114200
+//*                                                                   * 03128400
+//* CORRECT AMODE AND RMODE PARMS                             @WA14631* 03142600
+//* DROP CURRENT BASEREG BEFORE USING NEW BASEREG             @WA19923* 03156800
+//* CORRECT INVALID PARAMETERS                                @WA20229* 03171000
+//* ADD HLASMC                                                @WA29697* 03178100
+//* REMOVE STEPCAT ADD DEFINE ALIAS                               @01A* 03179800
+//* $01=OW31439,HDZ11D0,980126,SJPLGFL = REMOVE STEPCATS          @01A* 03181600
+//* FIX HLASMC SYNTAX                                             @02C* 03183400
+//* $P1,R100842,HDZ2240,2018JUN12,RLUNGER:  ADD U0001 ABEND DOC   @P1A* 03183501
+//*     TO ABNORMAL COMPLETION RESULTS.                           @P1A* 03183601
+//********************************************************************* 03185200
+//*                                                                   * 03200000
+//*        DELETE TEMPORARY LOAD MODULE LIBARARY IF EXISTING          * 03250000
+//*                                                                   * 03300000
+//********************************************************************* 03350000
+//*                                                                     03400000
+//DELETE1 EXEC PGM=IEFBR14                                              03450000
+//LOADDD   DD  DSN=DFPX2IVP.TEMPLIB,DISP=(MOD,DELETE),                  03500000
+//             SPACE=(TRK,(0)),                                         03550000
+//             UNIT=SYSDA,VOL=SER=ZOST71             /*NONSMS VOL*/     03600000
+//*                                                                     03650000
+//********************************************************************* 03700000
+//*                                                                   * 03750000
+//*           CREATE NEW LOAD MODULE LIBRARY DFPX2IVP.TEMPLIB.        * 03800000
+//*                                                                   * 03850000
+//********************************************************************* 03900000
+//*                                                                     03950000
+//CREATE  EXEC PGM=IEFBR14                                              04000000
+//LOADDD DD DSN=DFPX2IVP.TEMPLIB,UNIT=SYSDA,                            04050000
+//          VOL=SER=ZOST71,DCB=(SYS1.LINKLIB),       /*NONSMS VOL*/     04100000
+//          SPACE=(TRK,(5,2,1),RLSE),DISP=(NEW,KEEP)                    04150000
+//*                                                                     04200000
+//********************************************************************* 04250000
+//*                                                                   * 04300000
+//* CLEANUP ICF CATALOG AND ANY VSAM DATASETS FROM SCRATCH PACK.      * 04350000
+//*                                                                   * 04400000
+//********************************************************************* 04450000
+//*                                                                     04500000
+//CLEANUP EXEC PGM=IDCAMS                                               04550000
+//SYSPRINT DD  SYSOUT=A                                                 04600000
+//VOL      DD  UNIT=SYSDA,VOL=SER=ZOST71,DISP=OLD    /*NONSMS VOL*/     04650000
+//SYSIN    DD  *                                                        04700000
+ /********************************************************************/ 04750000
+ /*     DFPX2IVP     CLEANUP                                         */ 04800000
+ /********************************************************************/ 04850000
+ /*  DELETE THE VSAM CLUSTER & USERCATALOG THAT MAY HAVE BEEN        */ 04875000
+ /*  PREVIOUSLY DEFINED. EXPECT A NONZERO RETURN CODE IF THEY        */ 04900000
+ /*  DON'T EXIST.                                                    */ 04925000
+ /********************************************************************/ 04950000
+   DELETE (DFPX2IVP.KSDS01) CLUSTER PURGE                               04987500
+   DELETE DFPX2IVP ALIAS                      /*                 @01A*/ 05025000
+   DELETE DFX2UCAT FILE (VOL) UCAT FORCE                                05066600
+   EXPORT DFX2UCAT DISCONNECT                                           05108200
+   SET LASTCC=0                                                         05150000
+   SET MAXCC=0                                                          05200000
+/*                                                                      05250000
+//*                                                                     05300000
+//********************************************************************* 05350000
+//*                                                                   * 05400000
+//*     DFPX2IVP     DEFCAT - DEFINES DFX2UCAT ON SCRATCH PACK.       * 05450000
+//*                                                                   * 05500000
+//********************************************************************* 05550000
+//*                                                                     05600000
+//DEFCAT    EXEC PGM=IDCAMS                                             05650000
+//VOL       DD   VOL=SER=ZOST71,UNIT=SYSDA,DISP=OLD     /*NONSMS VOL*/  05700000
+//SYSPRINT  DD   SYSOUT=A                                               05750000
+//SYSIN     DD   *                                                      05800000
+    /*********************************************************/         05850000
+    /*  DFPX2IVP     DEFCAT                                  */         05900000
+    /*********************************************************/         05950000
+     DEFINE      UCAT  (  -                                             06000000
+       NAME (DFX2UCAT)          -                                       06050000
+       ICFCATALOG -                                                     06100000
+       VOL (ZOST71)                              /*NONSMS VOL*/-        06200000
+       FILE (VOL)              -                                        06250000
+       RECSZ (4086 32400) -                                             06300000
+       CYL (3 1))          -                                            06350000
+       CATALOG (CATALOG.ZOS24.MASTER)                        /*MASTERCAT*/
+                                                                        06416600
+     DEFINE ALIAS (NAME(DFPX2IVP) RELATE(DFX2UCAT)) /*   @01A*/         06433300
+/*                                                                      06450000
+//********************************************************************* 06500000
+//*   THE FOLLOWING STEP WILL HOLD THE NEXT JOB(S) FROM BEING         * 06550000
+//*   SUBMITTED UNTIL THE PRECEDING JOB IS COMPLETELY EXECUTED.       * 06600000
+//********************************************************************* 06650000
+//HOLD1   EXEC PGM=IEBGENER                                             06700000
+//SYSPRINT DD  SYSOUT=A                                                 06750000
+//SYSIN  DD  DUMMY                                                      06800000
+//SYSUT2  DD SYSOUT=(A,INTRDR)                                          06850000
+//SYSUT1  DD DATA,DLM=$A                                                06900000
+//*DFPX2IV2 JOB (XXXXX,YYY),DFPX2IVP,CLASS=A,MSGLEVEL=(1,1),MSGCLASS=A   0695000
+//DFPX2IV2 JOB 60798,E002884,CLASS=W,NOTIFY=ROSCAAO,MSGCLASS=Q
+//*                                                                     07000000
+//********************************************************************* 07050000
+//*                                                                   * 07100000
+//*     DEFINE DFPX2IVP.KSDS01.                                       * 07150000
+//*                                                                   * 07200000
+//********************************************************************* 07250000
+//*                                                                     07300000
+//DEFKSDS EXEC PGM=IDCAMS                                               07350000
+//SYSPRINT DD  SYSOUT=A                                                 07450000
+//VOL      DD  UNIT=SYSDA,VOL=SER=ZOST71,DISP=OLD      /*NONSMS VOL*/   07500000
+//SYSIN    DD  *                                                        07550000
+ /*********************************************************/            07600000
+ /*    DFPX2IVP      DEFKSDS                              */            07650000
+ /*********************************************************/            07700000
+ /*    DEFINE CLUSTER DFPX2IVP.KSDS01                     */            07750000
+ /*********************************************************/            07800000
+                                                                        07850000
+         DEFINE CLUSTER ( NAME (DFPX2IVP.KSDS01)    -                   07900000
+                          VOLUMES (ZOST71)           /*NONSMS VOL*/-    07950000
+                          TRK  (10 1)    -                              08000000
+                          RECSZ (256 256)   -                           08050000
+                          CISZ (2048)    -                              08100000
+                          KEYS (4 8)  -                                 08150000
+                          FILE (VOL)  -                                 08200000
+                          SHR (3 3)  -                                  08300000
+                          OWNER  (VSM31BIT) ) -                         08350000
+                          DATA ( NAME (DFPX2IVP.KSDS01.DATA) )  -       08400000
+                          INDEX ( NAME (DFPX2IVP.KSDS01.INDEX) )  -     08450000
+                          CATALOG (DFX2UCAT)                            08500000
+                                                                        08550000
+ /*********************************************************/            08600000
+ /*    THE PREVIOUS DEFINE OF DFPX2IVP.KSDS01 SHOULD      */            08650000
+ /*    RECEIVE A ZERO RETURN CODE.                        */            08700000
+ /*********************************************************/            08750000
+                                                                        08800000
+/*                                                                      08850000
+//*                                                                     08900000
+//********************************************************************* 08950000
+//*                                                                   * 09000000
+//*           ASSEMBLE DFPXIVP1                                       * 09050000
+//*                                                                   * 09100000
+//********************************************************************* 09150000
+//*                                                                     09200000
+//ASSEM1  EXEC HLASMC,REGION.C=512K,COND.C=(0,NE,DEFKSDS), /*@WA29697*/ 09250000
+//             PARM.C='NOOBJECT,LINECOUNT(55),DECK'        /*@WA20229*/ 09300000
+//C.SYSPUNCH DD  DSN=&ASM1OBJ,UNIT=SYSDA,DISP=(NEW,PASS),  /*@YA06851*/ 09350000
+//             SPACE=(TRK,(1,1),RLSE)                                   09400000
+//C.SYSIN    DD  *                                         /*@YA06851*/ 09450000
+DFPXIVP1 TITLE 'VSAM 31 BIT MULTIPLE LSR POOLS TEST'                    09500000
+DFPXIVP1 CSECT                                                          09550000
+DFPXIVP1 AMODE 31                                                       09600000
+DFPXIVP1 RMODE 24                                                       09650000
+*                                                                       09700000
+*--------------------------------------------------------------------*  09750000
+*                                                                    *  09800000
+*        REGISTER EQUATES.                                           *  09850000
+*                                                                    *  09900000
+*--------------------------------------------------------------------*  09950000
+*                                                                       10000000
+R0       EQU   0                       REGISTER 0.                      10050000
+COUNT    EQU   2                       LOOP ITERATION COUNTER.          10100000
+KEYREG   EQU   3                       SEARCH KEY ARGUMENT REGISTER.    10150000
+KEYINDEX EQU   4                       KEY TABLE INDEX.                 10200000
+LINKREG  EQU   11                      INTERNAL SUBROUTINE LINKAGE.     10250000
+BASEREG  EQU   12                      BASE REGISTER.                   10300000
+SAVEREG  EQU   13                      SAVE AREA REGISTER.              10350000
+RETREG   EQU   14                      CALLER'S RETURN ADDRESS.         10400000
+ENTRYREG EQU   15                      DFPXIVP1'S ENTRY ADDRESS.        10450000
+RETCODE  EQU   15                      RETURN CODE.                     10500000
+         EJECT                                                          10550000
+*                                                                       10600000
+*--------------------------------------------------------------------*  10650000
+*                                                                    *  10700000
+*        CONSTANT EQUATES                                            *  10750000
+*                                                                    *  10800000
+*--------------------------------------------------------------------*  10850000
+*                                                                       10900000
+POOL24   EQU   5                       RESOURCE POOL ID BELOW 16MB.     10950000
+POOL31   EQU   15                      RESOURCE POOL ID ABOVE 16MB.     11000000
+KEYINCR  EQU   1                       KEY INCREMENT.                   11050000
+NORECS   EQU   50                      NUMBER OF RECORDS TO BE LOADED.  11100000
+KEYLENG  EQU   4                       SEARCH ARGUMENT LENGTH.          11150000
+RECLENG  EQU   256                     RECORD LENGTH.                   11200000
+LOOPCNT  EQU   5                       KSDS VERIFY LOOP COUNT.          11250000
+         EJECT                                                          11300000
+*                                                                       11350000
+*--------------------------------------------------------------------*  11400000
+*                                                                    *  11450000
+*        STANDARD ENTRY PROLOGUE. SAVE AREA CHAINING, ESTABLISH      *  11500000
+*        BASE REGISTER AND ADDRESSIBILITY.                           *  11550000
+*                                                                    *  11600000
+*--------------------------------------------------------------------*  11650000
+*                                                                       11700000
+         USING DFPXIVP1,ENTRYREG       ESTABLISH ADDRESSIBILITY.        11750000
+         B     PROLOGUE                BRANCH AROUND EYECATCHER.        11800000
+         DC    CL8'DFPXIVP1'           MODULE NAME.                     11850000
+         DC    CL8'&SYSDATE'           ASSEMBLE DATE.                   11900000
+PROLOGUE STM   RETREG,BASEREG,12(SAVEREG)  SAVE CALLER'S REGISTERS.     11950000
+         BALR  BASEREG,R0              ESTABLISH BASE REGISTER.         12000000
+         DROP  ENTRYREG                DROP INITIAL BASE REG @WA19923   12050000
+         USING *,BASEREG               ESTABLISH ADDRESSIBILTY          12100000
+         LA    ENTRYREG,SAVEAREA       POINT TO MY SAVE AREA.           12150000
+         ST    SAVEREG,4(,ENTRYREG)    SAVE ADDRESS OF CALLER'S SAVE    12200000
+*                                          AREA.                        12250000
+         ST    ENTRYREG,8(,SAVEREG)    SAVE ADDRESS OF MY SAVE AREA.    12300000
+         LR    SAVEREG,ENTRYREG        POINT TO MY SAVE AREA.           12350000
+         EJECT                                                          12400000
+*                                                                       12450000
+*--------------------------------------------------------------------*  12500000
+*                                                                    *  12550000
+*        BUILD VIRTUAL RESOURCE POOLS ABOVE AND BELOW 16MB LINE.     *  12600000
+*                                                                    *  12650000
+*--------------------------------------------------------------------*  12700000
+*                                                                       12750000
+BUILD1   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     12800000
+         BLDVRP MF=(E,BLDABOVE)        GET RESOURCE POOL ABOVE 16MB.    12850000
+         LTR   RETCODE,RETCODE         REQUEST COMPLETED?               12900000
+         BZ    BUILD2                  YES, GO BUILD POOL BELOW 16MB.   12950000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       13000000
+BUILD2   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     13050000
+         BLDVRP MF=(E,BLDBELOW)        GET RESOURCE POOL BELOW 16MB.    13100000
+         LTR   RETCODE,RETCODE         REQUEST COMPLETED?               13150000
+         BZ    OPEN1                   YES, GO OPEN KSDS01.             13200000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       13250000
+         EJECT                                                          13300000
+*                                                                       13350000
+*--------------------------------------------------------------------*  13400000
+*                                                                    *  13450000
+*        OPEN DFPX2IVP.KSDS01 FOR OUTPUT.                            *  13500000
+*                                                                    *  13550000
+*--------------------------------------------------------------------*  13600000
+*                                                                       13650000
+OPEN1    DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     13700000
+         OPEN  (SEQACB1)               LOGICALLY CONNECT KSDS01.        13750000
+         LTR   RETCODE,RETCODE         KSDS01 OPEN OK?                  13800000
+         BZ    OPEN1OK                 YES, GO LOAD DATASET.            13850000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       13900000
+*                                                                       13950000
+*--------------------------------------------------------------------*  14000000
+*                                                                    *  14050000
+*        CALL SUBROUTINE TO LOAD DFPX2IVP.KSDS01.                    *  14100000
+*                                                                    *  14150000
+*--------------------------------------------------------------------*  14200000
+*                                                                       14250000
+OPEN1OK  DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     14300000
+         BAL   LINKREG,LOADIT          CALL SUBROUTINE TO LOAD KSDS01.  14350000
+         LTR   RETCODE,RETCODE         KSDS01 LOAD OK?                  14400000
+         BZ    LOADOK                  YES, GO CLOSE KSDS01.            14450000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       14500000
+LOADOK   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     14550000
+         CLOSE (SEQACB1)               LOGICALLY DISCONNECT KSDS01.     14600000
+         LTR   RETCODE,RETCODE         KSDS01 CLOSE OK?                 14650000
+         BZ    OPEN2                   YES, GO RE-OPEN KSDS01.          14700000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       14750000
+         EJECT                                                          14800000
+*                                                                       14850000
+*--------------------------------------------------------------------*  14900000
+*                                                                    *  14950000
+*        OPEN DFPX2IVP.KSDS01 TO VERIFY RECORDS ARE ACCESSIBLE.      *  15000000
+*                                                                    *  15050000
+*--------------------------------------------------------------------*  15100000
+*                                                                       15150000
+OPEN2    DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     15200000
+         OPEN  (SEQACB2)               LOGICALLY CONNECT KSDS01.        15250000
+         LTR   RETCODE,RETCODE         KSDS01 OPEN OK?                  15300000
+         BZ    OPEN2OK                 YES, GO VERIFY DATASET.          15350000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       15400000
+*                                                                       15450000
+*--------------------------------------------------------------------*  15500000
+*                                                                    *  15550000
+*        CALL SUBROUTINE TO VERIFY DFPX2IVP.KSDS01 IS ACCESSIBLE.    *  15600000
+*                                                                    *  15650000
+*--------------------------------------------------------------------*  15700000
+*                                                                       15750000
+OPEN2OK  DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     15800000
+         LA    COUNT,LOOPCNT           GET NUMBER OF TIMES TO VERIFY    15850000
+*                                          DATASET.                     15900000
+VERLOOP  DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     15950000
+         BAL   LINKREG,VERIFYIT        CALL SUBROUTINE TO VERIFY        16000000
+*                                          DFPX2IVP.KSDS01.             16050000
+         BCT   COUNT,VERLOOP           EXECUTE VERIFY SUBROUTINE        16100000
+*                                          UNTIL LOOP COUNT IS ZERO.    16150000
+         CLOSE (SEQACB2)               LOGICALLY DISCONNECT KSDS01.     16200000
+         LTR   RETCODE,RETCODE         KSDS01 CLOSE OK?                 16250000
+         BZ    DELPOOL1                YES, GO DELETE RESOURCE POOLS.   16300000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       16350000
+         EJECT                                                          16400000
+*                                                                       16450000
+*--------------------------------------------------------------------*  16500000
+*                                                                    *  16550000
+*        DELETE RESOURCE POOLS AND TEST FOR SUCCESSFUL RUN.          *  16600000
+*                                                                    *  16650000
+*--------------------------------------------------------------------*  16700000
+*                                                                       16750000
+DELPOOL1 DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     16800000
+         DLVRP TYPE=LSR,SHRPOOL=POOL24 DELETE POOL BELOW 16MB.          16850000
+         LTR   RETCODE,RETCODE         RESOURCE POOL DELETE OK?         16900000
+         BZ    DELPOOL2                YES, GO DELETE RESOURCE POOL31.  16950000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       17000000
+DELPOOL2 DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     17050000
+         DLVRP TYPE=LSR,SHRPOOL=POOL31 DELETE POOL ABOVE 16MB.          17100000
+         LTR   RETCODE,RETCODE         RESOURCE POOL DELETE OK?         17150000
+         BZ    DELETEOK                YES, GO SET SUCCESS RETURN CODE. 17200000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       17250000
+DELETEOK DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     17300000
+         SR    RETCODE,RETCODE         SET ZERO RETURN CODE.            17350000
+         EJECT                                                          17400000
+*                                                                       17450000
+*--------------------------------------------------------------------*  17500000
+*                                                                    *  17550000
+*        STANDARD EXIT EPILOGUE. RESTORE CALLER'S REGISTERS AND      *  17600000
+*        RETURN TO CALLER.                                           *  17650000
+*                                                                    *  17700000
+*--------------------------------------------------------------------*  17750000
+*                                                                       17800000
+EXIT     DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     17850000
+         L     SAVEREG,4(,SAVEREG)     RESTORE CALLER'S SAVE AREA ADDR. 17900000
+         L     RETREG,12(,SAVEREG)     RESTORE RETURN ADDRESS REGISTER. 17950000
+         LM    R0,BASEREG,20(SAVEREG)  RESTORE ALL REGS. EXCEPT REG15.  18000000
+         BR    RETREG                  RETURN TO CALLER.                18050000
+         EJECT                                                          18100000
+*                                                                       18150000
+*--------------------------------------------------------------------*  18200000
+*                                                                    *  18250000
+*        LOAD DFPX2IVP.KSDS01.                                       *  18300000
+*                                                                    *  18350000
+*--------------------------------------------------------------------*  18400000
+*                                                                       18450000
+LOADIT   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     18500000
+         ST    LINKREG,LINKSAVE        SAVE RETURN ADDRESS.             18550000
+         SR    KEYREG,KEYREG           ZERO SEARCH ARGUMENT REGISTER.   18600000
+         SR    KEYINDEX,KEYINDEX       ZERO KEY TABLE INDEX.            18650000
+         LA    COUNT,NORECS            GET NUMBER OF RECORDS TO LOAD.   18700000
+*                                                                       18750000
+LOADLOOP DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     18800000
+         ST    KEYREG,KEY              UPDATE KEY FIELD.                18850000
+         STH   KEYREG,KEYTABLE(KEYINDEX)   INIT. RECORD KEY TABLE.      18900000
+         PUT   RPL=SEQRPL1             WRITE RECORD.                    18950000
+         LTR   RETCODE,RETCODE         REQUEST COMPLETED OK?            19000000
+         BZ    PUTOK                   YES, GO SET UP NEXT RECORD.      19050000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       19100000
+PUTOK    DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     19150000
+         LA    KEYINDEX,2(,KEYINDEX)   INCREMENT KEY TABLE INDEX.       19200000
+         LA    KEYREG,KEYINCR(,KEYREG) INCREMENT KEY.                   19250000
+         BCT   COUNT,LOADLOOP          DECREMENT COUNT. COUNT ZERO?     19300000
+*                                      NO, LOOP AGAIN.                  19350000
+         SR    RETCODE,RETCODE         SET ZERO RETURN CODE.            19400000
+         L     LINKREG,LINKSAVE        YES, RESTORE RETURN ADDRESS.     19450000
+         BR    LINKREG                 RETURN TO MAIN ROUTINE.          19500000
+         EJECT                                                          19550000
+*                                                                       19600000
+*--------------------------------------------------------------------*  19650000
+*                                                                    *  19700000
+*        VERIFY DFPX2IVP.KSDS01 CAN BE ACCESSED. GET RECORDS USING   *  19750000
+*        SEQUENTIAL REQUESTS. COMPARE THE RECORDS READ WITH A MODEL  *  19800000
+*        RECORD.  IF THE RECORDS MATCH THE LOOP IS EXECUTED AGAIN,   *  19850000
+*        IF THE COMPARISON IS UNEQUAL A USER 100 ABEND IS ISSUED.    *  19900000
+*        THE DATASET IS READ UNTIL EOF IS REACHED, AND THEN          *  19950000
+*        TEMPORARILY CLOSED.  CONTROL IS THEN RETURNED TO MAIN       *  20000000
+*        ROUTINE.                                                    *  20050000
+*                                                                    *  20100000
+*--------------------------------------------------------------------*  20150000
+*                                                                       20200000
+         EJECT                                                          20250000
+VERIFYIT DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     20300000
+         ST    LINKREG,LINKSAVE        SAVE RETURN ADDRESS.             20350000
+         SR    KEYINDEX,KEYINDEX       INITIALIZE KEY TABLE INDEX.      20400000
+         SR    KEYREG,KEYREG           INIT. SEARCH ARGUMENT REGISTER.  20450000
+         ST    KEYREG,KEY              UPDATE SEARCH ARGUMENT FIELD.    20500000
+         POINT RPL=SEQRPL2             POSITION VSAM.                   20550000
+         LTR   RETCODE,RETCODE         POINT REQUEST ACCEPTED?          20600000
+         BZ    GETLOOP                 YES, GO GET RECORD.              20650000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       20700000
+GETLOOP  DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     20750000
+         LH    KEYREG,KEYTABLE(KEYINDEX) GET SEARCH KEY ARGUMENT.       20800000
+         ST    KEYREG,KEY              UPDATE SEARCH ARGUMENT FIELD.    20850000
+         MVC   TESTREC(RECLENG),RECORD INITIALIZE COMPARISON RECORD.    20900000
+         GET   RPL=SEQRPL2             GET RECORD USING SEQ. REQUEST.   20950000
+         LTR   RETCODE,RETCODE         REQUEST ACCEPTED?                21000000
+         BZ    COMPARE1                YES, GO COMPARE RECORD.          21050000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       21100000
+COMPARE1 DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     21150000
+         CLC   TESTREC(RECLENG),RECORD     ARE RECORDS EQUAL?           21200000
+         BE    BUMPKEY                 YES, GO INCREMENT KEY TABLE IX.  21250000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       21300000
+BUMPKEY  DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     21350000
+         LA    KEYINDEX,2(,KEYINDEX)   POINT TO NEXT KEY OF RECORD TO   21400000
+*                                          COMPARE.                     21450000
+         B     GETLOOP                 GO GET NEXT RECORD.              21500000
+*                                      IS COUNT ZERO? NO, CONTINUE.     21550000
+TCLOSE   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     21600000
+         CLOSE (SEQACB2),TYPE=T        YES, PARTIALLY CLOSE KSDS01.     21650000
+         LTR   RETCODE,RETCODE         KSDS01 CLOSE OK?                 21700000
+         BZ    TCLOSEOK                YES, GO RETURN TO MAIN ROUTINE.  21750000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       21800000
+TCLOSEOK DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     21850000
+         L     LINKREG,LINKSAVE        RESTORE RETURN ADDRESS.          21900000
+         BR    LINKREG                 RETURN TO MAIN ROUTINE.          21950000
+         EJECT                                                          22000000
+*                                                                       22050000
+*--------------------------------------------------------------------*  22100000
+*                                                                    *  22150000
+*        CONSTANT AND STORAGE DEFINITIONS.                           *  22200000
+*                                                                    *  22250000
+*--------------------------------------------------------------------*  22300000
+*                                                                       22350000
+KEYTABLE DC    (NORECS)AL2(0)          RECORD KEY TABLE.                22400000
+*                                                                       22450000
+OPENMSG  DS    CL132                   OPEN ERROR MESSAGE AREA.         22500000
+*                                                                       22550000
+         DS    0F                      FULLWORD BOUNDARY ALIGNMENT.     22600000
+TESTREC  DS    CL256                   RECORD COMPARISON MODEL.         22650000
+*                                                                       22700000
+         DS    0F                      FULLWORD BOUNDARY ALIGNMENT.     22750000
+RECORD   DS    0CL256                  KSDS01 RECORD DESCRIPTION.       22800000
+         DC    CL8'DFPX2IVP'           TESTCASE NAME.                   22850000
+KEY      DC    F'0'                    SEARCH KEY ARGUMENT.             22900000
+         DC    CL4' '                  FILLER.                          22950000
+         DC    4CL60' TEST DATA FOR DFPX2IVP'  FILLER.                  23000000
+*                                                                       23050000
+LINKSAVE DC    F'-1'                   INTERNAL LINKAGE RETURN ADDR.    23100000
+*                                                                       23150000
+SAVEAREA DC    18F'-1'                 REGISTER SAVE AREA.              23200000
+         EJECT                                                          23250000
+*                                                                       23300000
+*--------------------------------------------------------------------*  23350000
+*                                                                    *  23400000
+*        VSAM CONTROL BLOCKS.                                        *  23450000
+*                                                                    *  23500000
+*--------------------------------------------------------------------*  23550000
+*                                                                       23600000
+BLDABOVE BLDVRP BUFFERS=(2048(4),4096(3),512(5)),                      X23650000
+               KEYLEN=4,                                               X23700000
+               STRNO=3,                                                X23750000
+               TYPE=LSR,                                               X23800000
+               SHRPOOL=15,                                             X23850000
+               LOC=ANY,                                                X23900000
+               MF=L                                                     23950000
+         EJECT                                                          24000000
+*                                                                       24050000
+BLDBELOW BLDVRP BUFFERS=(2048(4),4096(3),512(6)),                      X24100000
+               KEYLEN=4,                                               X24150000
+               STRNO=3,                                                X24200000
+               TYPE=LSR,                                               X24250000
+               SHRPOOL=5,                                              X24300000
+               LOC=BELOW,                                              X24350000
+               MF=L                                                     24400000
+         EJECT                                                          24450000
+*                                                                       24500000
+SEQACB1  ACB   AM=VSAM,                                                X24550000
+               DDNAME=KSDS01,                                          X24600000
+               BUFND=3,                                                X24650000
+               BUFNI=2,                                                X24700000
+               MACRF=(KEY,DDN,SEQ,OUT,AMODE31),                        X24750000
+               SHRPOOL=POOL24,                                         X24800000
+               MAREA=OPENMSG,                                          X24850000
+               MLEN=132                                                 24900000
+         EJECT                                                          24950000
+*                                                                       25000000
+SEQACB2  ACB   AM=VSAM,                                                X25050000
+               DDNAME=KSDS01,                                          X25100000
+               BUFND=3,                                                X25150000
+               BUFNI=2,                                                X25200000
+               MACRF=(KEY,DDN,SEQ,IN,LSR),                             X25250000
+               SHRPOOL=POOL31,                                         X25300000
+               MAREA=OPENMSG,                                          X25350000
+               EXLST=EXLST1,                                           X25400000
+               MLEN=132                                                 25450000
+         EJECT                                                          25500000
+*                                                                       25550000
+SEQRPL1  RPL   AM=VSAM,                                                X25600000
+               ACB=SEQACB1,                                            X25650000
+               AREA=RECORD,                                            X25700000
+               AREALEN=RECLENG,                                        X25750000
+               ARG=KEY,                                                X25800000
+               KEYLEN=KEYLENG,                                         X25850000
+               OPTCD=(KEY,SEQ,FWD,SYN,NUP),                            X25900000
+               RECLEN=RECLENG                                           25950000
+         EJECT                                                          26000000
+*                                                                       26050000
+SEQRPL2  RPL   AM=VSAM,                                                X26100000
+               ACB=SEQACB2,                                            X26150000
+               AREA=RECORD,                                            X26200000
+               AREALEN=RECLENG,                                        X26250000
+               ARG=KEY,                                                X26300000
+               OPTCD=(KEY,SEQ,FWD,SYN,NUP),                            X26350000
+               RECLEN=RECLENG                                           26400000
+         EJECT                                                          26450000
+*                                                                       26500000
+EXLST1   EXLST AM=VSAM,                                                X26550000
+               EODAD=TCLOSE                                             26600000
+*                                                                       26650000
+         END                                                            26700000
+/*                                                                      26750000
+//*                                                                     26800000
+//********************************************************************* 26850000
+//*                                                                   * 26900000
+//*           ASSEMBLE DFPXIVP2                                       * 26950000
+//*                                                                   * 27000000
+//********************************************************************* 27050000
+//*                                                                     27100000
+//ASSEM2 EXEC HLASMC,REGION.C=512K,COND.C=(0,NE,ASSEM1.C), /*@WA29697*/ 27150000
+//             PARM.C='NOOBJECT,LINECOUNT(55),DECK'       /*@WA20229*/  27200000
+//C.SYSPUNCH DD  DSN=&ASM2OBJ,UNIT=SYSDA,DISP=(NEW,PASS), /*@YA06851*/  27250000
+//             SPACE=(TRK,(1,1),RLSE)                                   27300000
+//C.SYSIN    DD  *                                        /*@YA06851*/  27350000
+DFPXIVP2 TITLE 'DFPXIVP2 -- VSAM 31 BIT MULTIPLE LSR POOLS TEST'        27400000
+DFPXIVP2 CSECT                                                          27450000
+DFPXIVP2 AMODE 31                                                       27500000
+DFPXIVP2 RMODE 24                                                       27550000
+*                                                                       27600000
+*--------------------------------------------------------------------*  27650000
+*                                                                    *  27700000
+*        REGISTER EQUATES.                                           *  27750000
+*                                                                    *  27800000
+*--------------------------------------------------------------------*  27850000
+*                                                                       27900000
+R0       EQU   0                       REGISTER 0.                      27950000
+COUNT    EQU   2                       LOOP ITERATION COUNTER.          28000000
+KEYREG   EQU   3                       SEARCH KEY ARGUMENT REGISTER.    28050000
+MAXRECS  EQU   5                       MAXIMUM NO. OF RECORDS.          28100000
+LINKREG  EQU   11                      INTERNAL SUBROUTINE LINKAGE.     28150000
+BASEREG  EQU   12                      BASE REGISTER.                   28200000
+SAVEREG  EQU   13                      SAVE AREA REGISTER.              28250000
+RETREG   EQU   14                      CALLER'S RETURN ADDRESS.         28300000
+ENTRYREG EQU   15                      DFPXIVP2'S ENTRY ADDRESS.        28350000
+RETCODE  EQU   15                      RETURN CODE.                     28400000
+         EJECT                                                          28450000
+*                                                                       28500000
+*--------------------------------------------------------------------*  28550000
+*                                                                    *  28600000
+*        CONSTANT EQUATES                                            *  28650000
+*                                                                    *  28700000
+*--------------------------------------------------------------------*  28750000
+*                                                                       28800000
+POOL24   EQU   5                       RESOURCE POOL ID BELOW 16MB.     28850000
+POOL31   EQU   15                      RESOURCE POOL ID ABOVE 16MB.     28900000
+NORECS   EQU   50                      NUMBER OF RECORDS TO BE LOADED.  28950000
+KEYLENG  EQU   4                       SEARCH ARGUMENT LENGTH.          29000000
+RECLENG  EQU   256                     RECORD LENGTH.                   29050000
+LOOPCNT  EQU   10                      KSDS-LOAD LOOP COUNT.            29100000
+CLOCKOK  EQU   12                      TIME OK MASK.                    29150000
+         EJECT                                                          29200000
+*                                                                       29250000
+*--------------------------------------------------------------------*  29300000
+*                                                                    *  29350000
+*        STANDARD ENTRY PROLOGUE. SAVE AREA CHAINING, ESTABLISH      *  29400000
+*        BASE REGISTER AND ADDRESSIBILITY.                           *  29450000
+*                                                                    *  29500000
+*--------------------------------------------------------------------*  29550000
+*                                                                       29600000
+         USING DFPXIVP2,ENTRYREG       ESTABLISH ADDRESSIBILITY.        29650000
+         B     PROLOGUE                BRANCH AROUND EYECATCHER.        29700000
+         DC    CL8'DFPXIVP2'           MODULE NAME.                     29750000
+         DC    CL8'&SYSDATE'           ASSEMBLE DATE.                   29800000
+PROLOGUE STM   RETREG,BASEREG,12(SAVEREG)  SAVE CALLER'S REGISTERS.     29850000
+         BALR  BASEREG,R0              ESTABLISH BASE REGISTER.         29900000
+         DROP  ENTRYREG                DROP INITIAL BASE REG @WA19923   29950000
+         USING *,BASEREG               ESTABLISH ADDRESSIBILTY          30000000
+         LA    ENTRYREG,SAVEAREA       POINT TO MY SAVE AREA.           30050000
+         ST    SAVEREG,4(,ENTRYREG)    SAVE ADDRESS OF CALLER'S SAVE    30100000
+*                                          AREA.                        30150000
+         ST    ENTRYREG,8(,SAVEREG)    SAVE ADDRESS OF MY SAVE AREA.    30200000
+         LR    SAVEREG,ENTRYREG        POINT TO MY SAVE AREA.           30250000
+         EJECT                                                          30300000
+*                                                                       30350000
+*--------------------------------------------------------------------*  30400000
+*                                                                    *  30450000
+*        BUILD VIRTUAL RESOURCE POOLS ABOVE AND BELOW 16MB LINE.     *  30500000
+*                                                                    *  30550000
+*--------------------------------------------------------------------*  30600000
+*                                                                       30650000
+BUILD1   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     30700000
+         BLDVRP MF=(E,BLDABOVE)        GET RESOURCE POOL ABOVE 16MB.    30750000
+         LTR   RETCODE,RETCODE         REQUEST COMPLETED?               30800000
+         BZ    BUILD2                  YES, GO BUILD POOL BELOW 16MB.   30850000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       30900000
+BUILD2   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     30950000
+         BLDVRP MF=(E,BLDBELOW)        GET RESOURCE POOL BELOW 16MB.    31000000
+         LTR   RETCODE,RETCODE         REQUEST COMPLETED?               31050000
+         BZ    OPEN1                   YES, GO OPEN KSDS01.             31100000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       31150000
+         EJECT                                                          31200000
+*                                                                       31250000
+*--------------------------------------------------------------------*  31300000
+*                                                                    *  31350000
+*        OPEN DFPX2IVP.KSDS01 TO VERIFY RECORDS ARE ACCESSIBLE.      *  31400000
+*                                                                    *  31450000
+*--------------------------------------------------------------------*  31500000
+*                                                                       31550000
+OPEN1    DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     31600000
+         OPEN  (DIRACB)                LOGICALLY CONNECT KSDS01.        31650000
+         LTR   RETCODE,RETCODE         KSDS01 OPEN OK?                  31700000
+         BZ    OPEN1OK                 YES, GO VERIFY DATASET.          31750000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       31800000
+*                                                                       31850000
+*--------------------------------------------------------------------*  31900000
+*                                                                    *  31950000
+*        CALL SUBROUTINE TO VERIFY DFPX2IVP.KSDS01 IS ACCESSIBLE.    *  32000000
+*                                                                    *  32050000
+*--------------------------------------------------------------------*  32100000
+*                                                                       32150000
+OPEN1OK  DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     32200000
+         BAL   LINKREG,VERIFYIT        CALL SUBROUTINE TO VERIFY        32250000
+*                                          DFPX2IVP.KSDS01.             32300000
+CLOSE2   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     32350000
+         CLOSE (DIRACB)                LOGICALLY DISCONNECT KSDS01.     32400000
+         LTR   RETCODE,RETCODE         KSDS01 CLOSE OK?                 32450000
+         BZ    DELPOOL1                YES, GO DELETE RESOURCE POOLS.   32500000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       32550000
+         EJECT                                                          32600000
+*                                                                       32650000
+*--------------------------------------------------------------------*  32700000
+*                                                                    *  32750000
+*        DELETE RESOURCE POOLS AND TEST FOR SUCCESSFUL RUN.          *  32800000
+*                                                                    *  32850000
+*--------------------------------------------------------------------*  32900000
+*                                                                       32950000
+DELPOOL1 DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     33000000
+         DLVRP TYPE=LSR,SHRPOOL=POOL24 DELETE POOL BELOW 16MB.          33050000
+         LTR   RETCODE,RETCODE         RESOURCE POOL DELETE OK?         33100000
+         BZ    DELPOOL2                YES, GO DELETE RESOURCE POOL31.  33150000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       33200000
+DELPOOL2 DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     33250000
+         DLVRP TYPE=LSR,SHRPOOL=POOL31 DELETE POOL ABOVE 16MB.          33300000
+         LTR   RETCODE,RETCODE         RESOURCE POOL DELETE OK?         33350000
+         BZ    DELETEOK                YES, GO SET SUCCESS RETURN CODE. 33400000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       33450000
+DELETEOK DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     33500000
+         SR    RETCODE,RETCODE         SET ZERO RETURN CODE.            33550000
+         EJECT                                                          33600000
+*                                                                       33650000
+*--------------------------------------------------------------------*  33700000
+*                                                                    *  33750000
+*        STANDARD EXIT EPILOGUE. RESTORE CALLER'S REGISTERS AND      *  33800000
+*        RETURN TO CALLER.                                           *  33850000
+*                                                                    *  33900000
+*--------------------------------------------------------------------*  33950000
+*                                                                       34000000
+EXIT     DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     34050000
+         L     SAVEREG,4(,SAVEREG)     RESTORE CALLER'S SAVE AREA ADDR. 34100000
+         L     RETREG,12(,SAVEREG)     RESTORE RETURN ADDRESS REGISTER. 34150000
+         LM    R0,BASEREG,20(SAVEREG)  RESTORE ALL REGS. EXCEPT REG15.  34200000
+         BR    RETREG                  RETURN TO CALLER.                34250000
+         EJECT                                                          34300000
+*                                                                       34350000
+*--------------------------------------------------------------------*  34400000
+*                                                                    *  34450000
+*        VERIFY DFPX2IVP.KSDS01 CAN BE ACCESSED. GET RECORDS USING   *  34500000
+*        DIRECT REQUESTS. COMPARE THE RECORDS READ WITH A MODEL      *  34550000
+*        RECORD.  IF THE RECORDS MATCH THE LOOP IS EXECUTED AGAIN,   *  34600000
+*        IF THE COMPARISON IS UNEQUAL THEN A USER 100 ABEND IS       *  34650000
+*        ISSUED. AFTER THE LOOP IS EXECUTED THE DESIRED NUMBER OF    *  34700000
+*        TIMES, CONTROL IS RETURNED TO THE MAIN ROUTINE.             *  34750000
+*                                                                    *  34800000
+*--------------------------------------------------------------------*  34850000
+*                                                                       34900000
+         EJECT                                                          34950000
+VERIFYIT DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     35000000
+         ST    LINKREG,LINKSAVE        SAVE RETURN ADDRESS.             35050000
+         LA    COUNT,LOOPCNT           INITIALIZE LOOP COUNTER.         35100000
+         LA    MAXRECS,NORECS-1        INIT. MAXIMUM RECORD KEY.        35150000
+DIRLOOP  DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     35200000
+         SR    KEYREG,KEYREG           INIT. SEARCH ARGUMENT REGISTER.  35250000
+         STCK  TIME                    GET TIME FROM TOD CLOCK.         35300000
+         BC    CLOCKOK,TIMEOK          TIME VALID? YES, GO GET INDEX.   35350000
+         B     DIRLOOP                 NO, GET TIME AGAIN.              35400000
+TIMEOK   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     35450000
+         IC    KEYREG,RECINDEX         GET ARBITRARY RECORD NUMBER.     35500000
+VALIDREC DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     35550000
+         CR    KEYREG,MAXRECS          VALID RECORD KEY?                35600000
+         BNH   GETINDEX                YES, GO SET SEARCH ARGUMENT.     35650000
+         SR    KEYREG,MAXRECS          GET ALTERNATE RECORD KEY.        35700000
+         B     VALIDREC                GO TEST ALTERNATE RECORD KEY.    35750000
+GETINDEX DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     35800000
+         ST    KEYREG,KEY              UPDATE SEARCH ARGUMENT FIELD.    35850000
+         MVC   TESTREC(RECLENG),RECORD INITIALIZE COMPARISON RECORD.    35900000
+         GET   RPL=DIRRPL              GET RECORD USING DIRECT REQUEST. 35950000
+         LTR   RETCODE,RETCODE         REQUEST ACCEPTED?                36000000
+         BZ    COMPARE1                YES, GO COMPARE RECORD.          36050000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       36100000
+COMPARE1 DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     36150000
+         CLC   TESTREC(RECLENG),RECORD ARE RECORDS EQUAL?               36200000
+         BE    DECRCNT                 YES, GO DECREMENT LOOP COUNT.    36250000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       36300000
+DECRCNT  DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     36350000
+         BCT   COUNT,DIRLOOP           DECREMENT LOOP COUNT.            36400000
+*                                      IS COUNT ZERO? NO, CONTINUE.     36450000
+TCLOSE   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     36500000
+         CLOSE (DIRACB),TYPE=T         YES, PARTIALLY CLOSE KSDS01.     36550000
+         LTR   RETCODE,RETCODE         KSDS01 CLOSE OK?                 36600000
+         BZ    VEREXIT                 YES, GO EXIT VERIFY ROUTINE.     36650000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       36700000
+VEREXIT  DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     36750000
+         L     LINKREG,LINKSAVE        RESTORE RETURN ADDRESS.          36800000
+         BR    LINKREG                 RETURN TO MAIN ROUTINE.          36850000
+         EJECT                                                          36900000
+*                                                                       36950000
+*--------------------------------------------------------------------*  37000000
+*                                                                    *  37050000
+*        CONSTANT AND STORAGE DEFINITIONS.                           *  37100000
+*                                                                    *  37150000
+*--------------------------------------------------------------------*  37200000
+*                                                                       37250000
+TIME     DS    0D                      TIME-OF-DAY CLOCK STORAGE.       37300000
+         DS    CL6                     UNUSED.                          37350000
+RECINDEX DS    XL1                     KEY TABLE RECORD INDEX.          37400000
+         DS    CL1                     UNUSED.                          37450000
+*                                                                       37500000
+OPENMSG  DS    CL132                   OPEN ERROR MESSAGE AREA.         37550000
+*                                                                       37600000
+         DS    0F                      FULLWORD BOUNDARY ALIGNMENT.     37650000
+TESTREC  DS    CL256                   RECORD COMPARISON MODEL.         37700000
+*                                                                       37750000
+         DS    0F                      FULLWORD BOUNDARY ALIGNMENT.     37800000
+RECORD   DS    0CL256                  KSDS01 RECORD DESCRIPTION.       37850000
+         DC    CL8'DFPX2IVP'           JOB NAME.                        37900000
+KEY      DC    F'0'                    SEARCH KEY ARGUMENT.             37950000
+         DC    CL4' '                  FILLER.                          38000000
+         DC    4CL60' TEST DATA FOR DFPX2IVP'  FILLER.                  38050000
+*                                                                       38100000
+LINKSAVE DC    F'-1'                   INTERNAL LINKAGE RETURN ADDR.    38150000
+*                                                                       38200000
+SAVEAREA DC    18F'-1'                 REGISTER SAVE AREA.              38250000
+         EJECT                                                          38300000
+*                                                                       38350000
+*--------------------------------------------------------------------*  38400000
+*                                                                    *  38450000
+*        VSAM CONTROL BLOCKS.                                        *  38500000
+*                                                                    *  38550000
+*--------------------------------------------------------------------*  38600000
+*                                                                       38650000
+BLDABOVE BLDVRP BUFFERS=(2048(4),4096(3),512(4)),                      X38700000
+               KEYLEN=4,                                               X38750000
+               STRNO=3,                                                X38800000
+               TYPE=LSR,                                               X38850000
+               SHRPOOL=15,                                             X38900000
+               LOC=ANY,                                                X38950000
+               MF=L                                                     39000000
+         EJECT                                                          39050000
+*                                                                       39100000
+BLDBELOW BLDVRP BUFFERS=(2048(4),4096(3),512(6)),                      X39150000
+               KEYLEN=4,                                               X39200000
+               STRNO=3,                                                X39250000
+               TYPE=LSR,                                               X39300000
+               SHRPOOL=5,                                              X39350000
+               LOC=BELOW,                                              X39400000
+               MF=L                                                     39450000
+         EJECT                                                          39500000
+*                                                                       39550000
+DIRACB   ACB   AM=VSAM,                                                X39600000
+               DDNAME=KSDS01,                                          X39650000
+               BUFND=3,                                                X39700000
+               BUFNI=2,                                                X39750000
+               MACRF=(KEY,DDN,SKP,DIR,OUT,LSR),                        X39800000
+               MAREA=OPENMSG,                                          X39850000
+               SHRPOOL=POOL31,                                         X39900000
+               MLEN=132                                                 39950000
+         EJECT                                                          40000000
+*                                                                       40050000
+DIRRPL   RPL   AM=VSAM,                                                X40100000
+               ACB=DIRACB,                                             X40150000
+               AREA=RECORD,                                            X40200000
+               AREALEN=RECLENG,                                        X40250000
+               ARG=KEY,                                                X40300000
+               KEYLEN=KEYLENG,                                         X40350000
+               OPTCD=(KEY,DIR,FWD,SYN,UPD),                            X40400000
+               RECLEN=RECLENG                                           40450000
+*                                                                       40500000
+         END                                                            40550000
+/*                                                                      40600000
+//*                                                                     40650000
+//********************************************************************* 40700000
+//*                                                                   * 40750000
+//*           ASSEMBLE DFPXIVP3                                       * 40800000
+//*                                                                   * 40850000
+//********************************************************************* 40900000
+//*                                                                     40950000
+//ASSEM3  EXEC HLASMC,REGION.C=512K,COND.C=(0,NE,ASSEM1.C), /*@WA29697*/41000000
+//             PARM.C='NOOBJECT,LINECOUNT(55),DECK'        /*@WA20229*/ 41050000
+//C.SYSPUNCH DD  DSN=&ASM3OBJ,UNIT=SYSDA,DISP=(NEW,PASS),  /*@YA06851*/ 41100000
+//             SPACE=(TRK,(1,1),RLSE)                                   41150000
+//C.SYSIN    DD  *                                         /*@YA06851*/ 41200000
+DFPXIVP3 TITLE 'DFPXIVP3 -- VSAM 31 BIT MULTIPLE LSR POOLS TEST'        41250000
+DFPXIVP3 CSECT                                                          41300000
+DFPXIVP3 AMODE 31                                                       41350000
+DFPXIVP3 RMODE 24                                                       41400000
+*                                                                       41450000
+*--------------------------------------------------------------------*  41500000
+*                                                                    *  41550000
+*        REGISTER EQUATES.                                           *  41600000
+*                                                                    *  41650000
+*--------------------------------------------------------------------*  41700000
+*                                                                       41750000
+R0       EQU   0                       REGISTER 0.                      41800000
+COUNT    EQU   2                       LOOP ITERATION COUNTER.          41850000
+KEYREG   EQU   3                       SEARCH KEY ARGUMENT REGISTER.    41900000
+LINKREG  EQU   11                      INTERNAL SUBROUTINE LINKAGE.     41950000
+BASEREG  EQU   12                      BASE REGISTER.                   42000000
+SAVEREG  EQU   13                      SAVE AREA REGISTER.              42050000
+RETREG   EQU   14                      CALLER'S RETURN ADDRESS.         42100000
+ENTRYREG EQU   15                      DFPXIVP3'S ENTRY ADDRESS.        42150000
+RETCODE  EQU   15                      RETURN CODE.                     42200000
+         EJECT                                                          42250000
+*                                                                       42300000
+*--------------------------------------------------------------------*  42350000
+*                                                                    *  42400000
+*        CONSTANT EQUATES                                            *  42450000
+*                                                                    *  42500000
+*--------------------------------------------------------------------*  42550000
+*                                                                       42600000
+POOL24   EQU   5                       RESOURCE POOL ID BELOW 16MB.     42650000
+POOL31   EQU   15                      RESOURCE POOL ID ABOVE 16MB.     42700000
+NORECS   EQU   50                      NUMBER OF RECORDS TO BE LOADED.  42750000
+KEYLENG  EQU   4                       SEARCH ARGUMENT LENGTH.          42800000
+RECLENG  EQU   256                     RECORD LENGTH.                   42850000
+LOOPCNT  EQU   3                       KSDS VERIFY LOOP COUNT.          42900000
+         EJECT                                                          42950000
+*                                                                       43000000
+*--------------------------------------------------------------------*  43050000
+*                                                                    *  43100000
+*        STANDARD ENTRY PROLOGUE. SAVE AREA CHAINING, ESTABLISH      *  43150000
+*        BASE REGISTER AND ADDRESSIBILITY.                           *  43200000
+*                                                                    *  43250000
+*--------------------------------------------------------------------*  43300000
+*                                                                       43350000
+         USING DFPXIVP3,ENTRYREG       ESTABLISH ADDRESSIBILITY.        43400000
+         B     PROLOGUE                BRANCH AROUND EYECATCHER.        43450000
+         DC    CL8'DFPXIVP3'           MODULE NAME.                     43500000
+         DC    CL8'&SYSDATE'           ASSEMBLE DATE.                   43550000
+PROLOGUE STM   RETREG,BASEREG,12(SAVEREG)  SAVE CALLER'S REGISTERS.     43600000
+         BALR  BASEREG,R0              ESTABLISH BASE REGISTER.         43650000
+         DROP  ENTRYREG                DROP INITIAL BASE REG @WA19923   43700000
+         USING *,BASEREG               ESTABLISH ADDRESSIBILTY          43750000
+         LA    ENTRYREG,SAVEAREA       POINT TO MY SAVE AREA.           43800000
+         ST    SAVEREG,4(,ENTRYREG)    SAVE ADDRESS OF CALLER'S SAVE    43850000
+*                                          AREA.                        43900000
+         ST    ENTRYREG,8(,SAVEREG)    SAVE ADDRESS OF MY SAVE AREA.    43950000
+         LR    SAVEREG,ENTRYREG        POINT TO MY SAVE AREA.           44000000
+         EJECT                                                          44050000
+*                                                                       44100000
+*--------------------------------------------------------------------*  44150000
+*                                                                    *  44200000
+*        BUILD VIRTUAL RESOURCE POOLS ABOVE AND BELOW 16MB LINE.     *  44250000
+*                                                                    *  44300000
+*--------------------------------------------------------------------*  44350000
+*                                                                       44400000
+BUILD1   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     44450000
+         BLDVRP MF=(E,BLDABOVE)        GET RESOURCE POOL ABOVE 16MB.    44500000
+         LTR   RETCODE,RETCODE         REQUEST COMPLETED?               44550000
+         BZ    BUILD2                  YES, GO BUILD POOL BELOW 16MB.   44600000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       44650000
+BUILD2   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     44700000
+         BLDVRP MF=(E,BLDBELOW)        GET RESOURCE POOL BELOW 16MB.    44750000
+         LTR   RETCODE,RETCODE         REQUEST COMPLETED?               44800000
+         BZ    OPEN1                   YES, GO OPEN KSDS01.             44850000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       44900000
+         EJECT                                                          44950000
+*                                                                       45000000
+*--------------------------------------------------------------------*  45050000
+*                                                                    *  45100000
+*        OPEN DFPX2IVP.KSDS01 TO VERIFY RECORDS ARE ACCESSIBLE.      *  45150000
+*                                                                    *  45200000
+*--------------------------------------------------------------------*  45250000
+*                                                                       45300000
+OPEN1    DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     45350000
+         OPEN  (SEQACB)                LOGICALLY CONNECT KSDS01.        45400000
+         LTR   RETCODE,RETCODE         KSDS01 OPEN OK?                  45450000
+         BZ    OPEN1OK                 YES, GO VERIFY DATASET.          45500000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       45550000
+*                                                                       45600000
+*--------------------------------------------------------------------*  45650000
+*                                                                    *  45700000
+*        CALL SUBROUTINE TO VERIFY DFPX2IVP.KSDS01 IS ACCESSIBLE.    *  45750000
+*                                                                    *  45800000
+*--------------------------------------------------------------------*  45850000
+*                                                                       45900000
+OPEN1OK  DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     45950000
+         LA    COUNT,LOOPCNT           GET NUMBER OF TIMES TO VERIFY    46000000
+*                                          DATASET.                     46050000
+VERLOOP  DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     46100000
+         BAL   LINKREG,VERIFYIT        CALL SUBROUTINE TO VERIFY        46150000
+*                                          DFPX2IVP.KSDS01.             46200000
+         BCT   COUNT,VERLOOP           GO EXECUTE VERIFY SUBROUTINE     46250000
+*                                          UNTIL LOOP COUNT IS ZERO.    46300000
+CLOSE2   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     46350000
+         CLOSE (SEQACB)                LOGICALLY DISCONNECT KSDS01.     46400000
+         LTR   RETCODE,RETCODE         KSDS01 CLOSE OK?                 46450000
+         BZ    DELPOOL1                YES, GO DELETE RESOURCE POOLS.   46500000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       46550000
+         EJECT                                                          46600000
+*                                                                       46650000
+*--------------------------------------------------------------------*  46700000
+*                                                                    *  46750000
+*        DELETE RESOURCE POOLS AND TEST FOR SUCCESSFUL RUN.          *  46800000
+*                                                                    *  46850000
+*--------------------------------------------------------------------*  46900000
+*                                                                       46950000
+DELPOOL1 DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     47000000
+         DLVRP TYPE=LSR,SHRPOOL=POOL24 DELETE POOL BELOW 16MB.          47050000
+         LTR   RETCODE,RETCODE         RESOURCE POOL DELETE OK?         47100000
+         BZ    DELPOOL2                YES, GO DELETE RESOURCE POOL31.  47150000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       47200000
+DELPOOL2 DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     47250000
+         DLVRP TYPE=LSR,SHRPOOL=POOL31 DELETE POOL ABOVE 16MB.          47300000
+         LTR   RETCODE,RETCODE         RESOURCE POOL DELETE OK?         47350000
+         BZ    DELETEOK                YES, GO CHECK FOR SUCCESS RUN.   47400000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       47450000
+DELETEOK DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     47500000
+         SR    RETCODE,RETCODE         SET ZERO RETURN CODE.            47550000
+         EJECT                                                          47600000
+*                                                                       47650000
+*--------------------------------------------------------------------*  47700000
+*                                                                    *  47750000
+*        STANDARD EXIT EPILOGUE. RESTORE CALLER'S REGISTERS AND      *  47800000
+*        RETURN TO CALLER.                                           *  47850000
+*                                                                    *  47900000
+*--------------------------------------------------------------------*  47950000
+*                                                                       48000000
+EXIT     DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     48050000
+         L     SAVEREG,4(,SAVEREG)     RESTORE CALLER'S SAVE AREA ADDR. 48100000
+         L     RETREG,12(,SAVEREG)     RESTORE RETURN ADDRESS REGISTER. 48150000
+         LM    R0,BASEREG,20(SAVEREG)  RESTORE ALL REGS. EXCEPT REG15.  48200000
+         BR    RETREG                  RETURN TO CALLER.                48250000
+         EJECT                                                          48300000
+*                                                                       48350000
+*--------------------------------------------------------------------*  48400000
+*                                                                    *  48450000
+*        VERIFY DFPX2IVP.KSDS01 CAN BE ACCESSED. GET RECORDS USING   *  48500000
+*        BACKWARD REQUESTS. COMPARE THE RECORDS READ WITH A MODEL    *  48550000
+*        RECORD.  IF THE RECORDS MATCH THE LOOP IS EXECUTED AGAIN,   *  48600000
+*        IF THE COMPARISON IS UNEQUAL A USER 100 ABEND IS ISSUED.    *  48650000
+*        THE DATASET IS READ UNTIL EOF IS REACHED, AND THEN          *  48700000
+*        TEMPORARILY CLOSED.  CONTROL IS THEN RETURNED TO MAIN       *  48750000
+*        ROUTINE.                                                    *  48800000
+*                                                                    *  48850000
+*--------------------------------------------------------------------*  48900000
+*                                                                       48950000
+VERIFYIT DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     49000000
+         ST    LINKREG,LINKSAVE        SAVE RETURN ADDRESS.             49050000
+         LA    KEYREG,NORECS-1         INIT. SEARCH ARGUMENT REGISTER.  49100000
+         ST    KEYREG,KEY              UPDATE SEARCH ARGUMENT FIELD.    49150000
+         POINT RPL=BWDRPL              POSITION VSAM.                   49200000
+         LTR   RETCODE,RETCODE         REQUEST ACCEPTED?                49250000
+         BZ    GETLOOP                 YES, GO GET RECORD.              49300000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       49350000
+GETLOOP  DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     49400000
+         ST    KEYREG,KEY              UPDATE SEARCH ARGUMENT FIELD.    49450000
+         MVC   TESTREC(RECLENG),RECORD INITIALIZE COMPARISON RECORD.    49500000
+         GET   RPL=BWDRPL              GET RECORD USING BACKWARD        49550000
+*                                          SEQUENTIAL REQUESTS.         49600000
+         LTR   RETCODE,RETCODE         REQUEST ACCEPTED?                49650000
+         BZ    COMPARE1                YES, GO COMPARE RECORD.          49700000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       49750000
+COMPARE1 DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     49800000
+         CLC   TESTREC(RECLENG),RECORD     ARE RECORDS EQUAL?           49850000
+         BE    DECRKEY                 YES, GO DECREMENT KEY TABLE IX.  49900000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       49950000
+DECRKEY  DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     50000000
+         BCTR  KEYREG,R0               DECREMENT SEARCH ARG. BY 1.      50050000
+         B     GETLOOP                 DECREMENT LOOP COUNT.            50100000
+*                                      IS COUNT ZERO? NO, CONTINUE.     50150000
+TCLOSE   DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     50200000
+         CLOSE (SEQACB),TYPE=T         YES, PARTIALLY CLOSE KSDS01.     50250000
+         LTR   RETCODE,RETCODE         KSDS01 CLOSE OK?                 50300000
+         BZ    TCLOSEOK                YES, GO RETURN TO MAIN ROUTINE.  50350000
+         ABEND 100                     NO, ABEND WITH CODE U0100.       50400000
+TCLOSEOK DS    0H                      HALFWORD BOUNDARY ALIGNMENT.     50450000
+         L     LINKREG,LINKSAVE        RESTORE RETURN ADDRESS.          50500000
+         BR    LINKREG                 RETURN TO MAIN ROUTINE.          50550000
+         EJECT                                                          50600000
+*                                                                       50650000
+*--------------------------------------------------------------------*  50700000
+*                                                                    *  50750000
+*        CONSTANT AND STORAGE DEFINITIONS.                           *  50800000
+*                                                                    *  50850000
+*--------------------------------------------------------------------*  50900000
+*                                                                       50950000
+OPENMSG  DS    CL132                   OPEN ERROR MESSAGE AREA.         51000000
+*                                                                       51050000
+         DS    0F                      FULLWORD BOUNDARY ALIGNMENT.     51100000
+TESTREC  DS    CL256                   RECORD COMPARISON MODEL.         51150000
+*                                                                       51200000
+         DS    0F                      FULLWORD BOUNDARY ALIGNMENT.     51250000
+RECORD   DS    0CL256                  KSDS01 RECORD DESCRIPTION.       51300000
+         DC    CL8'DFPX2IVP'           TESTCASE NAME.                   51350000
+KEY      DC    F'0'                    SEARCH KEY ARGUMENT.             51400000
+         DC    CL4' '                  FILLER.                          51450000
+         DC    4CL60' TEST DATA FOR DFPX2IVP'  FILLER.                  51500000
+*                                                                       51550000
+LINKSAVE DC    F'-1'                   INTERNAL LINKAGE RETURN ADDR.    51600000
+*                                                                       51650000
+SAVEAREA DC    18F'-1'                 REGISTER SAVE AREA.              51700000
+         EJECT                                                          51750000
+*                                                                       51800000
+*--------------------------------------------------------------------*  51850000
+*                                                                    *  51900000
+*        VSAM CONTROL BLOCKS.                                        *  51950000
+*                                                                    *  52000000
+*--------------------------------------------------------------------*  52050000
+*                                                                       52100000
+BLDABOVE BLDVRP BUFFERS=(2048(4),4096(3)),                             X52150000
+               KEYLEN=4,                                               X52200000
+               STRNO=3,                                                X52250000
+               TYPE=LSR,                                               X52300000
+               SHRPOOL=15,                                             X52350000
+               LOC=ANY,                                                X52400000
+               MF=L                                                     52450000
+         EJECT                                                          52500000
+*                                                                       52550000
+BLDBELOW BLDVRP BUFFERS=(2048(4),4096(3)),                             X52600000
+               KEYLEN=4,                                               X52650000
+               STRNO=3,                                                X52700000
+               TYPE=LSR,                                               X52750000
+               SHRPOOL=5,                                              X52800000
+               LOC=BELOW,                                              X52850000
+               MF=L                                                     52900000
+         EJECT                                                          52950000
+*                                                                       53000000
+SEQACB   ACB   AM=VSAM,                                                X53050000
+               DDNAME=KSDS01,                                          X53100000
+               BUFND=3,                                                X53150000
+               BUFNI=2,                                                X53200000
+               MACRF=(KEY,DDN,SEQ,IN,LSR),                             X53250000
+               SHRPOOL=POOL31,                                         X53300000
+               MAREA=OPENMSG,                                          X53350000
+               EXLST=EXLST1,                                           X53400000
+               MLEN=132                                                 53450000
+         EJECT                                                          53500000
+*                                                                       53550000
+BWDRPL   RPL   AM=VSAM,                                                X53600000
+               ACB=SEQACB,                                             X53650000
+               AREA=RECORD,                                            X53700000
+               AREALEN=RECLENG,                                        X53750000
+               ARG=KEY,                                                X53800000
+               OPTCD=(KEY,SEQ,BWD,LRD,SYN,NUP),                        X53850000
+               KEYLEN=KEYLENG,                                         X53900000
+               RECLEN=RECLENG                                           53950000
+         EJECT                                                          54000000
+*                                                                       54050000
+EXLST1   EXLST AM=VSAM,                                                X54100000
+               EODAD=TCLOSE                                             54150000
+*                                                                       54200000
+         END                                                            54250000
+/*                                                                      54300000
+//*                                                                     54350000
+//********************************************************************* 54400000
+//*                                                                   * 54450000
+//*       LINK EDIT THE DFPX2IVP OBJECT MODULES.                      * 54500000
+//*                                                                   * 54550000
+//********************************************************************* 54600000
+//*                                                                     54650000
+//LINK1   EXEC PGM=HEWLH096,PARM='XREF,LIST,LET',COND=(0,NE)            54700000
+//SYSPRINT DD  SYSOUT=A                                                 54750000
+//SYSUT1   DD  UNIT=SYSDA,SPACE=(1024,(50,20,1),RLSE)                   54800000
+//SYSLMOD  DD  DSN=DFPX2IVP.TEMPLIB,DISP=SHR,UNIT=SYSDA,                54837500
+//       VOL=SER=ZOST71                                /*NONSMS VOL*/   54875000
+//OBJ1IN   DD  DSN=&ASM1OBJ,DISP=(OLD,PASS)                             54912500
+//OBJ2IN   DD  DSN=&ASM2OBJ,DISP=(OLD,PASS)                             54950000
+//OBJ3IN   DD  DSN=&ASM3OBJ,DISP=(OLD,PASS)                             55000000
+//SYSLIN   DD  *                                                        55050000
+ INCLUDE OBJ1IN                                                         55100000
+ MODE AMODE(31),RMODE(24)                                               55150000
+ NAME DFPXIVP1(R)                                                       55200000
+ INCLUDE OBJ2IN                                                         55250000
+ MODE AMODE(31),RMODE(24)                                               55300000
+ NAME DFPXIVP2(R)                                                       55350000
+ INCLUDE OBJ3IN                                                         55400000
+ MODE AMODE(31),RMODE(24)                                               55450000
+ NAME DFPXIVP3(R)                                                       55500000
+/*                                                                      55550000
+//********************************************************************* 55600000
+//*   THE FOLLOWING STEP WILL HOLD THE NEXT JOB(S) FROM BEING         * 55650000
+//*   SUBMITTED UNTIL THE PRECEDING JOB IS COMPLETELY EXECUTED.       * 55700000
+//********************************************************************* 55750000
+//HOLD1   EXEC PGM=IEBGENER                                             55800000
+//SYSPRINT DD  SYSOUT=A                                                 55850000
+//SYSIN  DD  DUMMY                                                      55900000
+//SYSUT2  DD  SYSOUT=(A,INTRDR)                                         55950000
+//SYSUT1  DD  DATA,DLM=$B                                               56000000
+//*DFPX2IV3 JOB (XXXXX,YYY),DFPX2IVP,CLASS=A,MSGLEVEL=(1,1),MSGCLASS=A   5605000
+//DFPX2IV3 JOB 60798,E002884,CLASS=W,NOTIFY=ROSCAAO,MSGCLASS=Q
+//*                                                                     56100000
+//********************************************************************* 56150000
+//*                                                                   * 56200000
+//*      EXECUTE TEST PROGRAM DFPXIVP1.                               * 56250000
+//*                                                                   * 56300000
+//********************************************************************* 56350000
+//*                                                                     56400000
+//STEP01  EXEC PGM=DFPXIVP1,REGION=1024K                                56450000
+//STEPLIB  DD  DSN=DFPX2IVP.TEMPLIB,DISP=SHR,                           56487500
+//         UNIT=SYSDA,VOL=SER=ZOST71                  /*NONSMS VOL*/    56525000
+//KSDS01   DD  DSN=DFPX2IVP.KSDS01,DISP=SHR                             56600000
+//SYSUDUMP DD  SYSOUT=A                                                 56650000
+//*                                                                     56700000
+//********************************************************************* 56750000
+//*                                                                   * 56800000
+//*      EXECUTE TEST PROGRAM DFPXIVP2.                               * 56850000
+//*                                                                   * 56900000
+//********************************************************************* 56950000
+//*                                                                     57000000
+//STEP02  EXEC PGM=DFPXIVP2,COND=(0,NE),REGION=1024K                    57050000
+//STEPLIB  DD  DSN=DFPX2IVP.TEMPLIB,DISP=SHR,                           57087500
+//         UNIT=SYSDA,VOL=SER=ZOST71                  /*NONSMS VOL*/    57125000
+//KSDS01   DD  DSN=DFPX2IVP.KSDS01,DISP=SHR                             57200000
+//SYSUDUMP DD  SYSOUT=A                                                 57250000
+//*                                                                     57300000
+//********************************************************************* 57350000
+//*                                                                   * 57400000
+//*      EXECUTE TEST PROGRAM DFPXIVP3.                               * 57450000
+//*                                                                   * 57500000
+//********************************************************************* 57550000
+//*                                                                     57600000
+//STEP03  EXEC PGM=DFPXIVP3,COND=(0,NE),REGION=1024K                    57650000
+//STEPLIB  DD  DSN=DFPX2IVP.TEMPLIB,DISP=SHR,                           57687500
+//         UNIT=SYSDA,VOL=SER=ZOST71                  /*NONSMS VOL*/    57725000
+//KSDS01   DD  DSN=DFPX2IVP.KSDS01,DISP=SHR                             57800000
+//SYSUDUMP DD  SYSOUT=A                                                 57850000
+//LINK2   EXEC PGM=HEWLH096,PARM='XREF,LIST,LET',COND=(0,NE)            57900000
+//SYSPRINT DD  SYSOUT=A                                                 57950000
+//SYSUT1   DD  UNIT=SYSDA,SPACE=(1024,(50,20,1),RLSE)                   58000000
+//SYSLMOD  DD  DSN=DFPX2IVP.TEMPLIB,DISP=SHR,                           58037500
+//         UNIT=SYSDA,VOL=SER=ZOST71                    /*NONSMS VOL*/  58075000
+//SYSLIN DD *                                                           58112500
+ESD          VIOIDAW       á                                        58162200
+TXT       π   Ü00VIOIDAW   83.034 ¯ô}	Êˇ^©üˇ{ûü&}sﬁˇ\s‘&\} £ˇ  ˇä58211900
+TXT   π   π   wØkZ& ; t‘° tﬁÜ}Ê» †Êπ   &ç  ’’&tmç-tmk-‹k‹-	ˇõ Ö õ58261600
+TXT   õ   π   -√K- u≈k -(K-+-(K -ty†Ê‘   &ç  ’’&tqçùtqˇ¯  q&¯të58311300
+TXT   y   π   ˇ¯ q&¯tÊkù‹k‹ù	ˇ¯ Ö ¯ù√Kù uk ù(Kù+ù(K ùtZ†\~}ˇ\u58361000
+TXT   \   π   &\≠ﬁK‹u≠ØKuä≠Ø†\sˇ0uu&0≠ﬁKuî≠Ø†\sˇ v& ≠ﬁKvª≠Ø†\s58410700
+TXT     π   ˇvd&≠ﬁû≠Ø;ƒt‘Ôv—Kuv—†\sˇÕvö&Õ≠ﬁçtmK v—†\sˇƒw€58460400
+TXT  &   π   &ƒ≠ﬁçÕtqˇƒ û|≠ØøÔÕ KuÕ †\sK‹z—≠Økz^ˇ&z∏&&≠ﬁ†\sˇ-58510100
+TXT  h      z4&-≠ﬁ†\sˇÕ~hçƒ~d€                                  58559800
+TXT  Ê   π   "üüüˇ  Ü0~—ˇäwØK|w& ˇ≠Hˇ wç0Õ	Âˇ  &° tﬁÜ ~¯ˇÕ~{  58609500
+TXT  Q   π   ù Q†\sç}}‹qô}ÚüÈ¯ôsÓ†~\ ’^Ò ’U’«É-≠hÔé≠iç≠{K≠Ø58659200
+TXT     π   É-≠ÒqôsÓÚüÈ¯ôtª †s€  ’Uù ’^’€qôtªÚüÈ¯ôs8P≠¯≠¯ˇ≠Ä58708900
+TXT  á   π   ’ ˇ≠¯ˇ  ’n"≠¯Üùsáˇsõ†\s&qôs8ÚüÈ¯ô}Ktõ çƒtõçƒ å58758600
+TXT  ù      t@’qô}ÚüÈ  ¯                                        58808300
+TXT  ¯           ƒù                                               58858000
+TXT  Ê        	&  	H  	}  	M                                        58907700
+TXT  {   π      QDATA5-----55555-----55555-----55555-----55555-----5558957400
+TXT  8   π   555-----DATA5DATA6-----66666-----66666-----66666-----66659007100
+TXT  ‹Õ      66-----66666-----DATA6EEEEFFFF                          59056800
+TXT  ‹ç      ∫ ‹+   	  ‹ç     ‹õ   &                                59106500
+TXT  ‹‘   π   ‹ ÖAAAADATA1-----11111-----11111-----11111-----11111---59156200
+TXT  ‹—   π   --11111-----DATA1   ∫ ‹õ   	  ‹{     ‹Yù    ‹0ù  ‹ ‹459205900
+TXT  ‹U   ‹      Ö                                                    59255600
+TXT  ‹ô   π   ‹ ÖBBBBDATA2-----22222-----22222-----22222-----22222---59305300
+TXT  	ø   ±   --22222-----DATA2   ∫ ‹Y   	  	π     Ê‹  &            59355000
+TXT  	ä   π   ‹ ÖCCCCDATA3-----33333-----33333-----33333-----33333---59404700
+TXT  	–   π   --33333-----DATA3   ú ‹+   	  	Ê     ud    yd  ‹ —59454400
+TXT  	D   ‹   ‹  Ö                                                    59504100
+TXT  	î   π   ‹ ÖDDDDDATA4-----44444-----44444-----44444-----44444---59553800
+TXT  √‹   π   --44444-----DATA4   ú 	H   	  √     ^‹  &ú ‹+   	  √Õ59603500
+TXT  √           ∏d    ´d  ‹ Ó‹  Ö                            59653200
+TXT  √y   π                                                           59702900
+TXT  √\   π                                                           59752600
+TXT     π                                                           59802300
+TXT  &   π                                                           59852000
+TXT  h   π                                                           59901700
+TXT  {   π                                                           59951400
+TXT  8   π                                                           60001100
+TXT   Õ   π                                                           60050800
+TXT   Ä   π                                                           60100500
+TXT   Ê   π                                                           60150200
+TXT   Q   π                                                           60199900
+TXT  ≤   π                                                           60249600
+TXT  ≤á   π                                                           60299300
+TXT  ≤ù   π                                                           60349000
+TXT  ≤´                                                              60398700
+TXT  ≤}   π   ∫ ≤H   	  ≤}    Á √y   áÁ √8   áÁ á   áÁ q   áÁ Y   á60448400
+TXT  ’    π   Á  π   á∫ ≤H   	  ’      h  á∫ ≤H   	  ’¥          ‹60498100
+TXT  ’    π   ‹ {Ö  ‹ ≤   ∫ ≤H   	  ’&Ö   k ≤¥    z ’ù   ‹  ’-    60547800
+TXT  ’ﬁ   €   Á ≤ﬁ   áEEEE     ’—                                    60597500
+TXT  ’q         ’^                                                    60647200
+TXT  ’u                                                               60696900
+TXT  ’^   π                                        DD1      }     60746600
+TXT  ’Y   π                                ¯   SYSPRINT  &      60796300
+TXT  ƒ   ø      &                &                              60846000
+RLD       π       Q≤ 5≤ 9≤ ¬≤  – Ê u y — {≤ ‹·  ‹/60895700
+RLD       π      ≤ ‹•≤ ‹A≤ ‹I≤ ‹J≤ ‹R≤ ‹ˆ≤ 	À≤ 	ˇ≤ 	§≤ 	~≤ 	z≤ 	ú  	Û60945400
+RLD       π      ≤ 	A≤ √≤ √≥≤ √¬≤ √∫≤ √À≤ √ˇ≤ √§≤ √Ç≤ ≤J≤ ≤R≤ ≤ˆ  ≤Z60995100
+RLD       π      ≤ ≤1≤ ≤9≤ ’≤ ’≤≤ ’≤ ’≤ ’≥≤ ’¬≤ ’∫≤ ’ˇ≤ ’§≤ ’Ç  ’·61044800
+RLD             ≤ ’/≤ ’•≤ ’ê≤ ’` ’h ’q                            61094500
+END                           15734AS100 050183035                    61144200
+ NAME VIOIDAW(R)                                                        61200000
+/*                                                                      61250000
+//*                                                                     61300000
+//********************************************************************* 61350000
+//*                                                                   * 61400000
+//*      EXECUTE TEST PROGRAM VIOIDAW.                                * 61450000
+//*                                                                   * 61500000
+//********************************************************************* 61550000
+//*                                                                     61600000
+//VIOTEST EXEC PGM=VIOIDAW,COND=(0,NE),REGION=1024K                     61650000
+//STEPLIB  DD  DSN=DFPX2IVP.TEMPLIB,DISP=SHR,                           61700000
+//        UNIT=SYSDA,VOL=SER=ZOST71                    /*NONSMS VOL*/   61750000
+//DD1 DD DSN=&&VIODSN,DISP=(,DELETE),SPACE=(TRK,(4,4)),UNIT=SYSVIO      61800000
+//SYSPRINT DD  SYSOUT=A                                                 61850000
+//SYSUDUMP DD  SYSOUT=A                                                 61900000
+//*                                                                     61950000
+//********************************************************************* 62000000
+//*                                                                   * 62050000
+//*      PRINT AND DELETE ICFCATALOG WITH DFPX2IVP.KSDS01             * 62100000
+//*                                                                   * 62150000
+//********************************************************************* 62200000
+//*                                                                     62250000
+//CLEANUP EXEC PGM=IDCAMS,COND=EVEN                                     62300000
+//SYSPRINT DD  SYSOUT=A                                                 62400000
+//LOADDD   DD  DSN=DFPX2IVP.TEMPLIB,DISP=(OLD,DELETE),                  62450000
+//             UNIT=SYSDA,VOL=SER=ZOST71              /*NONSMS VOL*/    62500000
+//VOL      DD  UNIT=SYSDA,VOL=SER=ZOST71,DISP=OLD     /*NONSMS VOL*/    62550000
+//KSDS01   DD  DSN=DFPX2IVP.KSDS01,DISP=SHR                             62600000
+//SYSIN    DD  *                                                        62650000
+                                                                        62700000
+ /**************************************************************/       62750000
+ /* THE PREVIOUS 31-BIT VIO TEST Z'S OUT A BUFFER AREA AND     */       62800000
+ /* WRITES OUT DATA1 THRU DATA6.                               */       62850000
+ /* VERIFY THAT DATA1 THRU DATA6 WERE WRITTEN OUT SUCCESSFULLY */       62900000
+ /* AND THAT THE COND CODE IS ZERO.                            */       62950000
+ /**************************************************************/       63000000
+                                                                        63050000
+ /*************************************************************/        63100000
+ /*  DFPX2IVP   CLEANUP                                       */        63150000
+ /*************************************************************/        63200000
+ /*   PRINT THE DATASET DFPX2IVP.KSDS01                       */        63250000
+ /*************************************************************/        63300000
+                                                                        63350000
+    PRINT -                                                             63400000
+       INFILE(KSDS01) -                                                 63450000
+       OUTFILE(SYSPRINT) -                                              63500000
+       DUMP                                                             63550000
+                                                                        63600000
+ /*********************************************************/            63650000
+ /*    THE PREVIOUS PRINT OF DFPX2IVP.KSDS01 SHOULD       */            63700000
+ /*    RECEIVE A ZERO RETURN CODE, AND 50 RECORDS SHOULD  */            63750000
+ /*    BE PROCESSED.  RECORDS SHOULD HAVE KEYS X'00' TO   */            63800000
+ /*    X'31'.                                    @YA22710 */            63850000
+ /*********************************************************/            63900000
+                                                                        63950000
+ /********************************************************************/ 64000000
+ /*     DFPX2IVP     CLEANUP                                         */ 64050000
+ /********************************************************************/ 64100000
+ /*     DELETE ICF USER CATALOG FROM SCRATCH PACK.     (CLEANUP)     */ 64150000
+ /********************************************************************/ 64200000
+    DELETE (DFPX2IVP.KSDS01) CLUSTER PURGE                              64237500
+    DELETE DFPX2IVP ALIAS                     /*                 @01A*/ 64275000
+    DELETE DFX2UCAT FILE (VOL) UCAT FORCE                               64312500
+/*                                                                      64350000
+$B                                                                      64400000
+$A                                                                      64450000

@@ -1,0 +1,119 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+// SET #LE=CEE
+//PROC JCLLIB ORDER=(&#LE..SCEEPROC)
+//********************************************************************
+//* JOB: HTV77C0R  (product-supplied job CLB3JIV1 in library SCLBJCL)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job verifies the Standard Class Library installation.
+//*
+//* IVP INSTRUCTIONS:
+//*
+//*   Before submitting this job, the JCL must be customized
+//*   for your installation.  The following changes need to be made:
+//*
+//*    1. If you choose to use a different prefix than the IBM supplied
+//*       one for Language Environment, change the value of CEE to
+//*       your chosen prefix on the // SET #LE=CEE statement above.
+//*
+//*    2. If you have installed Kanji Messages for Runtime Library
+//*       Extensions and wanted to enable it, comment out the current
+//*       GPARM lines
+//*         //         PARM='ERRCOUNT(0)/'
+//*       and replace with GPARM lines
+//*         //*        PARM='ERRCOUNT(0) NATLANG(JPN)/'
+//*       that is commented out.
+//*
+//* REQUIRED ENVIRONMENT FOR IVP:
+//*    1. Run on target system.
+//*    2. Runtime Library Extensions and Language Environment must be
+//*       installed on the system prior to execution of the IVP.
+//*
+//* IVP INPUT:
+//*    1. Input data sets:
+//*       CBC.SCLBJCL(CLBIVP10)
+//*       CBC.SCLBJCL(CLBIVP11)
+//*
+//* IVP OUTPUT:
+//*    1. Return code of zero for all steps.
+//*    2. Output:
+//*  GO1:
+//*      Enter some integers (/* to terminate)
+//*       1 2 5 3 7 8 3 2 10 11
+//*      Jackson, Joseph
+//*       comes before Bloe, Joe
+//*      23 comes before 28
+//*
+//*  GO2:
+//*      The value of cos()  for (pi,pi/2) is: (6.123234e-17,0.000000)
+//*      The value of cosh() for (pi,pi/2) is:(2.509178,0.000000)
+//*      The value of sin()  for (pi,pi/2) is:(1.000000,0.000000)
+//*      The value of sinh() for (pi,pi/2) is:(2.301299,0.000000)
+//*      *** COMPLEX CLASS INSTALLATION SUCCESSFUL ***
+//*
+//********************************************************************
+//*-------------------------------------------------------------------
+//* L1 step:
+//*-------------------------------------------------------------------
+//L1      EXEC CEEWL,
+//        LIBPRFX=&#LE.,
+//        TUNIT='SYSALLDA'
+//LKED.SYSIN   DD  DISP=SHR,
+//          DSN=CBC.SCLBJCL(CLBIVP10)
+//LKED.SYSLMOD   DD  DSN=&&GSET(GO),UNIT=&TUNIT.,DISP=(,PASS),
+//       SPACE=(TRK,(5,5,5))
+//*-------------------------------------------------------------------
+//* GO1 step:
+//*-------------------------------------------------------------------
+//GO1      EXEC PGM=*.L1.LKED.SYSLMOD,REGION=2048K,
+//         COND=((1,LE,L1.LKED)),
+//*        PARM='ERRCOUNT(0) NATLANG(JPN)/'
+//         PARM='ERRCOUNT(0)/'
+//STEPLIB  DD  DSN=&#LE..SCEERUN,
+//             DISP=SHR
+//         DD  DSN=CBC.SCLBDLL,
+//             DISP=SHR
+//SYSPRINT DD  SYSOUT=*
+//CEEDUMP  DD  SYSOUT=*
+//SYSIN    DD  DATA,DLM='<>'
+ 1 2 5 3 7 8 3 2 10 11  \*
+<>
+//*-------------------------------------------------------------------
+//* L2 step:
+//*-------------------------------------------------------------------
+//L2      EXEC CEEWL,
+//        LIBPRFX=&#LE.,
+//        TUNIT='SYSALLDA'
+//LKED.SYSIN   DD  DISP=SHR,
+//          DSN=CBC.SCLBJCL(CLBIVP11)
+//LKED.SYSLMOD   DD  DSN=&&GSET(GO),UNIT=&TUNIT.,DISP=(OLD,PASS)
+//*-------------------------------------------------------------------
+//* GO2 step:
+//*-------------------------------------------------------------------
+//GO2      EXEC PGM=*.L2.LKED.SYSLMOD,REGION=2048K,
+//         COND=((1,LE,L2.LKED)),
+//*        PARM='ERRCOUNT(0) NATLANG(JPN)/'
+//         PARM='ERRCOUNT(0)/'
+//STEPLIB  DD  DSN=&#LE..SCEERUN,
+//             DISP=SHR
+//         DD  DSN=CBC.SCLBDLL,
+//             DISP=SHR
+//SYSPRINT DD  SYSOUT=*
+//CEEDUMP  DD  SYSOUT=*
+//*

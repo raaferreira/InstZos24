@@ -1,0 +1,36 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*
+//*********************************************************************
+//* JOB: HBB77C0E  (product-supplied job HZSALLCP in library SAMPLIB)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job creates the end of file mark in data set
+//*      Z24MST.SYS1.CPAC.HZSPDATA
+//*      using the HZSAIEOF Health Checker load module.
+//*
+//* MRC: The maximum expected return code is: 0
+//*
+//*********************************************************************
+//HZSALLCP EXEC PGM=HZSAIEOF,REGION=4096K,TIME=1440
+//STEPLIB  DD DSN=Z24MST.SYS1.LINKLIB,
+//            DISP=SHR
+//HZSPDATA DD DSN=Z24MST.SYS1.CPAC.HZSPDATA,
+//            DISP=OLD
+//SYSPRINT DD DUMMY
+//*

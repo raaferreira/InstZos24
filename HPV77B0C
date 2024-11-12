@@ -1,0 +1,162 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//********************************************************************
+//*
+//* JOB: HPV77B0C  (product-supplied job CPOMKDSN in library SAMPLIB)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job does the following:
+//*      - Delete the specified runtime data sets that are
+//*        used by the Capacity Provisioning Manager (CPM)
+//*      - Allocate the specified runtime data sets that are
+//*        used by the Capacity Provisioning Manager (CPM)
+//*      - Copy the properties file from /usr/lpp/cpo to /etc/
+//*        directory
+//*
+//*      Before using this job step, you will have to
+//*      make the following modifications:
+//*
+//*      - If you wish to use SMS managed to create data sets,
+//*        than uncomment the SMS managed and remove the
+//*        VOL=SER parameter.
+//*
+//* NOTES:
+//*
+//*   1. Before submitting the job TVOL needs to be given
+//*      appropriate value.
+//*
+//*   2. You must check allocation messages to verify the
+//*      data sets are allocated and cataloged as expected.
+//*
+//* MRC: A return code of 0 is expected from this job.
+//*
+//****************************************************************
+//*   Instream procedure to delete and re-allocate data sets     *
+//***************************************************************
+//DELALLOC  PROC
+//DELETE    EXEC   PGM=IEFBR14
+//*
+//DELCPORE DD  DSN=&HLQ..&DOMAIN..RESTART,
+//         DISP=(MOD,DELETE,DELETE),
+//         DCB=(DSORG=PO,RECFM=VB,LRECL=16384,BLKSIZE=0),
+//         SPACE=(8192,(1)),
+//         DSNTYPE=&DSNTYPE.,
+//         UNIT=SYSALLDA
+//*
+//DELCPOPO DD  DSN=&HLQ..&DOMAIN..POLICIES,
+//         DISP=(MOD,DELETE,DELETE),
+//         DCB=(DSORG=PO,RECFM=VB,LRECL=512,BLKSIZE=0),
+//         SPACE=(8192,(1)),
+//         DSNTYPE=&DSNTYPE.,
+//         UNIT=SYSALLDA
+//*
+//DELCPODC DD  DSN=&HLQ..&DOMAIN..DOMCFG,
+//         DISP=(MOD,DELETE,DELETE),
+//         DCB=(DSORG=PO,RECFM=VB,LRECL=512,BLKSIZE=0),
+//         SPACE=(8192,(1)),
+//         DSNTYPE=&DSNTYPE.,
+//         UNIT=SYSALLDA
+//*
+//DELCPOPR DD  DSN=&HLQ..&DOMAIN..PARM,
+//         DISP=(MOD,DELETE,DELETE),
+//         DCB=(DSORG=PO,RECFM=VB,LRECL=512,BLKSIZE=0),
+//         SPACE=(8192,(1)),
+//         DSNTYPE=&DSNTYPE.,
+//         UNIT=SYSALLDA
+//*
+//ALLOC     EXEC   PGM=IEFBR14
+//*
+//ALCCPORE DD  DSN=&HLQ..&DOMAIN..RESTART,
+//         DISP=(NEW,CATLG,DELETE),
+//         DCB=(*.DELETE.DELCPORE),
+//         SPACE=(8192,(125,250,20)),
+//*         MGMTCLAS=,STORCLAS=,
+//         DSNTYPE=&DSNTYPE.,
+//         UNIT=SYSALLDA,VOL=SER=&TVOL.
+//*
+//ALCCPOPO DD  DSN=&HLQ..&DOMAIN..POLICIES,
+//         DISP=(NEW,CATLG,DELETE),
+//         DCB=(*.DELETE.DELCPOPO),
+//         SPACE=(8192,(125,250,20)),
+//*         MGMTCLAS=,STORCLAS=,
+//         DSNTYPE=&DSNTYPE.,
+//         UNIT=SYSALLDA,VOL=SER=&TVOL.
+//*
+//ALCCPODC DD  DSN=&HLQ..&DOMAIN..DOMCFG,
+//         DISP=(NEW,CATLG,DELETE),
+//         DCB=(*.DELETE.DELCPODC),
+//         SPACE=(8192,(125,250,20)),
+//*         MGMTCLAS=,STORCLAS=,
+//         DSNTYPE=&DSNTYPE.,
+//         UNIT=SYSALLDA,VOL=SER=&TVOL.
+//*
+//ALCCPOPR DD  DSN=&HLQ..&DOMAIN..PARM,
+//         DISP=(NEW,CATLG,DELETE),
+//         DCB=(*.DELETE.DELCPOPR),
+//         SPACE=(8192,(30,60,20)),
+//*         MGMTCLAS=,STORCLAS=,
+//         DSNTYPE=&DSNTYPE.,
+//         UNIT=SYSALLDA,VOL=SER=&TVOL.
+//*
+//* Copy the /usr/lpp/cpo/samples/env file to run time PARM data set
+//*
+//COPYENV  EXEC PGM=IKJEFT01,REGION=2M,
+//         PARM='OCOPY INDD(ENVIN) OUTDD(ENVOUT) TEXT'
+//ENVIN     DD PATH='&CPODIR/samples/env',
+//          PATHOPTS=(ORDONLY)
+//ENVOUT    DD DSN=&HLQ..&DOMAIN..PARM(ENV),DISP=SHR
+//SYSTSPRT  DD DUMMY
+//SYSTSIN   DD DUMMY
+//*
+//* Copy the /usr/lpp/cpo/samples/parm file to run time PARM data set
+//*
+//COPYPARM  EXEC PGM=IKJEFT01,REGION=2M,
+//          PARM='OCOPY INDD(PARMIN) OUTDD(PARMOUT) TEXT'
+//PARMIN    DD PATH='&CPODIR/samples/parm',
+//          PATHOPTS=(ORDONLY)
+//PARMOUT   DD DSN=&HLQ..&DOMAIN..PARM(PARM),DISP=SHR
+//SYSTSPRT  DD DUMMY
+//SYSTSIN   DD DUMMY
+//*
+//*
+//* Copy the .properties to /etc/
+//*
+//CPYFILE  EXEC PGM=IKJEFT01
+//SYSPROC  DD DISP=SHR,
+//            DSN=SYS1.SBPXEXEC
+//SYSTSPRT DD SYSOUT=*
+//SYSTSIN  DD  *
+   oshell cp /usr/lpp/cpo/provider/cpoprovider.properties /etc/
+/*
+//   PEND
+//*
+//*
+//****************************************************************
+//*  The following step executes the PROC  to allocate the       *
+//*  data sets required for the CPO server on z/OS               *
+//****************************************************************
+//*
+//ALLOCDS EXEC PROC=DELALLOC,
+//             HLQ=CPO,       * default: CPO
+//             DOMAIN=IPO1,       * default: DOMAIN1
+//             DSNTYPE=LIBRARY,      * default: PDSE
+//*             MGMTCLAS=,           * default: no sms mgmt class
+//*             STORCLAS=,           * default: no sms storage class
+//             TVOL=ZOS246,          * default: no vol ser specified
+//             CPODIR='/usr/lpp/cpo' * default: '/usr/lpp/cpo'
+//

@@ -1,0 +1,39 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//********************************************************************
+//*  JOB: SMFPRM
+//*
+//*  NOTE: ONCE THE JOB RAN SUCCESSFULLY WITH MAXCC 0000. THIS JOB
+//*        SHOULD NOT BE RE-RAN UNTIL SMF OPTION IS CHANGED.
+//*
+//*   DESCRIPTION:
+//*
+//*      THIS JCL IS APPLICABLE ONLY IN CASE OF FULL SYSTEM REPLACEMENT.
+//*
+//*      THIS JOB DOES CUSTOMIZATION, SO SMFPRM00 IS SET UP AS PER
+//*      THE VALUE OF SMF OPTION PROVIDED BY THE CUSTOMER IN VARIABLE
+//*      PANEL.
+//*
+//*   *****************************************************************
+//*   * THIS JOB IS NOT GENERATED BECAUSE THE SMFPRM00 MEMBER IS      *
+//*   * ALREADY CUSTOMIZED AS PER THE SMF OPTION PROVIDED BY THE      *
+//*   * CUSTOMER IN THE VARIABLE PANEL.                               *
+//*   *****************************************************************
+//*
+//*
+//*********************************************************************
+//*

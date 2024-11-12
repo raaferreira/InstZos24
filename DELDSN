@@ -1,0 +1,4193 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*-------------------------------------------------------------------
+//* GDE: ServerPac  INSTALLATION
+//* DOC: DELETES THE DATA SET ALIAS NAME FOR EACH DATA SET
+//*      IN THE RESPECTIVE CATALOG
+//*
+//* MRC: THE MAXIMUM EXPECTED RETURN CODE IS: 8
+//*-------------------------------------------------------------------
+//DELDSN   EXEC PGM=IDCAMS,COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+      DELETE -
+           Z24SUP.BDT1.BDTSPOOL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BDT1.MSG0001  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BDT1.TQIBITS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BDT1.TQIDATA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24MST.FFST.V120ESA.EPWCKPT  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.EPWDUMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.EPWLOG1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.EPWLOG2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.EPWPARM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24SUP.FNT.OMVS.ZFS -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.ETC -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.JAVA64V8 -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.JV31V80 -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.NETVHFS -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.SAZDZFS -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.SBAQROOT -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.SBBLZFS -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.SCFZHFS2 -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.SIBMROOT -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.SIGYROOT -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.SIXMHFS -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.SIZUUSRD -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.TKANROOT -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.VAR -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.OMVS.V9R1MX.MQROOT -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVSD100.SMPDLOG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVSD100.SMPDLOGA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVSD110.SMPDLOG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVSD110.SMPDLOGA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVST100.SMPLTS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVST100.SMPMTS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVST100.SMPSTS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVST100.SMPTLOG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVST100.SMPTLOGA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVST110.SMPLTS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVST110.SMPMTS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVST110.SMPSCDS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVST110.SMPSTS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVST110.SMPTLOG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.MVST110.SMPTLOGA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.SMPGLOG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.SMPGLOGA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24MST.SYS1.BDT.INITS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.BRODCAST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.CPAC.HZSPDATA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.CPAC.LOGREC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DAE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DFSMS.COMMDS -
+           PATH  -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DUMP00  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DUMP01  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DUMP02  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.GMJD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.HASPACE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.HASPCKPT  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.HASPCKP2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.IODF00.CLUSTER -
+           PATH  -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.LOGR.CDS01  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.LOGR.CDS02  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.LOGR.CDS03  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.MAN1 -
+           PATH  -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.MAN2 -
+           PATH  -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.MAN3 -
+           PATH  -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.PROCLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.WLM.CDS01  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.WLM.CDS02  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.WLM.CDS03  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.WLM.DEF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.XCF.CDS01  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.XCF.CDS02  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.XCF.CDS03  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24SUP.AOP.AAOPEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.AOP.AAOPHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.AOP.AAOPMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.AOP.AAOPMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.AOP.AAOPPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.AOP.SAOPEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.AOP.SAOPMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.AOP.SAOPPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24MST.ASM.AASMMAC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ASM.AASMMAC2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ASM.AASMMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ASM.AASMMOD2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ASM.AASMPUT2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ASM.AASMSAM1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ASM.AASMSAM2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ASM.SASMMAC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ASM.SASMMAC2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ASM.SASMMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ASM.SASMMOD2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ASM.SASMPUT2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ASM.SASMSAM1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ASM.SASMSAM2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24SUP.AZD.AAZDFFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.ABAQCOB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.ABAQINST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.ABAQLIB1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.ABAQMOD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.ABAQPLI  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.ABAQSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.ABAQSCR  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.ABAQZFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.SBAQCOB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.SBAQINST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.SBAQLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.SBAQLIB1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.SBAQPLI  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BAQ.SBAQSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BBL.ABBLEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BBL.ABBLJCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BBL.ABBLLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BBL.SBBLEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.BBL.SBBLJCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24MST.CBC.ACCNCMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACCNSR1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACCNSR2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACCNSR3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACCNSR4  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACCNSR5  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACCNSR6  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACCNSR7  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACCNSR8  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACCNSR9  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACLBDLL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACLBDLL2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACLBHFS1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACLBOBJ  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACLBSR1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACTVMOD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.ACTVSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNCMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNDOC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNJCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNM10  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNM11  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNM12  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNM13  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNN10  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNN11  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNN12  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNN13  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNOBJ  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNPRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNSAM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCCNUTL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCLBCPP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCLBDLL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCLBDLL2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCLBH.H  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCLBJCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCLBSID  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCTVJCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CBC.SCTVMOD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24SUP.CDS.ACDSHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.CDS.ACDSSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.CDS.SCDSSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24MST.CEE.AAFHMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.AAFHSRC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.ACEEMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.ACEEMOD2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.ACEESRC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.ACEESRC2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.ACEESRC3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.AEDCCPP1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.AEDCHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.AEDCMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.AEDCMOD2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.AEDCMSEP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.AEDCOBJ1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.AEDCSRC6  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.AEDCSRC7  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.AIBMMOD3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.AIBMSRC3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.AIGZMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.AIGZSRC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SAFHFORT  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEBIND  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEBND2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEECICS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEECLST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEECMAP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEECPP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEGXLT  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEH  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEH.ARPA.H  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEH.H  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEH.NET.H  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEH.NETINET.H  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEH.SYS.H  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEH.T  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEELIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEELKED  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEELKEX  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEELOCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEELOCX  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEELPA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEMSGP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEOBJ  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEEPROC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEERUN  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEERUN2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEESAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEESPC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SCEESPCO  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SIBMAM24  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SIBMCALL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SIBMCAL2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SIBMMATH  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CEE.SIBMTASK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24SUP.CFZ.ACFZHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24MST.CPAC.CMDPROC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CPAC.DOCLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CPAC.ISPPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CPAC.IVPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CPAC.LINKLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CPAC.PARMLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CPAC.PDFPD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CPAC.PROCLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CPAC.REPORTS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CPAC.SAMPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CPAC.VTAMLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CPAC.VTAMLST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.ACSFCLI0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.ACSFHDRS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.ACSFHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.ACSFMOD0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.ACSFMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.ACSFMSG0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.ACSFOBJ  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.ACSFPNL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.ACSFSKL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.ACSFTLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.SCSFCLI0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.SCSFHDRS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.SCSFMOD0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.SCSFMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.SCSFMSG0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.SCSFOBJ  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.SCSFPNL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.SCSFSKL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.SCSFSTUB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.CSF.SCSFTLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24SUP.DGA.ADGACICS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGACNTL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGADATA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGAISPC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGAJCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGALINK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGAMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGAMAP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGAMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGAMIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGAMSGS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGAOPLS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGAPARM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGAPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGAPROC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGAPROF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGASAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGASENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.ADGATRP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGACICS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGACNTL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGADATA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGAISPC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGAJCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGALINK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGAMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGAMAP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGAMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGAMIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGAMSGS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGAOPLS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGAPARM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGAPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGAPROC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGAPROF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGASAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGASENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.DGA.SDGATRP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.EUVF.AEUVFEXC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.EUVF.AEUVFHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.EUVF.AEUVFLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.EUVF.AEUVFSAM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.EUVF.SEUVFEXC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.EUVF.SEUVFLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.EUVF.SEUVFSAM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24MST.FFST.V120ESA.AEPWBENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.AEPWMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.AEPWSRC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.SEPWBENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.SEPWCENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.SEPWMAC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.SEPWMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.SEPWMOD2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.SEPWMOD3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.SEPWMOD4  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.SEPWPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.SEPWSRC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.FFST.V120ESA.SEPWSRC2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.AADMCDA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.AADMCFO  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.AADMDAT  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.AADMGDF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.AADMIMG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.AADMMAP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.AADMMOD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.AADMMSG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.AADMOPS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.AADMPCF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.AADMPNL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.AADMSAM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.AADMSYM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.SADMCDA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.SADMCFO  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.SADMDAT  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.SADMGDF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.SADMIMG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.SADMMAP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.SADMMOD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.SADMMSG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.SADMOPS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.SADMPCF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.SADMPNL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.SADMSAM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GDDM.SADMSYM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GIM.AGIMBIN  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GIM.AGIMCLS0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GIM.AGIMMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GIM.AGIMPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GIM.AGIMSENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GIM.AGIMTENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GIM.SGIMCLS0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GIM.SGIMLMD0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GIM.SGIMMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GIM.SGIMPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GIM.SGIMSENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.GIM.SGIMTENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24SUP.GLD.AGLDEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.GLD.AGLDEXPC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.GLD.AGLDHCLI  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.GLD.AGLDHDRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.GLD.AGLDHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.GLD.AGLDSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.GLD.SGLDEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.GLD.SGLDEXPC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.GLD.SGLDHDRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.GLD.SGLDSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.GSK.AGSKHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.GSK.AGSKSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.GSK.SGSKSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.HAP.AHAPEXE3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.HAP.AHAPINC3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.HAP.AHAPJCL3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.HAP.SHAPEXE3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.HAP.SHAPJCL3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.HKC.AHKCKC4Z  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24MST.IBMZ.AIBMZHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IBMZ.AIBMZMOD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IBMZ.AIBMZSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IBMZ.SIBMZCMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IBMZ.SIBMZPRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IBMZ.SIBMZSAM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24SUP.ICQ.ICQABTXT  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.ICQ.ICQCCLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.ICQ.ICQILIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.ICQ.ICQMLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.ICQ.ICQPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.ICQ.ICQSLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.ICQ.ICQTABLS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24MST.IGY.AIGYHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IGY.AIGYMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IGY.AIGYSRC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IGY.SIGYCOMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IGY.SIGYMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IGY.SIGYPROC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IGY.SIGYSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24SUP.IOE.AIOEEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IOE.AIOEHLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IOE.AIOEPROC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IOE.AIOESAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IOE.SIOEEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IOE.SIOEPROC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IOE.SIOESAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24MST.ISF.AISFEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.AISFHELP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.AISFHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.AISFJCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.AISFLOAD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.AISFMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.AISFMLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.AISFPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.AISFSLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.AISFSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.AISFTLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.SISFEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.SISFHELP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.SISFJCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.SISFLINK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.SISFLOAD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.SISFLPA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.SISFMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.SISFMIG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.SISFMLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.SISFPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.SISFSLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.SISFSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISF.SISFTLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPALIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPCLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPGENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPGMLI  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPGUI  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPHELP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPMACS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPSENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPSLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.AISPTENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPALIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPCLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPGENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPGMLI  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPGUI  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPHELP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPLOAD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPLPA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPMACS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPSENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPSLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.ISP.SISPTENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IXM.AIXMEXP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IXM.AIXMHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IXM.AIXMLOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IXM.SIXMEXP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.IXM.SIXMLOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24SUP.IZD.AIZDEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IZD.AIZDINST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IZD.AIZDLOAD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IZD.AIZDMAPS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IZD.AIZDMESG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IZD.AIZDSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IZD.SIZDEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IZD.SIZDINST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IZD.SIZDLOAD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IZD.SIZDMAPS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IZD.SIZDMESG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IZD.SIZDSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.IZU.AIZUFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.JAVA.AAJVHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.JAVA.AAJVSMP1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.JAVA.SAJVSMP1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQASMS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQCLST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQCOBC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQCOBS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQCPPS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQC37S  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQC370  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQDEFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQHPPS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQINST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQMACS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQMAPS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQMOD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQMSGC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQMSGE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQMSGF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQMSGK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQMSGU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQOJSH  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQOJTR  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQOWPX  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQOWSH  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQPLIC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQPLIS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQPNLA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQPNLC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQPNLE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQPNLF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQPNLK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQPNLU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQPROC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQTBLC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQTBLE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQTBLF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQTBLK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.ACSQTBLU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQANLC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQANLE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQANLF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQANLK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQANLU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQASMS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQAUTH  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQCICS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQCLST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQCOBC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQCOBS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQCPPS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQC37S  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQC370  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQDEFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQHPPS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQINST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQLINK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQLOAD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQMACS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQMAPS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQMSGC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQMSGE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQMSGF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQMSGK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQMSGU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQMVR1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQPLIC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQPLIS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQPNLA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQPNLC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQPNLE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQPNLF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQPNLK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQPNLU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQPROC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQSNLC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQSNLE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQSNLF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQSNLK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQSNLU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQTBLC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQTBLE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQTBLF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQTBLK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.MQ.V9R1MX.SCSQTBLU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.AAQNCLST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.AAQNLINK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.AAQNPARM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.AAQNSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ABNJPNL1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ABNJPNL2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ABNJSRC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ACNMCLST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ACNMINST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ACNMLINK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ACNMMAC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ACNMPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ACNMPNL1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ACNMSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ACNMUXCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ADSIMSG1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ADSIOPEN  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ADSIPARM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ADSIPRF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ADUIMSG1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.AEJNUNIX  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.AEKGLANG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.AFLBDAT1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.ANVULIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.BNJPNL1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.BNJPNL2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.BNJSRC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.CNMCLST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.CNMINST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.CNMLINK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.CNMPNL1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.CNMSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.DSIPARM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.DSIPRF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.NVULIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SAQNCLST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SAQNLINK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SAQNPARM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SAQNSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SCNMLNKN  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SCNMLNK1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SCNMLPA1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SCNMMAC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SCNMPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SCNMUXCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SDSIMSG1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SDSIOPEN  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SDUIMSG1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SEKGLANG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.NETVIEW.SFLBDAT1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24SUP.OMVS.ROOT -
+           PATH  -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24MST.REXX.AEAGJENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.REXX.AEAGMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.REXX.AEAGMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.REXX.AEAGSAM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.REXX.SEAGALT  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.REXX.SEAGJENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.REXX.SEAGMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.REXX.SEAGSAM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24SUP.SMPE.MVST100.SMPSCDS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.SMPPTS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.SMPE.SMPPTS1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24MST.SYS1.AACBCNTL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AADFMAC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AADRLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AADRYLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AAXREXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABDTCLI0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABDTHELP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABDTMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABDTMOD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABDTMSG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABDTPNL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABDTSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABLSCLI0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABLSKEL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABLSMSG0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABLSPNL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABLSTBL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABMFMOD0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABPXEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABPXMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABPXMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABPXPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABPXSPC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABPXTENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ABPXXMLS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACBDCLST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACBDHENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACBDMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACBDMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACBDMOD2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACBDPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACBDTEMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACBDTENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACBRDBRM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACBRMOD0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACCRHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACCRMOD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACDMMOD0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACDRMODS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACDRTABL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACLMMOD0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACMDLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACSSLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACUNHF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACUNJCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACUNLOCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACUNMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACUNMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACUNMOD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACUNSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ACUNTBL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADBBLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADFMAC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADFPMOD0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADFQMLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADFQPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADFQPSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADGTCLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADGTLLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADGTMLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADGTPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADGTPSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADGTSLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADGTTLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADGTTSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ADMSSVM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AEDGEXE1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AEDGHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AEDGMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AEDGMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AEDGPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AEDGPSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AEDGSRC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AEEQINST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AERBCLS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AERBMAC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AERBMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AERBMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AERBPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AERBPWSV  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AERBT  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AERBTENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AFNTILIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AFNTLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AFNTLIBB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AFNT300  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AFOMHDRS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AFOMHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AFOMMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AFOMOBJ  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AFONTHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AGDEMOD0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AGENLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AGFTAJL1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AGFTAMD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AGFUMOD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AHASMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AHASMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AHASMOD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AHASPARM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AHASPNL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AHASSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AHASSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AHELP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AHELPENP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AICELIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AICESAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AICESRCE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AICEUSER  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AICQAB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AICQILIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AICQMAC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AICQMAC2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AICQMAC3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AICQMAC4  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AICQMAC5  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AIEAHDR  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AIEAHDRV  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AIEALNKE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AIEAMIGE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AIEASID  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AIEWMOD0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AIFALIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AIGDVBS1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AIKYHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AIMAGE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AIMFMOD0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AINDLMD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AISTASGD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AISTASN1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AISTCMIP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AISTDAT1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AISTDAT2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AISTGDMO  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AISTMAC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AITYHFS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ALINKLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ALPALIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AMACLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AMIGLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AMODGEN  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AMSGENP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AMSGENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ANFSLIBE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ANFSMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ANFSSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ANFSTARB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ANUCLEUS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSACB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSA0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSA1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSBN  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSB0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSB3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSCA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSCD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSCE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSC2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSC5  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSC6  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSD0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSD7  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSG0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSJSC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOST3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOST4  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSU0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOSXCF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOS00  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOS04  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOS05  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOS06  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOS11  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOS12  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOS24  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOS26  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOS28  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AOS32  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ASAMPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ASSFMOD0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.ATSOMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.AUADS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.CBRDBRM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.CIPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.CMDLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.CSSLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DBBLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DFQLLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DFQMLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DFQPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DFSMS.ACDS -
+           PATH  -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DFSMS.SCDS -
+           PATH  -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DGTCLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DGTLLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DGTMLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DGTPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DGTSLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.DGTTLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.FONTLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.FONTLIBB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.FONT300  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.HELP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.HELPENP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.HHRFCLST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.HHRFMSG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.HHRFPANL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.HHRFSKEL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.HRFCLST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.HRFMSG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.HRFPANL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.HRFSKEL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.IBM.APARMLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.IBM.APROCLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.IBM.PARMLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.IBM.PROCLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.IGDVBS1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.IMAGELIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.IPLPARM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.LINKLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.LPALIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.MACLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.MIGLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.MODGEN  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.MSGENP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.MSGENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.NFSLIBE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.NFSMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.NFSSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.NFSTARB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.NUCLEUS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.PARMLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.RACF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.RACFSEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SACBCNTL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SADRYLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SAMPLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SAXREXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBDTCLI0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBDTCMD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBDTHELP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBDTLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBDTLINK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBDTLPA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBDTMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBDTMSG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBDTPNL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBDTSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBLSCLI0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBLSKEL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBLSMSG0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBLSPNL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBLSTBL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBPXEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBPXMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBPXPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SBPXTENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCBDCLST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCBDHENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCBDMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCBDPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCBDTEMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCBDTENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCCR3BND  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCCR6BND  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCDRTABL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCUNHF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCUNJCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCUNLOCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCUNMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SCUNTBL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SDFQPSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SDGTPSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SDGTTSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SDMSSVM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SDMSSVMS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SDWWDLPA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SEDGEXE1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SEDGMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SEDGPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SEDGPSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SEEQINST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SERBCLS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SERBLINK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SERBLPA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SERBMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SERBPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SERBPWSV  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SERBT  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SERBTENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SFNTILIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SFOMHDRS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SFOMOBJ  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SHASLNKE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SHASMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SHASMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SHASMIG  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SHASPARM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SHASPNL0  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SHASSAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SHASSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SICELINK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SICELPA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SICEPROC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SICESAMP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SICESRCE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SICEUSER  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SIEAHDR.H  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SIEAHDRV.H  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SIEALNKE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SIEAMIGE  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SIEASID  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SIFALIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SISTASGD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SISTASN1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SISTCLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SISTCMIP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SISTDAT1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SISTDAT2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SISTGDMO  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SISTMAC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SORTLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SORTLPA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.SVCLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.UADS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.VTAMLIB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.SYS1.VTAMLST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZADBR1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZAMAC1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZAMAC2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZAMAC3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZAMODS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZARNT1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZARNT2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZARNT3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZARNT4  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZAROE1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZAROE2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZAROE3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZASMP1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZAXLTD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZAXLTK  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZAXLT1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZAXLT2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.AEZAXLT3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZACMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZACMTX  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZADBCX  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZADBRM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZADPIL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZADSIL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZADSIM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZADSIP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAINST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZALIBN  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZALNK2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZALOAD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZALPA  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAMENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZANCLS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZANMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZANPNL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAOLDX  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZARNT1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZARNT2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZARNT3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZARNT4  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAROE1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAROE2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAROE3  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZARPCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZATCP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZATCPX  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZATELX  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAXAWL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAXLD1  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAXLD2  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAXMLB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAXTLB  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24MST.TCPIP.SEZAX11L  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.MASTER)
+      DELETE -
+           Z24SUP.TCPIVP.TCPPARMS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANCMD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANCUS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANDATV  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANHENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANISP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANJAR  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANMOD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANMODL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANMODP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANMODR  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANMODS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANOSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANPAR  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANPKGI  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANSAM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANSQL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANUTIN  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKANWENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKCIINST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKNSLOCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKOBDATF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKOBHELP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKOCHELP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.DKOCPROC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANCMD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANCUS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANDATV  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANEXEC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANHENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANISP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANMAC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANMOD  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANMODL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANMODP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANMODR  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANMODS  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANOSRC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANPAR  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANPENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANPKGI  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANSAM  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANSQL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANUTIN  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKANWENU  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKCIINST  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKNSLOCL  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKOBDATF  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKOBHELP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKOCHELP  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+      DELETE -
+           Z24SUP.TIVOLI.TKOCPROC  -
+           ALIAS -
+           CAT(CATALOG.ZOS24.SUPORTE)
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((8,GE,DELDSN),(4000,LT))
+//*

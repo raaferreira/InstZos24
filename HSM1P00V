@@ -1,0 +1,82 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*
+//*------------------------------------------------------------------
+//* JOB: HSM1P00V  (product-supplied job ICEGENJ in library SICESAMP)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job invokes ICEGENER directly to verify
+//*      the installation of ICEGENER facility.
+//*
+//* MRC: The maximum expected return code is 0.
+//*------------------------------------------------------------------
+//*
+//GEN  EXEC  PGM=IEBDG
+//SYSPRINT   DD  SYSOUT=*
+//GENOUT  DD  DSN=&CPYDAT,DISP=(NEW,PASS),
+//        DCB=(LRECL=80,BLKSIZE=800,RECFM=FB),
+//        UNIT=SYSALLDA,SPACE=(TRK,(5,))
+//SYSIN  DD  *
+   DSD  OUTPUT=(GENOUT)
+   FD NAME=SEQNUM,LENGTH=6,STARTLOC=6,FORMAT=ZD,INDEX=1
+   FD NAME=CNTFLD1,LENGTH=36,STARTLOC=40,FORMAT=AN,ACTION=RP
+   CREATE QUANTITY=360,FILL='*',NAME=(SEQNUM,CNTFLD1)
+   END
+/*
+//*
+//* COPY the data using ICEGENER
+//*
+//GCOPY1   EXEC PGM=ICEGENER
+//SYSPRINT DD  SYSOUT=*
+//SYSUT1   DD  DSN=&CPYDAT,DISP=(OLD,PASS)
+//SYSUT2   DD  SYSOUT=*,
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=80)
+//SYSIN    DD  DUMMY
+//*
+//* COPY the data using IEBGENER.
+//* If you installed ICEGENER to be invoked by the name IEBGENER,
+//* then ICEGENER will be used in this step.
+//*
+//BCOPY1   EXEC PGM=IEBGENER
+//SYSPRINT DD  SYSOUT=*
+//SYSUT1   DD  DSN=&CPYDAT,DISP=(OLD,PASS)
+//SYSUT2   DD  SYSOUT=*,
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=80)
+//SYSIN    DD  DUMMY
+//*
+//* ICEGENER invoked with a non-DUMMY SYSIN causes IEBGENER to
+//* be used.
+//*
+//GCOPY2   EXEC PGM=ICEGENER
+//SYSPRINT DD  SYSOUT=*
+//SYSUT1   DD  DSN=&CPYDAT,DISP=(OLD,PASS)
+//SYSUT2   DD  SYSOUT=*,
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=80)
+//SYSIN    DD  *
+//*
+//*
+//* Temp Perm ---------------------- STEP 2 -----------------------
+//* ____ ____ If you receive DFSORT message ICE163A on the console
+//*           and the corresponding DFSORT user abend 163, you must
+//*           change the GENER option specified with ICEMAC INV and
+//*           ICEMAC TSOINV to correspond to the alias you selected
+//*           for the IEBGENER module.  For example, specify
+//*           GENER=OLDGENER if OLDGENER is the alias you selected
+//*           for the IEBGENER module.
+//*
+//*

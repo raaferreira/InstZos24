@@ -1,0 +1,361 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*
+//********************************************************************
+//* JOB: HLE77C0F  (product-supplied job CEEWIVP in library SCEESAMP)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: IVP for Language Environment
+//*
+//*******************************************************************
+//*------------------------------------------------------------------
+//* IVP DESCRIPTION: This IVP will test the interfaces between
+//*                : Language Environment and assembler, COBOL,
+//*                : C/C++, C pre-linker, SPC, PL/1, and FORTRAN to
+//*                : ensure that Language Environment was installed
+//*                : properly.
+//*------------------------------------------------------------------
+//* IVP INSTRUCTIONS:
+//*
+//*    1. Before submitting this job, the JCL must be customized
+//*       for your installation.
+//*
+//*    2. If you are running in 64-Bit mode, insure the MEMLIMIT
+//*       value is greater then zero. The MEMLIMIT value selected
+//*       will depend on your environment needs.
+//*
+//*------------------------------------------------------------------
+//* IVP NATIONAL LANGUAGE INSTRUCTIONS:
+//*    1. To receive pre-link messages in Japanese, change the
+//*       EDCPMSGE member name to EDCPMSGK in //SYSMSGS DD in the
+//*       PLINK step.
+//*    2. You may override the NATLANG(ENU) runtime option default
+//*       by specifying one of the following on each step listed.
+//*             PARM='NATLANG(UEN)/' or PARM='NATLANG(JPN)'
+//*       STEPS: RUNASSEM,RUNCOBOL,RUNC2,RUNSPC,RUNPLI,RUNFORT
+//*    3. For step RUNC1 and RUNC3, you may override the
+//*       NATLANG(ENU) runtime option default by modifying and
+//*       linking a CEEUOPT with EDC1VLIB in the LINK step. See
+//*       the z/OS Language Environment Customization manual for
+//*       instructions on modifying CEEUOPT.  You will need to
+//*       change the line in CEEUOPT from NATLANG=(ENU) to
+//*       NATLANG=(UEN) or NATLANG(JPN).
+//*    4. For step RUNC4 you may override the NATLANG(ENU)
+//*       runtime option default by modifying and linking a
+//*       CELQUOPT with CELQVLIB in the BND64 step. See the
+//*       z/OS Language Environment Customization manual for
+//*       instructions on modifying CELQUOPT.  You will need to
+//*       change the line in CELQUOPT from NATLANG=(ENU) to
+//*       NATLANG=(UEN) or NATLANG(JPN).
+//*    5. The expected output from each step, starting with
+//*       RUNASSEM, is not changed when NATLANG is changed.
+//*
+//*------------------------------------------------------------------
+//* IVP OUTPUT:
+//*
+//*   ASSEM:
+//*      A. Acceptable return codes: 0
+//*
+//*   PLINK:
+//*      A. Acceptable return codes: 4
+//*      B. Acceptable messages: EDC4015 to indicate the
+//*          following references are unresolved:
+//*          CEEBETBL CEEROOTA printf CEESG003 EDCINPL
+//*
+//*   LINK:
+//*      A. Acceptable return codes: 0
+//*
+//*   RUNASSEM:
+//*      A. Acceptable return codes: 0
+//*      B. Expected output:
+//*             Today is Friday, 30 November 2001.
+//*             Today is FRIDAY, NOVEMBER 30, 2001.
+//*             Today is Friday, 11/30/01 15:51:12.33
+//*             Today is day 334 of 2001
+//*             Program Complete.
+//*
+//*   RUNCOBOL:
+//*      A. Acceptable return codes: 0
+//*      B. Expected output:
+//*             ***** START OF CALLIVP1 *****
+//*             ***** CALLIVP1 SUCCESSFUL *****
+//*
+//*   RUNC1:
+//*      A. Acceptable return codes: 0
+//*      B. Expected output:
+//*      *** C runtime component of Language Environment
+//*      HELLO WORLD *** TEST SUCCESSFUL ***
+//*
+//*   RUNC2:
+//*      A. Acceptable return codes: 0
+//*      B. Expected output:
+//*             ******* VERIFICATION SUCCESSFUL ******
+//*
+//*   RUNC3:
+//*      A. Acceptable return codes: 0
+//*      B. Expected output:
+//*      *** C runtime component of Language Environment
+//*      HELLO WORLD, FROM XPLINK ** SUCCESS **
+//*
+//*   RUNC4:
+//*      A. Acceptable return codes: 0
+//*      B. Expected output:
+//*      *** C runtime component of Language Environment
+//*      HELLO WORLD, FROM 64 BIT ** SUCCESS **
+//*
+//*   RUNSPC:
+//*      A. Acceptable return codes: 0
+//*      B. Expected output:
+//*             Hello SPC     *** Test successful ***
+//*
+//*   RUNPLI:
+//*      A. Acceptable return codes: 0
+//*      B. Expected output:
+//*       ***********************
+//*       *** Word-use Report ***
+//*       ***********************
+//*       -count-   --word--
+//*           3      BEGIN
+//*           1      CLOSE
+//*          13      DCL
+//*          24      DECLARE
+//*           2      DISPLAY
+//*          14      DO
+//*          13      ELSE
+//*          23      END
+//*           1      GO
+//*          13      IF
+//*      ------------The previous value should have been    14
+//*           7      LIST
+//*           4      ON
+//*           1      OPEN
+//*           2      PROC
+//*           3      PROCEDURE
+//*           2      READ
+//*           4      RETURN
+//*           1      SELECT
+//*           2      STOP
+//*          13      THEN
+//*           2      WHEN
+//*       There were            148 references to    36 words.
+//*       There was a discrepancy in at least one of the word-counts.
+//*
+//*   RUNFORT:
+//*      A. Acceptable return codes: 0
+//*      B. Expected output:
+//*             AFHXIVPA - sample program was successful
+//********************************************************************
+//*
+//LIBSET  SET
+//*
+//********************************************************************
+//*
+//ASSEM    EXEC PGM=ASMA90,PARM='OBJECT,NODECK'
+//SYSLIB   DD DSN=CEE.SCEEMAC,
+//            DISP=SHR
+//         DD DSN=SYS1.MACLIB,
+//            DISP=SHR
+//SYSUT1   DD UNIT=SYSALLDA,SPACE=(CYL,(3,1)),DISP=(NEW,DELETE)
+//SYSUT2   DD UNIT=SYSALLDA,SPACE=(CYL,(3,1)),DISP=(NEW,DELETE)
+//SYSUT3   DD UNIT=SYSALLDA,SPACE=(CYL,(3,1)),DISP=(NEW,DELETE)
+//SYSPRINT DD SYSOUT=*
+//SYSLIN   DD DSN=&&TEMPOBJ1(CEEIVP),DISP=(,PASS),UNIT=SYSALLDA,
+//            SPACE=(CYL,(5,5,2)),DCB=BLKSIZE=800
+//SYSIN    DD DISP=SHR,
+//          DSN=CEE.SCEESAMP(CEEIVP)
+//*
+//********************************************************************
+//*
+//PLINK    EXEC PGM=EDCPRLK,PARM='NCAL'
+//STEPLIB  DD  DSN=CEE.SCEERUN,
+//             DISP=SHR
+//SYSMSGS  DD  DISP=SHR,
+//          DSN=CEE.SCEEMSGP(EDCPMSGE)
+//SYSLIB   DD  DUMMY
+//SYSIN    DD  DISP=SHR,
+//          DSN=CEE.SCEESAMP(EDC1VPRL)
+//SYSMOD   DD  DSN=&&TEMPOBJ2(EDC1VPRL),UNIT=SYSALLDA,
+//             SPACE=(32000,(30,30,1)),DISP=(NEW,PASS),
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=3200)
+//SYSOUT   DD  SYSOUT=*
+//SYSPRINT DD  SYSOUT=*
+//SYSIN2   DD  DUMMY
+//*
+//********************************************************************
+//*
+//LINK     EXEC  PGM=IEWL,COND=(4,LT,PLINK),
+//         PARM='LIST,LET,AMODE=31,RMODE=ANY,XREF,MAP'
+//SYSLIB   DD  DSN=CEE.SCEELKED,
+//             DISP=SHR
+//         DD  DSN=CEE.SCEESPC,
+//             DISP=SHR
+//INOBJ1   DD  DSN=&&TEMPOBJ1,DISP=(OLD,DELETE)
+//INOBJ2   DD  DSN=CEE.SCEESAMP,
+//             DISP=SHR
+//INOBJ3   DD  DSN=&&TEMPOBJ2,DISP=(OLD,DELETE)
+//SYSPRINT DD  SYSOUT=*
+//SYSLMOD  DD  DSN=&&LOADLIB,DISP=(NEW,PASS),
+//             UNIT=SYSALLDA,SPACE=(3200,(50,20,5)),
+//             DCB=(RECFM=U,LRECL=0,BLKSIZE=6144)
+//SYSUT1   DD  UNIT=SYSALLDA,SPACE=(TRK,(10,10))
+//SYSLIN   DD  *
+   INCLUDE INOBJ1(CEEIVP)
+   ENTRY CEEIVP
+   NAME CEEIVP(R)
+   INCLUDE INOBJ2(IGZIVP)
+   ENTRY CALLIVP1
+   NAME IGZIVP(R)
+   INCLUDE INOBJ2(EDC1VLIB)
+   ENTRY CEESTART
+   NAME EDC1VLIB(R)
+   INCLUDE INOBJ3(EDC1VPRL)
+   ENTRY CEESTART
+   NAME EDC1VPRL(R)
+   INCLUDE SYSLIB(EDCXSTRL)
+   INCLUDE INOBJ2(EDC4VSPC)
+   ENTRY EDCXSTRL
+   NAME EDC4VSPC(R)
+   INCLUDE INOBJ2(IBMALOB1)
+   ENTRY CEESTART
+   NAME IBMALOB1(R)
+   INCLUDE INOBJ2(AFHXOBJ1)
+   ENTRY MAIN#
+   NAME AFHXOBJ1(R)
+/*
+//********************************************************************
+//*
+//BND64    EXEC  PGM=IEWL,MEMLIMIT=20M,
+//         PARM='DYNAM=DLL,LIST,LET,AMODE=64,XREF,MAP'
+//SYSLIB   DD  DSN=CEE.SCEEBND2,
+//             DISP=SHR
+//SCEELIB  DD  DSN=CEE.SCEELIB,
+//             DISP=SHR
+//INOBJ1   DD  DSN=CEE.SCEESAMP,
+//             DISP=SHR
+//SYSPRINT DD  SYSOUT=*
+//SYSLMOD  DD  DSN=&&LOADLB2,DISP=(NEW,PASS),DSNTYPE=LIBRARY,
+//             UNIT=SYSALLDA,SPACE=(3200,(50,20,5)),
+//             DCB=(RECFM=U,LRECL=0,BLKSIZE=6144)
+//SYSUT1   DD  UNIT=SYSALLDA,SPACE=(TRK,(10,10))
+//SYSLIN   DD  *
+   INCLUDE SCEELIB(CELQS003)
+   INCLUDE INOBJ1(CELQVLIB)
+   ENTRY CELQSTRT
+   NAME CELQVLIB(R)
+/*
+//*
+//********************************************************************
+//*
+//RUNASSEM EXEC PGM=CEEIVP,COND=(4,LT,LINK),
+//  PARM='TER(DUMP)/'
+//STEPLIB  DD  DSN=&&LOADLIB,DISP=(OLD,PASS)
+//         DD  DSN=CEE.SCEERUN,
+//             DISP=SHR
+//SYSPRINT DD  SYSOUT=*
+//CEEDUMP  DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//*
+//********************************************************************
+//*
+//RUNCOBOL EXEC PGM=IGZIVP,COND=(4,LT,LINK),
+//  PARM='/TER(DUMP)'
+//STEPLIB  DD  DSN=&&LOADLIB,DISP=(OLD,PASS)
+//         DD  DSN=CEE.SCEERUN,
+//             DISP=SHR
+//SYSPRINT DD  SYSOUT=*
+//CEEDUMP  DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//*
+//********************************************************************
+//*
+//RUNC1    EXEC PGM=EDC1VLIB,COND=(4,LT,LINK),
+//  PARM='TER(DUMP)/HELLO WORLD *** TEST SUCCESSFUL ***'
+//STEPLIB  DD  DSN=&&LOADLIB,DISP=(OLD,PASS)
+//         DD  DSN=CEE.SCEERUN,
+//             DISP=SHR
+//CEEDUMP  DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//*
+//********************************************************************
+//*
+//RUNC2    EXEC PGM=EDC1VPRL,COND=(4,LT,LINK),
+//  PARM='TER(DUMP)/******* VERIFICATION SUCCESSFUL ******'
+//STEPLIB  DD  DSN=&&LOADLIB,DISP=(OLD,PASS)
+//         DD  DSN=CEE.SCEERUN,
+//             DISP=SHR
+//CEEDUMP  DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//*
+//********************************************************************
+//*
+//RUNC3    EXEC PGM=EDC1VLIB,COND=(4,LT,LINK),
+//  PARM='TER(DUMP),XPLINK(ON)/HELLO WORLD, FROM XPLINK ** SUCCESS **'
+//STEPLIB  DD  DSN=&&LOADLIB,DISP=(OLD,PASS)
+//         DD  DSN=CEE.SCEERUN,
+//             DISP=SHR
+//         DD  DSN=CEE.SCEERUN2,
+//             DISP=SHR
+//CEEDUMP  DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//*
+//********************************************************************
+//*
+//RUNC4    EXEC PGM=CELQVLIB,COND=(0,LT,BND64),
+//         MEMLIMIT=20M,
+//  PARM='TER(DUMP)/HELLO WORLD, FROM 64 BIT ** SUCCESS **'
+//STEPLIB  DD  DSN=&&LOADLB2,DISP=(OLD,PASS)
+//         DD  DSN=CEE.SCEERUN,
+//             DISP=SHR
+//         DD  DSN=CEE.SCEERUN2,
+//             DISP=SHR
+//CEEDUMP  DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//*
+//********************************************************************
+//*
+//RUNSPC   EXEC PGM=EDC4VSPC,COND=(4,LT,LINK)
+//STEPLIB  DD  DSN=&&LOADLIB,DISP=(OLD,PASS)
+//         DD  DSN=CEE.SCEERUN,
+//             DISP=SHR
+//CEEDUMP  DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//*
+//********************************************************************
+//*
+//RUNPLI   EXEC PGM=IBMALOB1,COND=(4,LT,LINK),
+//  PARM='TER(DUMP)/'
+//STEPLIB  DD  DSN=&&LOADLIB,DISP=(OLD,PASS)
+//         DD  DSN=CEE.SCEERUN,
+//             DISP=SHR
+//SOURCE   DD  DISP=SHR,
+//          DSN=CEE.SCEESAMP(IBMALSO1)
+//CEEDUMP  DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//*
+//********************************************************************
+//*
+//RUNFORT  EXEC PGM=AFHXOBJ1,COND=(4,LT,LINK),
+//  PARM='TER(DUMP)/'
+//STEPLIB  DD  DSN=&&LOADLIB,DISP=(OLD,PASS)
+//         DD  DSN=CEE.SCEERUN,
+//             DISP=SHR
+//CEEDUMP  DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//SYSPRINT DD  SYSOUT=*
+//*
+//

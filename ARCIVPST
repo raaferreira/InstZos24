@@ -1,0 +1,242 @@
+//HSMIVP   JOB (60798),E002884,NOTIFY=ROSCAAO,MSGCLASS=Q,CLASS=W        00050001
+//HSMBUILD EXEC PGM=IEBUPDTE,PARM=NEW                                   00100000
+//*                                                                     00150000
+//********************************************************************  00200000
+//*       INSTALLATION VERIFICATION PROCEDURE SETUP                  *  00250000
+//*                                                                  *  00300000
+//* THIS JOB (HSMIVP) PROVIDES THE INSTALLATION VERIFICATION         *  00350000
+//* PROCEDURE (IVP) FOR DFSMSHSM. THE DFSMSHSM IVP IS NOT DEPENDENT  *  00400000
+//* ON ANY SMS FUNCTIONS OR CONSTRUCTS FOR ITS SUCCESSFUL COMPLETION.*  00450000
+//* RUN THIS JOB AFTER REPLACING THE PARAMETER ON THE JOB CARD WITH  *  00500000
+//* VALUES FOR YOUR SITE. THIS JOB CREATES A PARTITIONED DATA SET    *  00550000
+//* (PDS) DFSMSHSM.IVP.CNTL ON SYSDA THAT CONTAINS THE MEMBER        *  00600000
+//* HSMIVP1. EDIT HSMIVP1 AND RUN IT TO SET UP YOUR SYSTEM           *  00650000
+//* FOR THE DFSMSHSM IVP.                                            *  00700000
+//*                                                                  *  00750000
+//* AFTER RUNNING THIS JOB, INSPECT MEMBER HSMIVP1 IN                *  00800000
+//* DFSMSHSM.IVP.CNTL FOR INSTRUCTIONS ON HOW TO RUN THE IVP.        *  00850000
+//********************************************************************  00900000
+//*                                                                     00950000
+//SYSPRINT DD  SYSOUT=*                                                 01000000
+//SYSUT2   DD  UNIT=SYSDA,                                              01050000
+//             DSN=DFSMSHSM.IVP.CNTL,                                   01100001
+//             DISP=(NEW,CATLG),VOL=SER=SUPZ35,                         01150001
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=3120),                    01200000
+//             SPACE=(CYL,(1,1,2))                                      01250000
+//SYSIN    DD  DATA,DLM='$A'                                            01300000
+./ ADD NAME=HSMIVP1                                                     01350000
+//HSMIVP1  JOB ?JOBPARM                                                 01400000
+//*                                                                     01450000
+//********************************************************************  01500000
+//*           HSMIVP1 MEMBER OF DFSMSHSM.IVP.CNTL                    *  01550000
+//*                                                                  *  01600000
+//* MEMBER HSMIVP1 IS A PARAMETERIZED IVP FOR DFSMSHSM. RUN THIS JOB *  01650000
+//* AFTER REPLACING THE FOLLOWING PARAMETERS WITH VALUES FOR YOUR    *  01700000
+//* SITE.                                                            *  01750000
+//*                                                                  *  01800000
+//* THIS JOB CREATES A USER CATALOG (THAT YOU NAME) ON A VOLUME (THAT*  01850000
+//* YOU IDENTIFY) AND ALLOCATES A MIGRATION CONTROL DATA             *  01900000
+//* SET (ON A VOLUME YOU IDENTIFY). THE JOB PLACES A STARTUP         *  01950000
+//* PROCEDURE NAMED DFSMSHSM INTO YOUR SYS1.PROCLIB AND CREATES THE  *  02000000
+//* MEMBERS ARCCMD00, ARCSTR00, HSMIVP2, AND UCLINCHK IN THE DATA SET*  02050000
+//* DFSMSHSM.IVP.CNTL.  WARNING: IF A STARTUP PROCEDURE NAMED        *  02075000
+//* DFSMSHSM ALREADY EXISTS IN THE SYS1.PROCLIB DATA SET, IT WILL BE *  02100000
+//* OVERWRITTEN.                                                     *  02125000
+//*                                                                  *  02150000
+//* AFTER RUNNING THIS JOB TO CREATE THE IVP ENVIRONMENT, ISSUE THE  *  02200000
+//* 'START DFSMSHSM' COMMAND TO RUN THE DFSMSHSM IVP. REFER TO THE   *  02250000
+//* "IMPLEMENTING AND CUSTOMIZING DFSMSHSM" MANUAL FOR INSTRUCTIONS  *  02300000
+//* AND EXPECTED RESULTS.                                            *  02350000
+//*                                                                  *  02400000
+//* AFTER STARTING THE DFSMSHSM INSTALLATION VERIFICATION PROCEDURE, *  02450000
+//* RUN THE UCLINCHK JOB AND CHECK THE RESULTS IN ACCORDANCE TO THE  *  02500000
+//* INSTRUCTIONS CONTAINED IN THE PROGRAM DIRECTORY.                 *  02550000
+//*                                                                  *  02600000
+//* AFTER COMPLETING THE IVP, RUN THE JOB IN MEMBER HSMIVP2 IN THE   *  02650000
+//* DFSMSHSM.IVP.CNTL DATA SET TO CLEAN UP THE SYSTEM.               *  02700000
+//********************************************************************  03100000
+//* PARAMETER   DESCRIPTION OF PARAMETER                             *  03150000
+//*                                                                  *  03200000
+//* ?UCATUNIT - UNIT TYPE TO CONTAIN USER CATALOG                    *  03250000
+//* ?UCATVOL  - VOLUME SERIAL OF VOLUME TO CONTAIN USER CATALOG      *  03300000
+//* ?UCATNAM  - NAME FOR USER CATALOG FOR MCDS                       *  03350000
+//* ?MCATNAM  - NAME OF SYSTEM MASTER CATALOG (OR NAME/PASSWORD      *  03400000
+//*             OF SYSTEM MASTER CATALOG IF PASSWORD USED)           *  03450000
+//* ?JOBPARM                                                         *  03500000
+//*           - JOB CONTROL CARD PARAMETERS                          *  03550000
+//* ?HIQUAL   - HIGH LEVEL QUALIFIER FOR IVP DATA SETS               *  03600000
+//* ?CDSUNIT  - UNIT TYPE TO CONTAIN THE MCDS                        *  03650000
+//* ?CDSVOL   - VOLUME SERIAL OF VOLUME TO CONTAIN MCDS              *  03700000
+//* ?JESVER   - JES VERSION, EITHER JES2 OR JES3                     *  03750000
+//*                                                                  *  03800000
+//********************************************************************  03850000
+//*                                                                     03900000
+//********************************************************************  03950000
+//* THIS STEP ALLOCATES AN INTEGRATED CATALOG FACILITY (ICF) USER    *  04000000
+//* CATALOG AND THE CATALOG'S ASSOCIATED ALIAS WHICH YOU SPECIFY     *  04050000
+//* WITH THE "?HIQUAL" VARIABLE.                                     *  04100000
+//*                                                                  *  04150000
+//*   ****** INTEGRATED CATALOG FACILITY CATALOG REQUIRED *******    *  04200000
+//********************************************************************  04250000
+//*                                                                     04300000
+//CATALOG  EXEC PGM=IDCAMS                                           *  04350000
+//SYSPRINT DD SYSOUT=*                                                  04400000
+//HSMCAT   DD UNIT=?UCATUNIT,DISP=SHR,VOL=SER=?UCATVOL                  04450000
+//SYSIN    DD *                                                         04500000
+  DEFINE UCAT(NAME(?UCATNAM) -                                          04550000
+         CYLINDERS(1 1) VOLUME(?UCATVOL) -                              04600000
+         FILE(HSMCAT) FREESPACE(10 10))                                 04650000
+  DEFINE ALIAS(NAME(?HIQUAL) RELATE(?UCATNAM))                          04750000
+/*                                                                      04900000
+//********************************************************************  04950000
+//* THIS STEP DEFINES THE MCDS.                                      *  05000000
+//********************************************************************  05050000
+//*                                                                     05100000
+//IDCAMS EXEC PGM=IDCAMS                                                05150000
+//*                                                                     05200000
+//SYSPRINT DD SYSOUT=*                                                  05250000
+//*                                                                     05300000
+//HSMMCDS  DD UNIT=?CDSUNIT,VOL=SER=?CDSVOL,DISP=SHR                    05350000
+//*                                                                     05400000
+//SYSIN    DD *                                                         05450000
+ DEFINE CLUSTER (NAME(?HIQUAL.MCDS) VOLUMES(?CDSVOL) -                  05500000
+        CYLINDERS(1) FILE(HSMMCDS) -                                    05550000
+        RECORDSIZE(435 2040) FREESPACE(0 0) -                           05600000
+        INDEXED KEYS(44 0) SHAREOPTIONS(3 3) -                          05650000
+        UNIQUE NOWRITECHECK) -                                          05700000
+        DATA(NAME(?HIQUAL.MCDS.DATA) -                                  05750000
+        CONTROLINTERVALSIZE(4096)) -                                    05800000
+        INDEX(NAME(?HIQUAL.MCDS.INDEX) -                                05850000
+        CONTROLINTERVALSIZE(2048))                                      05900000
+//STARTUP  EXEC PGM=IEBGENER                                            06000000
+//SYSPRINT DD SYSOUT=*                                                  06050000
+//SYSUT2   DD DISP=SHR,                                                 06100000
+//            DSN=SYS1.PROCLIB(DFSMSHSM)                                06150000
+//SYSIN    DD DUMMY                                                     06200000
+//SYSUT1   DD DATA,DLM='$B'                                             06250000
+//*                                                                     06300000
+//********************************************************************  06350000
+//*        DFSMSHSM IVP STARTUP PROCEDURE                            *  06400000
+//********************************************************************  06450000
+//*                                                                     06500000
+//DFSMSHSM EXEC PGM=ARCCTL,DYNAMNBR=50,REGION=6144K,TIME=1440,          06550000
+//        PARM=('EMERG=NO','LOGSW=NO','CMD=00','UID=?HIQUAL',           06600000
+//        'STARTUP=YES','HOST=1Y','STR=00')                             06650000
+//HSMPARM  DD DSN=DFSMSHSM.IVP.CNTL,DISP=SHR                            06700000
+//MSYSOUT  DD SYSOUT=A                                                  06750000
+//MSYSIN   DD DUMMY                                                     06800000
+//SYSPRINT DD SYSOUT=A,FREE=CLOSE                                       06850000
+//SYSUDUMP DD SYSOUT=A                                                  06900000
+//MIGCAT   DD DSN=?HIQUAL.MCDS,DISP=SHR                                 06950000
+//ARCLOGX  DD DUMMY                                                     07000000
+//ARCLOGY  DD DUMMY                                                     07050000
+$B                                                                      07100000
+//MAKEARC  EXEC PGM=IEBGENER                                            07150000
+//SYSPRINT DD SYSOUT=A                                                  07200000
+//SYSUT2   DD DISP=OLD,                                                 07250000
+//            DSN=DFSMSHSM.IVP.CNTL(ARCCMD00)                           07300000
+//SYSIN    DD DUMMY                                                     07350000
+//SYSUT1   DD DATA,DLM='$B'                                             07400000
+ /*                                                                     07450000
+ /********************************************************************  07500000
+ /*           DFSMSHSM STARTUP PARMLIB MEMBER FOR IVP                *  07550000
+ /********************************************************************  07600000
+ /*                                                                     07650000
+ SETSYS ?JESVER -                                                       07700000
+   SYS1DUMP -                                                           07750000
+   MONITOR(STARTUP) -                                                   07800000
+   NOJOURNAL -                                                          07825000
+   NOSPILL                                                              07850000
+ QUERY STARTUP CSALIMITS SETSYS                                         07900000
+$B                                                                      07950000
+//MAKEARC  EXEC PGM=IEBGENER                                            08000000
+//SYSPRINT DD SYSOUT=A                                                  08003300
+//SYSUT2   DD DISP=OLD,                                                 08006600
+//            DSN=DFSMSHSM.IVP.CNTL(ARCSTR00)                           08009900
+//SYSIN    DD DUMMY                                                     08013200
+//SYSUT1   DD DATA,DLM='$B'                                             08016500
+ /*                                                                     08019800
+ /********************************************************************  08023100
+ /*           DFSMSHSM ADDITIONAL STARTUP PARMLIB MEMBER FOR IVP     *  08026400
+ /********************************************************************  08029700
+ /*                                                                     08033000
+ EMERG=NO,CDSQ=YES,STARTUP=YES                                          08036300
+ PDA=YES,LOGSW=YES                                                      08039600
+$B                                                                      08042900
+//MAKEARC  EXEC PGM=IEBGENER                                            08046200
+//SYSPRINT DD SYSOUT=*                                                  08050000
+//SYSUT2   DD DISP=OLD,                                                 08100000
+//            DSN=DFSMSHSM.IVP.CNTL(HSMIVP2)                            08150000
+//SYSIN    DD DUMMY                                                     08200000
+//SYSUT1   DD DATA,DLM='$B'                                             08250000
+//HSMIVP2  JOB ?JOBPARM                                                 08300000
+//*                                                                     08350000
+//********************************************************************  08400000
+//* HSMIVP2 IS A JOB TO CLEAN UP AFTER EXECUTION OF THE IVP.  THE    *  08450000
+//* FIRST STEP DELETES THE MCDS.  THE SECOND STEP DELETES THE USER   *  08500000
+//* CATALOG USED FOR THE MCDS.                                       *  08550000
+//********************************************************************  08600000
+//*                                                                     08650000
+//DELMCDS  EXEC PGM=IDCAMS                                              08700000
+//SYSPRINT DD  SYSOUT=*                                                 08800000
+//SYSIN    DD  *                                                        08850000
+  DELETE -                                                              08900000
+     ?HIQUAL.MCDS -                                                     08950000
+     PURGE -                                                            09000000
+     CATALOG(?UCATNAM)                                                  09050000
+//DELUCAT  EXEC PGM=IDCAMS                                              09100000
+//SYSPRINT DD  SYSOUT=*                                                 09150000
+//SYSIN    DD  *                                                        09200000
+  DELETE -                                                              09250000
+   ?HIQUAL -                                                            09300000
+   ALIAS -                                                              09350000
+   CATALOG(?MCATNAM)                                                    09400000
+  DELETE -                                                              09450000
+   ?UCATNAM -                                                           09490000
+   PURGE -                                                              09530000
+   FORCE -                                                              09560000
+   USERCATALOG                                                          09590000
+$B                                                                      09650000
+//UCLINCHK EXEC PGM=IEBGENER                                            09700000
+//SYSPRINT DD SYSOUT=A                                                  09750000
+//SYSUT2   DD DISP=OLD,                                                 09800000
+//            DSN=DFSMSHSM.IVP.CNTL(UCLINCHK)                           09850000
+//SYSIN    DD DUMMY                                                     09900000
+//SYSUT1   DD DATA,DLM='$C'                                             09950000
+//UCLINCHK JOB ?JOBPARM                                                 10000000
+//********************************************************************  10050000
+//* THIS JOB VERIFIES THAT UCLIN WAS EXECUTED AND THAT               *  10100000
+//* DFSMSHSM SUPPORT MODULES ARE CORRECTLY INSTALLED.                *  10150000
+//*                                                                  *  10200000
+//* EXPECT TO RECEIVE "SYSTEM ACTION AGAINST A MIGRATED DATA         *  10250000
+//* SET FAILED" OR "DATA SET IS NOT MIGRATED/BACKED UP" MESSAGES,    *  10300000
+//* AND A RETURN CODE OF 12 FROM IDCAMS.                             *  10350000
+//*                                                                  *  10400000
+//* YOU MAY ALSO RECEIVE THE FOLLOWING ERROR MESSAGES, THESE ARE     *  10450000
+//* TO BE EXPECTED, BUT MAY OR MAY NOT OCCUR DEPENDING ON THE        *  10500000
+//* SYSTEM ENVIRONMENT.                                              *  10550000
+//*                                                                  *  10600000
+//* IKJ56231I DATA SET HSM130.UCLINCHK NOT ALLOCATED,                *  10650000
+//*           SYSTEM OR INSTALLATION ERROR+                          *  10700000
+//* IKJ56231I DYNAMIC ALLOCATION REASON CODE IS X'000017FF'          *  10750000
+//* IGD04001I UNEXPECTED CATALOG LOCATE PROCESSING ERROR -           *  10800000
+//*           RETURN CODE 38 REASON CODE 4                           *  10850000
+//* IDC3003I FUNCTION TERMINATED. CONDITION CODE IS 12               *  10900000
+//*                                                                  *  10950000
+//*                                                                  *  11000000
+//*                                                                  *  11050000
+//* A REQUEST FOR MOUNT VOLUME "MIGRAT" INDICATES THAT UCLIN         *  11100000
+//* DID NOT RUN OR DID NOT RUN CORRECTLY. "MIGRAT" IS DFSMSHSM-OWNED *  11150000
+//* AND NO MOUNT AT THIS TIME IS NECESSARY.  REFER TO PROGRAM        *  11200000
+//* DIRECTORY FOR INSTRUCTIONS ON UCLIN.                             *  11250000
+//*                                                                  *  11300000
+//********************************************************************  11350000
+//IDCAMS EXEC PGM=IDCAMS                                                11400000
+//SYSPRINT DD SYSOUT=*                                                  11450000
+//SYSIN    DD *                                                         11500000
+ DEFINE NONVSAM(NAME(?HIQUAL.UCLINCHK) DEVT(3380) VOL(MIGRAT))          11550000
+ ALLOCATE DA('?HIQUAL.UCLINCHK')                                        11600000
+ DELETE ?HIQUAL.UCLINCHK NOSCRATCH                                      11650000
+/*                                                                      11700000
+$C                                                                      11750000
+$A                                                                      11800000

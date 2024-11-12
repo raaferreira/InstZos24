@@ -1,0 +1,127 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=E002884,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//********************************************************************
+//*
+//* JOB: IWMINSTI (product-supplied job IWMINSTL in library SAMPLIB)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job loads and activates a sample policy for
+//*      Workload Manager (WLM).  The RECEIVE step unpacks the
+//*      sample policy and places it in a partitioned data set.
+//*      The ACTPOLCY step loads and conditionally activates
+//*      the sample policy.
+//*
+//* MRC: The expected return code for all steps is zero.
+//*
+//*  Instructions:
+//*      Examine the parameters below and update them if necessary
+//*      for your installation.  The parameters are:
+//*
+//*  SVDEFPDS - Data set where the ISPF tables that describe
+//*          the WLM service definitions are to reside.
+//*          This data set is created from the IWMSSDEF member
+//*          of the SAMPLIB data set.  After it has been created,
+//*          you can use the WLM ISPF dialog to change the service
+//*          definitions it contains.
+//*          The supplied name is SYS1.WLM.DEF.
+//*
+//*  FORCE - Specifies whether the sample service definition
+//*          should replace your existing service definition.
+//*          FORCE='Y' always installs the sample service
+//*          definition -- regardless of whether you already have one.
+//*          FORCE='N' installs the sample service definition
+//*          only when there is no existing service definition.
+//*
+//*          Use FORCE='Y' only if you are certain that you want
+//*          to replace your existing policies.
+//*          FORCE='N' is set below.
+//*
+//*  POLNAME - Name of the policy to be activated, depending on
+//*          whether there is an existing policy and how the
+//*          FORCE parameter is set.  The sample policy name is
+//*          WLMPOL.  If POLNAME is not specified, the service
+//*          definition is installed, but no policy is activated.
+//***************************************************************
+//*
+//SETPARM1 SET SVDEFPDS='SYS1.WLM.DEF'
+//SETPARM2 SET FORCE='N'
+//SETPARM3 SET POLNAME='WLMPOL'
+//*
+//*--------------------------------------------------------------
+//* The following step unpacks the sample definition.
+//*--------------------------------------------------------------
+//RECEIVE  EXEC PGM=IKJEFT01,DYNAMNBR=99
+//SYSPRINT  DD SYSOUT=*
+//SYSTSPRT  DD SYSOUT=*
+//SYSTERM   DD DUMMY
+//SAMPLIB   DD DSN=SYS1.SAMPLIB(IWMSSDEF),
+//          DISP=SHR
+//SYSTSIN   DD *
+  PROFILE WTPMSG MSGID
+  RECEIVE INDDNAME(SAMPLIB)
+  DA('SYS1.WLM.DEF') OLD
+  PROFILE
+/*
+//*--------------------------------------------------------------
+//* This step activates the policy if one does not exist, unless
+//* the FORCE parameter has been changed to Y .
+//*--------------------------------------------------------------
+//ACTPOLCY  EXEC PGM=IKJEFT1B,
+//          PARM='IWMARIDU F=&FORCE P=&POLNAME'
+//SYSPROC   DD DSN=SYS1.SBLSCLI0,
+//             DISP=SHR
+//ISPLLIB   DD DSN=ISP.SISPLPA,
+//             DISP=SHR
+//          DD DSN=ISP.SISPLOAD,
+//             DISP=SHR
+//ISPMLIB   DD DSN=ISP.SISPMENU,
+//             DISP=SHR
+//ISPPLIB   DD DSN=ISP.SISPPENU,
+//             DISP=SHR
+//ISPTLIB   DD DSN=ISP.SISPTENU,
+//             DISP=SHR
+//ISPSLIB   DD DSN=ISP.SISPSENU,
+//             DISP=SHR
+//ISPTABL   DD UNIT=SYSALLDA,
+//          DCB=(RECFM=FB,LRECL=80,BLKSIZE=0),
+//          SPACE=(CYL,(1,1,5)),
+//          DISP=NEW
+//ISPPROF   DD UNIT=SYSALLDA,
+//          DCB=(RECFM=FB,LRECL=80,BLKSIZE=0),
+//          SPACE=(CYL,(1,1,5)),
+//          DISP=NEW
+//ISPLOG    DD UNIT=SYSALLDA,
+//          DCB=(RECFM=FB,LRECL=80,BLKSIZE=0),
+//          SPACE=(CYL,(1,1)),
+//          DISP=NEW
+//ISPCTL1   DD UNIT=SYSALLDA,
+//          DCB=(RECFM=FB,LRECL=80,BLKSIZE=0),
+//          SPACE=(CYL,(1,1)),
+//          DISP=NEW
+//ISPLST1   DD UNIT=SYSALLDA,
+//          DCB=(RECFM=FBA,LRECL=121,BLKSIZE=1210),
+//          SPACE=(CYL,(1,1)),
+//          DISP=NEW
+//*
+//SVDEF     DD DSN=&SVDEFPDS,
+//          DISP=SHR
+//*
+//SYSTSPRT  DD SYSOUT=*
+//*
+//SYSTSIN   DD DUMMY
+//

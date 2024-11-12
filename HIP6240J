@@ -1,0 +1,163 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//********************************************************************
+//* JOB: HIP6240J  (product-supplied job EZAGETIN in library SEZAINST)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: Initialize Communications Server IP Services data sets
+//*
+//* NOTE:  This job allocates files on the Target System's
+//*        Work volume you defined via variable F90GDD05.
+//*        If you do not wish for these data sets to go onto
+//*        this volume change the 'SER=SUPZ35,'
+//*        statement to your desired volume.
+//*
+//********************************************************************
+//EZAIND    PROC  DSPREFIX='TCPIP',
+//            SER=ZOS243,
+//            UNIT=SYSALLDA
+//***************************************************************
+//*
+//*  MAKE SEQUENTIAL XLATE TABLE DATA SETS
+//*
+//***************************************************************
+//*             STANDARD TRANSLATE TABLE
+//***************************************************************
+//STANDARD  EXEC  PGM=IEBGENER
+//SYSPRINT  DD    SYSOUT=*
+//SYSUT1    DD DISP=(OLD,PASS),
+//          DSN=TCPIP.SEZAXLD1(STANDARD)
+//SYSUT2    DD DSN=&DSPREFIX..STANDARD.TCPXLBIN,
+//          DISP=(NEW,CATLG),SPACE=(256,(185,185)),VOL=SER=&SER,
+//          DCB=(RECFM=F,LRECL=256,BLKSIZE=256),UNIT=&UNIT
+//SYSIN     DD DUMMY
+//***************************************************************
+//*             STANDARD KANJI TRANSLATE TABLE
+//***************************************************************
+//STDJBIN   EXEC  PGM=IEBGENER
+//SYSPRINT  DD    SYSOUT=*
+//SYSUT1    DD DISP=(OLD,PASS),
+//          DSN=TCPIP.SEZAXLD2(EZAKJBIN)
+//SYSUT2    DD DSN=&DSPREFIX..STANDARD.TCPKJBIN,
+//          DISP=(NEW,CATLG),SPACE=(8800,(105,6)),VOL=SER=&SER,
+//          DCB=(RECFM=VB,LRECL=5124,BLKSIZE=8800),UNIT=&UNIT
+//SYSIN     DD DUMMY
+//***************************************************************
+//STDGBIN   EXEC  PGM=IEBGENER
+//SYSPRINT  DD    SYSOUT=*
+//SYSUT1    DD DISP=(OLD,PASS),
+//          DSN=TCPIP.SEZAXLD2(EZAHGBIN)
+//SYSUT2    DD DSN=&DSPREFIX..STANDARD.TCPHGBIN,
+//          DISP=(NEW,CATLG),SPACE=(8800,(55,6)),VOL=SER=&SER,
+//          DCB=(RECFM=VB,LRECL=5124,BLKSIZE=8800),UNIT=&UNIT
+//SYSIN     DD DUMMY
+//***************************************************************
+//STDGHIN   EXEC  PGM=IEBGENER
+//SYSPRINT  DD    SYSOUT=*
+//SYSUT1    DD DISP=(OLD,PASS),
+//          DSN=TCPIP.SEZAXLD2(EZACHBIN)
+//SYSUT2    DD DSN=&DSPREFIX..STANDARD.TCPCHBIN,
+//          DISP=(NEW,CATLG),SPACE=(8800,(55,6)),VOL=SER=&SER,
+//          DCB=(RECFM=VB,LRECL=5124,BLKSIZE=8800),UNIT=&UNIT
+//SYSIN     DD DUMMY
+//***************************************************************
+//STDSCBIN  EXEC  PGM=IEBGENER
+//SYSPRINT  DD    SYSOUT=*
+//SYSUT1    DD DISP=(OLD,PASS),
+//          DSN=TCPIP.SEZAXLD2(EZASCBIN)
+//SYSUT2    DD DSN=&DSPREFIX..STANDARD.TCPSCBIN,
+//          DISP=(NEW,CATLG),SPACE=(8800,(30,6)),VOL=SER=&SER,
+//          DCB=(RECFM=VB,LRECL=5124,BLKSIZE=8800),UNIT=&UNIT
+//SYSIN     DD DUMMY
+//***************************************************************
+//*             TELNET AND TELNETSE TRANSLATE TABLES
+//***************************************************************
+//TELNET    EXEC  PGM=IEBGENER
+//SYSPRINT  DD    SYSOUT=*
+//SYSUT1    DD DISP=(OLD,PASS),
+//          DSN=TCPIP.SEZAXLD1(TELNET)
+//SYSUT2    DD DSN=&DSPREFIX..TELNET.TCPXLBIN,
+//          DISP=(NEW,CATLG),SPACE=(256,(185,185)),VOL=SER=&SER,
+//          DCB=(RECFM=F,LRECL=256,BLKSIZE=256),UNIT=&UNIT
+//SYSIN     DD DUMMY
+//TELNETSE  EXEC  PGM=IEBGENER
+//SYSPRINT  DD    SYSOUT=*
+//SYSUT1    DD DISP=(OLD,PASS),
+//          DSN=TCPIP.SEZAXLD1(TELNETSE)
+//SYSUT2    DD DSN=&DSPREFIX..TELNETSE.TCPXLBIN,
+//          DISP=(NEW,CATLG),SPACE=(256,(185,185)),VOL=SER=&SER,
+//          DCB=(RECFM=F,LRECL=256,BLKSIZE=256),UNIT=&UNIT
+//SYSIN     DD DUMMY
+//***************************************************************
+//*             CREATE HOSTS.LOCAL DATA SET
+//***************************************************************
+//HOSTSLOC  EXEC  PGM=IEBGENER
+//SYSPRINT  DD    SYSOUT=*
+//SYSUT1    DD DISP=(SHR,KEEP),
+//          DSN=TCPIP.SEZAINST(HOSTS)
+//SYSUT2    DD DSN=&DSPREFIX..HOSTS.LOCAL,
+//          DISP=(NEW,CATLG),SPACE=(784,(61,61)),VOL=SER=&SER,
+//          DCB=(RECFM=VB,LRECL=255,BLKSIZE=784),UNIT=&UNIT
+//SYSIN     DD DUMMY
+//***************************************************************
+//*  CREATE SEQUENTIAL MIB DESCRIPTION DATA SET
+//***************************************************************
+//MIBDESC   EXEC  PGM=IEBGENER
+//SYSPRINT  DD    SYSOUT=*
+//SYSUT1    DD DISP=(SHR,PASS),
+//          DSN=TCPIP.SEZAINST(MIBDESC)
+//SYSUT2    DD DSN=&DSPREFIX..MIBDESC.DATA,
+//          DISP=(NEW,CATLG),SPACE=(784,(120,30)),VOL=SER=&SER,
+//          DCB=(RECFM=VB,LRECL=255,BLKSIZE=784),UNIT=&UNIT
+//SYSIN     DD DUMMY
+//***************************************************************
+//*             CREATE ETC.SERVICES DATA SET
+//***************************************************************
+//ETCSERVC  EXEC  PGM=IEBGENER
+//SYSPRINT  DD    SYSOUT=*
+//SYSUT1    DD DISP=(SHR,PASS),
+//          DSN=TCPIP.SEZAINST(SERVICES)
+//SYSUT2    DD DSN=&DSPREFIX..ETC.SERVICES,
+//          DISP=(NEW,CATLG),SPACE=(3120,(15,15)),VOL=SER=&SER,
+//          DCB=(RECFM=FB,LRECL=80,BLKSIZE=3120),UNIT=&UNIT
+//SYSIN     DD DUMMY
+//***************************************************************
+//*             CREATE ETC.RPC DATA SET
+//***************************************************************
+//ETCRPC    EXEC  PGM=IEBGENER
+//SYSPRINT  DD    SYSOUT=*
+//SYSUT1    DD DISP=(SHR,PASS),
+//          DSN=TCPIP.SEZAINST(ETCRPC)
+//SYSUT2    DD DSN=&DSPREFIX..ETC.RPC,
+//          DISP=(NEW,CATLG),SPACE=(3120,(15,15)),VOL=SER=&SER,
+//          DCB=(RECFM=FB,LRECL=80,BLKSIZE=3120),UNIT=&UNIT
+//SYSIN     DD DUMMY
+//***************************************************************
+//*             CREATE ETC.PROTO DATA SET
+//***************************************************************
+//ETCPROTO  EXEC  PGM=IEBGENER
+//SYSPRINT  DD    SYSOUT=*
+//SYSUT1    DD DISP=(SHR,KEEP),
+//          DSN=TCPIP.SEZAINST(PROTO)
+//SYSUT2    DD DSN=&DSPREFIX..ETC.PROTO,
+//          DISP=(NEW,CATLG),SPACE=(3120,(15,15)),VOL=SER=&SER,
+//          DCB=(RECFM=FB,LRECL=80,BLKSIZE=3120),UNIT=&UNIT
+//SYSIN     DD DUMMY
+//        PEND
+//        EXEC EZAIND
+/*

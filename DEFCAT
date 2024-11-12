@@ -1,0 +1,104 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*--------------------------------------------------------------------
+//* GDE: ServerPac INSTALLATION
+//* DOC: DEFINE THE TARGET SYSTEM'S CATALOG(S) INTO THE DRIVING
+//*      SYSTEM'S MASTER CATALOG.
+//*
+//*      IMPORT/CONNECT EVENTUAL TARGET SYSTEM USER CATALOG(S) INTO
+//*      THE TARGET SYSTEM'S MASTER CATALOG.
+//*
+//* MRC: THE MAXIMUM EXPECTED RETURN CODE IS: 0
+//*
+//*---------------------------------------------------------------------
+//*
+//* PLEASE NOTICE:
+//*       IF NO CATALOG IS FLAGGED TO BE ALLOCATED,
+//*       NO EXECUTABLE JOB IS BUILT.
+//*
+//* FOR USER CATALOG, NOTE THAT AN IMPORT CONNECT BETWEEN THE MASTER
+//* AND USER CATALOG IS REQUIRED.
+//*
+//*--------------------------------------------------------------------
+//DEFMCAT  EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+  DEFINE -
+    MCAT ( -
+          ICFCATALOG -
+          NAME(CATALOG.ZOS24.MASTER) -
+          VOL(ZOS240) -
+          CYL(10 1) -
+          FREESPACE(10 10) -
+          SHR(3 4) -
+          STRNO(3) -
+         ) -
+    DATA ( -
+          CISZ(4096) -
+          BUFND(4) -
+         ) -
+    INDEX( -
+          BUFNI(4) -
+         ) -
+    CAT(CATALOG.ZOST22.MASTER)
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,DEFMCAT),(4000,LT))
+//*
+//SSA1 EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+  DEFINE -
+    UCAT ( -
+          ICFCAT -
+          NAME(CATALOG.ZOS24.SUPORTE) -
+          VOLUME (ZOS241) -
+          CYLINDERS (10 1) -
+          FREESPACE(10 10) -
+          SHR(3 4) -
+          STRNO(3) -
+         ) -
+    DATA ( -
+          CISZ(4096) -
+          BUFND(4) -
+         ) -
+    INDEX( -
+          BUFNI(4) -
+         ) -
+    CAT(CATALOG.ZOST22.MASTER)
+  IF LASTCC = 0 THEN -
+  IMPORT CONNECT -
+        OBJECTS((CATALOG.ZOS24.SUPORTE -
+        DEVICETYPE(3390) -
+        VOLUME(ZOS241))) -
+        CATALOG(CATALOG.ZOS24.MASTER)
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,SSA1),(4000,LT))
+//*
+//*-------------------------------------------------------------------
+//*  CONNECT THE DRIVING SYSTEM MASTER CATALOG INTO THE NEW TARGET
+//*  SYSTEM MASTER CATALOG FOR THE CATCVTM JOB
+//*-------------------------------------------------------------------
+//CONNECT1 EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+  IMPORT CONNECT -
+        OBJECTS((CATALOG.ZOST22.MASTER -
+        DEVICETYPE(3390) -
+        VOLUME(ZOST20))) -
+        CATALOG(CATALOG.ZOS24.MASTER)
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,CONNECT1),(4000,LT))

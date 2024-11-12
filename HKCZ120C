@@ -1,0 +1,38 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*------------------------------------------------------------------
+//*  JOB: HKCZ120C (no product-supplied job)
+//*
+//*  GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//*  DOC: This job does the following:
+//*
+//*  Creates target subdirectories under the mount points for the
+//*  three execution time file systems that you have mounted.
+//*
+//*  NOTE: This job must be run with a USERID having privileged
+//*  authority.
+//*--------------------------------------------------------------------
+//CREATE EXEC PGM=BPXBATCH,REGION=0M,COND=(4000,LT)
+//STDPARM DD *
+pgm /usr/lpp/kc4z/samples/maketargetdirs.cmd
+/*
+//STDOUT   DD  SYSOUT=*
+//STDERR   DD  SYSOUT=*
+//*
+//#NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,CREATE),(4000,LT))
+//*

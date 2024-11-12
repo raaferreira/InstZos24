@@ -1,0 +1,83 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*********************************************************************
+//* JOB: H270530P (product-supplied job IBMZWIVP in library SIBMZSAM)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job will compile, bind, and run a PL/I program to check
+//*      the installation of Enterprise PL/I.
+//*
+//* NOTES:
+//*
+//* 1. Before running this job, do the following:
+//*
+//*    a. Make sure the cataloged procedure IBMZCBG
+//*       (in library SIBMZPRC) is available to this job.
+//*
+//*       If library SIBMZPRC is not in the system PROCLIB
+//*       concatenation or procedure IBMZCBG is not in CPAC.PROCLIB,
+//*       uncomment the JCLLIB statement in this job.
+//*
+//*    b. Change, if required, the IBMZ value of the LNGPRFX parameter
+//*       to the high-level qualifier for the Enterprise PL/I
+//*       data sets.
+//*
+//*    c. Change, if required, the CEE value of the LIBPRFX parameter
+//*       to the high-level qualifier for the Language Environment
+//*       data sets.
+//*
+//* 2. This job should complete with a return code 0.
+//*    Step GO should produce the following output to DDNAME SYS00002:
+//*
+//*    ***********************
+//*    *** Word-use Report ***
+//*    ***********************
+//*    -count-   --word--
+//*        3      BEGIN
+//*        1      CLOSE
+//*       13      DCL
+//*       24      DECLARE
+//*        2      DISPLAY
+//*       14      DO
+//*       13      ELSE
+//*       23      END
+//*        1      GO
+//*       13      IF
+//*        7      LIST
+//*        4      ON
+//*        1      OPEN
+//*        2      PROC
+//*        3      PROCEDURE
+//*        2      READ
+//*        4      RETURN
+//*        1      SELECT
+//*        2      STOP
+//*       13      THEN
+//*        2      WHEN
+//*   There were            148 references to    36 words.
+//*********************************************************************
+//*
+//*PLIPROC JCLLIB ORDER=IBMZ.SIBMZPRC
+//*
+//IVP     EXEC  IBMZCBG,REGION=0M,
+//        LNGPRFX='IBMZ',LIBPRFX='CEE'
+//PLI.SYSIN    DD  DISP=SHR,
+//        DSN=IBMZ.SIBMZSAM(IBMZJSO1)
+//GO.SOURCE    DD  DISP=SHR,
+//        DSN=IBMZ.SIBMZSAM(IBMZJSO1)
+//

@@ -1,0 +1,120 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*
+//*
+//********************************************************************
+//* JOB: HFST101H  (product-supplied job EPW12011 in library SEPWSRC2)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job is optional.  It will linkedit the CICS
+//*      modules needed to use CICS application with FFST.
+//*
+//*******************************************************************
+//*
+//***************************************************************
+//* FUNCTION BY JOB STEP:                                       *
+//***************************************************************
+//*                                                             *
+//* STEP1: Linkedit EPWTRUEI and EPWTRUET.                      *
+//*                                                             *
+//*        Expected condition code = 0004                       *
+//*                                                             *
+//* STEP2: Linkedit EPWCIVP.                                    *
+//*                                                             *
+//*        Expected condition code = 0004                       *
+//*                                                             *
+//* STEP3: Linkedit EPWTRUE (must be below 16MEG line).         *
+//*                                                             *
+//*        Expected condition code = 0004                       *
+//*                                                             *
+//***************************************************************
+//STEP1    EXEC PGM=HEWLH096,REGION=0M,
+//            PARM='XREF,LET,LIST,RMODE=ANY,AMODE=31'
+//SYSUT1   DD DSN=&SYSUT1,
+//            UNIT=SYSALLDA,
+//            SPACE=(CYL,(2,2))
+//SYSPRINT DD SYSOUT=*
+//SYSLIB   DD DSN=FFST.V120ESA.SEPWMOD1,
+//            DISP=SHR
+//         DD DSN=CICSTR.V540.CICS.SDFHLOAD,
+//            DISP=SHR
+//SYSLMOD  DD DSN=FFST.V120ESA.SEPWMOD1,
+//            DISP=SHR
+//SYSLIN   DD *
+  ORDER DFHEAI,EPWTRUEI,DFHEAI0
+  ENTRY EPWTRUEI
+  INCLUDE SYSLMOD(EPWTRUEI)
+  INCLUDE SYSLIB(DFHEAI)
+  INCLUDE SYSLIB(DFHEAI0)
+  NAME EPWTRUEI(R)
+  ORDER DFHEAI,EPWTRUET,DFHEAI0
+  ENTRY EPWTRUET
+  INCLUDE SYSLMOD(EPWTRUET)
+  INCLUDE SYSLIB(DFHEAI)
+  INCLUDE SYSLIB(DFHEAI0)
+  NAME EPWTRUET(R)
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((4,GE,STEP1),(4000,LT))
+//*
+//STEP2    EXEC PGM=HEWLH096,REGION=0M,
+//            PARM='XREF,LET,LIST,RMODE=ANY,AMODE=31'
+//SYSUT1   DD DSN=&SYSUT1,
+//            UNIT=SYSALLDA,
+//            SPACE=(CYL,(2,2))
+//SYSPRINT DD SYSOUT=*
+//SYSLIB   DD DSN=FFST.V120ESA.SEPWMOD2,
+//            DISP=SHR
+//         DD DSN=FFST.V120ESA.SEPWMOD3,
+//            DISP=SHR
+//         DD DSN=CICSTR.V540.CICS.SDFHLOAD,
+//            DISP=SHR
+//SYSLMOD  DD DSN=FFST.V120ESA.SEPWMOD3,
+//            DISP=SHR
+//SYSLIN   DD *
+  ORDER DFHEAI,EPWCIVP,DFHEAI0
+  ENTRY EPWCIVP
+  INCLUDE SYSLMOD(EPWCIVP)
+  INCLUDE SYSLIB(DFHEAI)
+  INCLUDE SYSLIB(DFHEAI0)
+  NAME EPWCIVP(R)
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((4,GE,STEP2),(4000,LT))
+//*
+//STEP3    EXEC PGM=HEWLH096,REGION=0M,
+//            PARM='XREF,LET,LIST,RMODE=24,AMODE=31'
+//SYSUT1   DD DSN=&SYSUT1,
+//            UNIT=SYSALLDA,
+//            SPACE=(CYL,(2,2))
+//SYSPRINT DD SYSOUT=*
+//SYSLIB   DD DSN=FFST.V120ESA.SEPWMOD1,
+//            DISP=SHR
+//         DD DSN=CICSTR.V540.CICS.SDFHLOAD,
+//            DISP=SHR
+//SYSLMOD  DD DSN=FFST.V120ESA.SEPWMOD1,
+//            DISP=SHR
+//SYSLIN   DD *
+  ORDER DFHEAI,EPWTRUE,DFHEAI0
+  ENTRY EPWTRUE
+  INCLUDE SYSLMOD(EPWTRUE)
+  INCLUDE SYSLIB(DFHEAI)
+  INCLUDE SYSLIB(DFHEAI0)
+  NAME EPWTRUE(R)
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((4,GE,STEP3),(4000,LT))
+//*
+/*

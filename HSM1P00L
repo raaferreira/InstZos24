@@ -1,0 +1,47 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*
+//*------------------------------------------------------------------
+//* JOB: HSM1P00L  (product-supplied job ICEPROC in library SICESAMP)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job creates member ICEPPOC, alias SORT, in PROCLIB.
+//*
+//* MRC: The maximum expected return code is 0.
+//*------------------------------------------------------------------
+//*
+//CATALOG  EXEC  PGM=IEBUPDTE,PARM=NEW
+//SYSPRINT DD  SYSOUT=*
+//SYSUT2   DD  DSNAME=CPAC.PROCLIB,
+//             DISP=SHR
+//SYSIN    DD  DATA
+./ ADD   NAME=ICEPROC,LIST=ALL
+./ ALIAS NAME=SORT
+//ICEPROC  EXEC  PGM=ICEMAN
+//SYSOUT   DD  SYSOUT=*
+//SYSPRINT DD  DUMMY
+//SYSLMOD  DD  DSNAME=&&GOSET,
+//             UNIT=SYSALLDA,
+//             SPACE=(3600,(20,20,1))
+//SYSLIN   DD  DSNAME=&&LOADSET,
+//             UNIT=SYSALLDA,SPACE=(80,(10,10))
+//SYSUT1   DD  DSNAME=&&SYSUT1,
+//             SPACE=(1024,(60,20)),
+//             UNIT=SYSALLDA
+./ ENDUP
+//*

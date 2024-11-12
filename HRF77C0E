@@ -1,0 +1,45 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*-------------------------------------------------------------------
+//*
+//* JOB: HRF77C0E (product-supplied job UPGDRDS in
+//*                SYS1.SAMPLIB(RACJCL))
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job upgrades RACF primary database
+//*      Z24MST.SYS1.RACF to
+//*      the new release format using the
+//*      IRRMIN00 utility.
+//*
+//* NOTES:
+//*    1) SYSTEMP is no longer used to point to the template
+//*       definitions.  IRRMIN00 automatically finds the correct
+//*       level for that level of IRRMIN00.
+//*
+//*    2) Data set 'Z24MST.SYS1.LINKLIB'
+//*       must be APF-authorized on the driving system.
+//*
+//*-------------------------------------------------------------------
+//*
+//UPGRAD1  EXEC PGM=IRRMIN00,PARM=UPDATE
+//STEPLIB  DD DISP=SHR,
+//    DSN=Z24MST.SYS1.LINKLIB
+//SYSRACF  DD DISP=SHR,
+//            DSN=Z24MST.SYS1.RACF
+//SYSPRINT DD SYSOUT=*
+//*

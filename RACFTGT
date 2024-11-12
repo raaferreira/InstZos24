@@ -1,0 +1,4272 @@
+//E0028844 JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=E002884,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*
+//*   JOB: RACFTGT
+//*
+//*   DOC: YOU SHOULD REVIEW THIS JOB BEFORE RUNNING IT, AND MODIFY
+//*        PARAMETERS TO MEET YOUR SECURITY REQUIREMENTS.
+//*
+//*        FOR Z/OS ORDERS THIS JOB CREATES STARTED PROCEDURE
+//*        PROFILES FOR SYSTEM LOGGER, USS, AND OCSF
+//*        AND CREATES REQUIRED DATASET PROFILES FOR
+//*        THESE PRODUCTS.
+//*
+//*   REQUIRED CHANGES:
+//*
+//*      Change the following to the names on your system:
+//*
+//*
+//*      Update the names of the following couple datasets:
+//*
+//*             SYS1.XCF.*
+//*             SYS1.WLM.*
+//*             SYS1.LOGR.*
+//*
+//*
+//*   EXPECTED MESSAGES:
+//*
+//*      IF YOU RUN THIS JOB ON THE DRIVING SYSTEM USING A SHARED
+//*      RACF DATABASE, EXPECT ICH01002I MESSAGES WHEN DEFINING
+//*      USERIDS WITH BOTH NOPASSWORD AND NOOIDCARD IF THE
+//*      DRIVING SYSTEM IS NOT AT AN OS/390 R8 OR HIGHER LEVEL.
+//*      IF YOU GET THESE MESSAGES, THEN ISSUE ALTUSER COMMANDS
+//*      WITH THE NOPASSWORD OPERAND FROM THE TARGET SYSTEM AFTER
+//*      THE TARGET SYSTEM HAS BEEN IPLED AND THE RACF TEMPLATES
+//*      HAVE BEEN UPDATED TO MAKE THE USER IDS PROTECTED.
+//*
+//*      EXPECT VARIOUS INFORMATIONAL MESSAGES IF PROFILES HAVE
+//*      ALREADY BEEN DEFINED TO YOUR SYSTEM. YOU MAY WANT
+//*      USE AN ALTGROUP, ALTUSER TO SET UP THE PROFILE IF
+//*      IT ALREADY EXISTS.
+//*      (IKJ56702I, IKJ56701I, ICH09004I)
+//*
+//*                       IMPORTANT
+//*
+//*  YOU MUST REVIEW THE CONTENTS OF THIS JOB BEFORE SUBMITTING IT.
+//*  RACFTGT CONTAINS EXAMPLE DEFINITIONS; RUNNING IT UNCHANGED ON
+//*  AN EXISTING SYSTEM MIGHT RESULT IN AN OUTAGE OR SIGNIFICANT
+//*  REWORK FOR YOU, DEPENDING ON YOUR INSTALLATION'S CURRENT SECURITY
+//*  DEFINITIONS.
+//*
+//*  AS SHIPPED, THE RACFTGT JOB RESTRICTS THE USE OF SOME FACILITIES
+//*  AND DATA SETS, AND MIGHT CHANGE THE USER IDS USED FOR STARTED
+//*  TASKS AND THEIR AUTHORIZATIONS.  THESE CHANGES CAN CAUSE EXISTING
+//*  USERS AND SYSTEM TASKS TO LOSE AUTHORIZATION TO SYSTEM RESOURCES.
+//*
+//*  REVIEW THIS JOB PRIOR TO SUBMISSION AND MODIFY IT AS NEEDED TO
+//*  ENSURE THAT THE OPTIONS IT SETS AND THE PROFILES IT DEFINES ARE
+//*  WORKABLE IN YOUR ENVIRONMENT AND CONSISTENT WITH YOUR
+//*  INSTALLATION'S SECURITY PRACTICES.
+//*
+//*   MRC: THE MAXIMUM EXPECTED RETURN CODE IS: 00
+//*
+//*   NOTES:
+//*
+//*      THE USERID IBMUSER WILL BE AUTHORIZED TO
+//*      USE THE ACCOUNT COMMAND.  THIS ALLOWS
+//*      CREATING NEW USERIDS FOR TSO LOGON.
+//*
+//*      THIS JOB DEFAULTS TO SYSALLDA FOR ALL UNITS.
+//*      IF YOU DO NOT WANT TO USE SYSALLDA PLEASE CHANGE IT
+//*      TO THE APPROPIATE UNIT NAME .
+//*
+//*      REVIEW THE JOB OUTPUT TO ENSURE YOUR SECURITY
+//*      OBJECTIVES HAVE BEEN MET.
+//*
+//*      IF YOU DID NOT RECEIVE RETURN CODE 00 CHECK THE
+//*      DYNAMIC PARSE STEP.
+//*
+//*      THIS JOB MUST BE RUN FROM A USERID WITH THE RACF
+//*      SPECIAL ATTRIBUTE.
+//*
+//*      THE JOB WAS SET UP WITH A DEFAULT USERID OF IBMUSER
+//*      AND SHOULD BE MODIFIED TO AN ID APPROPRIATE FOR YOUR
+//*      INSTALLATION.
+//*
+//*   RESTART INSTRUCTIONS :
+//*
+//*    IF RESTARTING FROM THE RACFTGT1 STEP, CHANGE THE DISPOSITION
+//*    PARAMETER FOR LOG1 TEMPORARY DATA SET ON SYSTSPRT DD IN
+//*    RACFTGT1 STEP TO DISP=(NEW,PASS,) AND ADD UNIT=SYSDA PARAMETER.
+//*
+//*
+//RACFTGT  EXEC PGM=IKJEFT01
+//SYSTSPRT DD  DSN=&LOG1,DISP=(NEW,PASS,),UNIT=SYSDA
+//SYSTERM  DD  DUMMY
+//SYSTSIN  DD  *,DLM=@@
+  PROF MSGID WTPMSG
+/***  SETROPTS COMMAND SETS SYSTEM-WIDE  ***/
+/***  RACF OPTIONS RELATED TO RESOURCE   ***/
+/***  PROTECTION DYNAMICALLY.            ***/
+SETROPTS +
+   GENERIC(DATASET STARTED XFACILIT PROGRAM +
+           SDSF OPERCMDS JESSPOOL)          +
+   GENCMD(DATASET STARTED XFACILIT PROGRAM  +
+           SDSF OPERCMDS JESSPOOL)          +
+   CLASSACT(FACILITY +
+        DIGTRING +
+        DIGTCERT +
+        UNIXPRIV +
+        XFACILIT +
+        DIGTCRIT +
+        LOGSTRM  +
+        CSFSERV  +
+        TSOAUTH  +
+        SDSF     +
+        OPERCMDS +
+        JESSPOOL +
+        STARTED) +
+   RACLIST(FACILITY +
+        UNIXPRIV +
+        DIGTCERT +
+        DIGTCRIT +
+        DIGTRING +
+        LOGSTRM  +
+        CSFSERV  +
+        TSOAUTH  +
+        SDSF     +
+        OPERCMDS +
+        JESSPOOL +
+        STARTED) +
+  WHEN(PROGRAM)
+/****  DEFINE AND PERMIT THE FACILITY FOR DYNAMIC PARSING  ****/
+RDEFINE +
+  FACILITY +
+  IRRDPI00 +
+  UACC(NONE)
+PERMIT +
+  IRRDPI00 +
+  CLASS(FACILITY) +
+  ID(IBMUSER) +
+  ACCESS(READ)
+/****  DEFINE AND PERMIT THE TSO AUTHORIZATION FOR CONSOLE ****/
+RDEFINE +
+ TSOAUTH +
+ CONSOLE +
+ UACC(NONE)
+PE +
+  CONSOLE +
+  CLASS(TSOAUTH) +
+  ID(IBMUSER) +
+  ACC(UPDATE)
+/****  DEFINE AND PERMIT UNIX PERMISSION FOR SUPERUSER ACCESS  ****/
+RDEFINE +
+  UNIXPRIV +
+  SUPERUSER.FILESYS.PFSCTL +
+  UACC(NONE)
+PERMIT +
+  SUPERUSER.FILESYS.PFSCTL +
+  CLASS(UNIXPRIV) +
+  ID(IBMUSER) +
+  ACCESS(READ)
+/****  CREATE SECUREFTPKEYRING BEGIN  ****/
+/****  RACDCERT IS USED TO INSTALL AND MAINTAIN DIGITAL         ****/
+/****  CERTIFICATES, KEY RINGS AND DIGITAL CERTIFICATE MAPPINGS ****/
+RACDCERT +
+  ADDRING(SecureFTPKeyRing) +
+  ID(IBMUSER)
+RACDCERT +
+  ALTER( +
+  LABEL('Verisign Class 3 Primary CA')) +
+  TRUST +
+  CERTAUTH
+RACDCERT +
+  CONNECT +
+  (CERTAUTH +
+  RING(SecureFTPKeyRing) +
+  LABEL('Verisign Class 3 Primary CA') +
+  USAGE(CERTAUTH)) +
+  ID(IBMUSER)
+/***** CREATE SECURE FTP KEYRING END  ****/
+/*****************************************/
+/***** BEGIN DIGITAL CERTIFICATE  ********/
+/****  FOR SAF GENCERT AND EXPORT REQUESTS  ****/
+/****  WHERE THE APPLICATION HAS READ AND   ****/
+/****  UPDATE ACCESS, SUBSEQUENT ACCESS     ****/
+/****  CHECKS ARE PERFORMED AGAINST THE     ****/
+/****  IRR.DIGTCERT.FUNCTION FACILITY       ****/
+/****  RESOURCES.                           ****/
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.ADD +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.ADD +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.ADD +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(CONTROL)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.ADDRING +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.ADDRING +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.ADDRING +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(UPDATE)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.ALTER +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.ALTER +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.ALTER +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(CONTROL)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.ALTMAP +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.ALTMAP +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.ALTMAP +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(UPDATE)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.CONNECT +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.CONNECT +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.CONNECT +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(CONTROL)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.DELETE +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.DELETE +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.DELETE +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(CONTROL)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.DELMAP +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.DELMAP +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.DELMAP +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(UPDATE)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.DELRING +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.DELRING +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.DELRING +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(UPDATE)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.EXPORT +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.EXPORT +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.EXPORT +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(CONTROL)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.EXPORTKEY +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.EXPORTKEY  +
+    CLASS(FACILITY) +
+    ID(*)  +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.EXPORTKEY +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(CONTROL)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.GENCERT +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.GENCERT +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.GENCERT +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(CONTROL)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.GENREQ +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.GENREQ +
+    CLASS(FACILITY)+
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.GENREQ +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(CONTROL)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.LIST +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.LIST +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.LIST +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(CONTROL)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.LISTMAP +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.LISTMAP +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.LISTMAP +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(UPDATE)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.LISTRING +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.LISTRING +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.LISTRING +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(UPDATE)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.MAP +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.MAP +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.MAP +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(UPDATE)
+RDEFINE +
+    FACILITY +
+    IRR.DIGTCERT.REMOVE +
+    UACC(NONE)
+PERMIT +
+    IRR.DIGTCERT.REMOVE +
+    CLASS(FACILITY) +
+    ID(*) +
+    ACC(READ)
+PERMIT +
+    IRR.DIGTCERT.REMOVE +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(CONTROL)
+/*    End Digital Certificate              */
+/*******************************************/
+/*    Refresh various impacted profiles    */
+SETROPTS RACLIST(FACILITY  +
+                 DIGTCERT  +
+                 DIGTCRIT  +
+                 DIGTRING  +
+                 LOGSTRM   +
+                 XFACILIT  +
+                 CSFSERV   +
+                 TSOAUTH   +
+                 SDSF      +
+                 OPERCMDS  +
+                 JESSPOOL  +
+                 STARTED   +
+                 UNIXPRIV) +
+                 REFRESH
+@@
+//*
+//***************************************************
+//*    DYNAMIC PARSE ACTIVATION STEP
+//***************************************************
+//IRRDPTAB EXEC PGM=IKJEFT1B,REGION=1M,
+//         PARM='IRRDPI00 UPDATE'
+//SYSTSPRT DD  SYSOUT=*
+//SYSUT1   DD  DSN=SYS1.SAMPLIB(IRRDPSDS),DISP=SHR
+//SYSTSIN  DD  DUMMY
+//***************************************************
+//*
+//***************************************************
+//RACFTGT1 EXEC PGM=IKJEFT01
+//SYSTSPRT DD  DSN=&LOG1,DISP=(MOD,PASS,)
+//SYSTERM  DD  DUMMY
+//SYSTSIN  DD  *,DLM=@@
+/*********  DEFINES THE GENERIC PROFILE TO PROTECT LIBRARIES  *********/
+RDEFINE +
+   PROGRAM * +
+   ADDMEM (  +
+          'CEE.SCEERUN'//NOPADCHK +
+          'CEE.SCEERUN2'//NOPADCHK +
+           'CBC.SCLBDLL'//NOPADCHK +
+           'CSF.SCSFMOD0'//NOPADCHK +
+           'CSF.SCSFMOD1'//NOPADCHK +
+           'SYS1.SIEALNKE'//NOPADCHK +
+           'SYS1.CSSLIB'//NOPADCHK +
+           'SYS1.DB2PB10.SDSNEXIT'//NOPADCHK +
+           'SYS1.DB2PB10.SDSNLOAD'//NOPADCHK +
+           'SYS1.LINKLIB'//NOPADCHK +
+           'TCPIP.SEZALOAD'//NOPADCHK +
+   ) +
+   UACC(READ)
+/***** DEFINE VARIOUS FACILITIES FOR OCSF SERVICES *****/
+RDEFINE +
+   FACILITY CDS.CSSM +
+   UACC(NONE)
+RDEFINE +
+   FACILITY CDS.CSSM.DATALIB +
+   UACC(NONE)
+RDEFINE +
+   FACILITY CDS.CSSM.CRYPTO +
+   UACC(NONE)
+/***** DEFINE AND PERMIT FACILITIES FOR WLM  *****/
+RDEFINE +
+  FACILITY +
+  MVSADMIN.WLM.POLICY +
+  NOTIFY(IBMUSER) +
+  UACC(NONE)
+PE +
+  MVSADMIN.WLM.POLICY +
+  CLASS(FACILITY) +
+  ID(IBMUSER) +
+  ACC(UPDATE)
+/***** DEFINE AND PERMIT FACILITIES FOR XCF  *****/
+RDEFINE +
+  FACILITY +
+  MVSADMIN.XCF.ARM +
+  UACC(NONE)
+PE +
+  MVSADMIN.XCF.ARM +
+  CLASS(FACILITY) +
+  ID(IBMUSER) +
+  ACC(READ)
+RDEFINE +
+  FACILITY +
+  MVSADMIN.XCF.CFRM +
+  UACC(NONE)
+PE +
+  MVSADMIN.XCF.CFRM +
+  CLASS(FACILITY) +
+  ID(IBMUSER) +
+  ACC(READ)
+RDEFINE +
+  FACILITY +
+  MVSADMIN.XCF.SFM +
+  UACC(NONE)
+PE +
+  MVSADMIN.XCF.SFM +
+  CLASS(FACILITY) +
+  ID(IBMUSER) +
+  ACC(READ)
+/*************************************************/
+/***** BEGIN DEFINE AND PERMIT ICSF CLASS  *******/
+/***** CSFSERV CONTROLS ACCESS TO          *******/
+/***** ICSF CRYPTOGRAPHIC SERVICES.        *******/
+RDEFINE CSFSERV CSFCMK UACC(NONE)
+PERMIT +
+ CSFCMK +
+ CLASS(CSFSERV) +
+ ID(IBMUSER) +
+ ACCESS(UPDATE)
+RDEFINE CSFSERV CSFOWH UACC(NONE)
+PERMIT +
+ CSFOWH  +
+ CLASS(CSFSERV) +
+ ID(IBMUSER) +
+ ACCESS(UPDATE)
+RDEFINE CSFSERV CSFPMCI UACC(NONE)
+PERMIT +
+ CSFPMCI +
+ CLASS(CSFSERV) +
+ ID(IBMUSER) +
+ ACCESS(UPDATE)
+RDEFINE CSFSERV CSFREFR UACC(NONE)
+PERMIT +
+ CSFREFR +
+ CLASS(CSFSERV) +
+ ID(IBMUSER) +
+ ACCESS(UPDATE)
+RDEFINE CSFSERV CSFSMK UACC(NONE)
+PERMIT +
+ CSFSMK +
+ CLASS(CSFSERV) +
+ ID(IBMUSER) +
+ ACCESS(UPDATE)
+RDEFINE CSFSERV (CSFIQA) UACC(NONE)
+PERMIT +
+ CSFIQA +
+ CLASS(CSFSERV) +
+ ID(IBMUSER) +
+ ACCESS(READ)
+/*****  END DEFINE AND PERMIT ICSF CLASS  *****/
+/**********************************************/
+/*****  BEGIN NEW SMP/E FACILITY CLASS    *****/
+RDEFINE +
+    FACILITY +
+    GIM.CMD.* +
+    UACC(NONE)
+PERMIT +
+    GIM.CMD.*  +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(READ)
+RDEFINE +
+    FACILITY +
+    GIM.PGM.* +
+    UACC(NONE)
+PERMIT +
+    GIM.PGM.* +
+    CLASS(FACILITY) +
+    ID(IBMUSER) +
+    ACC(READ)
+/*****  END NEW SMP/E FACILITY CLASS      *****/
+/**********************************************/
+/*****  BEGIN DEFINE AND PERMIT VARIOUS   *****/
+/*****  FACILITY FOR COMMUNICATION SERVER *****/
+RDEFINE +
+   FACILITY BPX.FILEATTR.APF +
+   UACC(NONE)
+PE +
+   BPX.FILEATTR.APF +
+   CLASS(FACILITY) +
+   ID(IBMUSER) +
+   ACC(READ)
+RDEFINE +
+   FACILITY BPX.FILEATTR.PROGCTL +
+   UACC(NONE)
+PE +
+   BPX.FILEATTR.PROGCTL +
+   CLASS(FACILITY) +
+   ID(IBMUSER) +
+   ACC(READ)
+RDEFINE +
+   FACILITY BPX.FILEATTR.SHARELIB +
+   UACC(NONE)
+PE +
+   BPX.FILEATTR.SHARELIB +
+   CLASS(FACILITY) +
+   ID(IBMUSER) +
+   ACC(READ)
+RDEFINE +
+   FACILITY BPX.DAEMON +
+   UACC(NONE)
+PE +
+   BPX.DAEMON +
+   CLASS(FACILITY) +
+   ID(IBMUSER) +
+   ACC(READ)
+RDEFINE +
+   FACILITY BPX.SERVER +
+   UACC(NONE)
+PE +
+   BPX.SERVER +
+   CLASS(FACILITY) +
+   ID(IBMUSER) +
+   ACC(UPDATE)
+RDEFINE +
+   FACILITY BPX.SUPERUSER +
+   UACC(NONE)
+PE +
+   BPX.SUPERUSER  +
+   CLASS(FACILITY)  +
+   ID(IBMUSER)  +
+   ACC(READ)
+/****  END DEFINE AND PERMIT VARIOUS  ****/
+/****  FOR COMMUNICATION SERVER       ****/
+/*****************************************/
+/****  BEGIN FACILITY DEFINITIONS FOR ****/
+/****  SYSPLEX SYSTEM LOGGER SERVICES ****/
+RDEFINE +
+   FACILITY MVSADMIN.LOGR +
+   UACC(NONE)
+PE +
+   MVSADMIN.LOGR +
+   CLASS(FACILITY) +
+   ID(IBMUSER) +
+   ACC(UPDATE)
+RDEFINE +
+   LOGSTRM SYSPLEX.OPERLOG +
+   UACC(NONE)
+PE +
+   SYSPLEX.OPERLOG +
+   CLASS(LOGSTRM) +
+   ID(IBMUSER) +
+   ACC(ALTER)
+RDEFINE +
+   LOGSTRM SYSPLEX.LOGREC.ALLRECS +
+   UACC(NONE)
+PE +
+   SYSPLEX.LOGREC.ALLRECS +
+   CLASS(LOGSTRM) +
+   ID(IBMUSER) +
+   ACC(ALTER)
+/******************************************************************/
+/****  BEGIN PROFILES TO ADD OR ALTER UIDS AND GIDS            ****/
+/****  BPX.UNIQUE.USER SUPPORTS AUTOMATIC ASSIGMENT OF UNIQUE  ****/
+/****  UID AND GID                                             ****/
+/****  SHARED.IDS CONTROLS THE DEFAULT BEHAVIOR OF ADDING OR   ****/
+/****  ALTERING UIDS AND GIDS IN THE OMVS SEGEMENT             ****/
+   RDEFINE FACILITY BPX.UNIQUE.USER
+   SETROPTS RACLIST(FACILITY) REFRESH
+   RDEFINE FACILITY BPX.NEXT.USER APPLDATA('1/0')
+   SETROPTS RACLIST(FACILITY) REFRESH
+   RDEFINE UNIXPRIV SHARED.IDS UACC(NONE)
+   SETROPTS RACLIST(UNIXPRIV) REFRESH
+   PERMIT SHARED.IDS CLASS(UNIXPRIV) ID(IBMUSER) ACCESS(READ)
+   SETROPTS RACLIST(UNIXPRIV) REFRESH
+/****  END RDEFINE AND SETROPTS FOR BPX.UNIQUE.USER AND        ****/
+/****  SHARED.IDS PROFILES                                     ****/
+/******************************************************************/
+ALTGROUP +
+   SYS1 +
+   OMVS(GID(4))
+/****  END DEFINE AND PERMIT VARIOUS FACILITIES  ****/
+/****  FOR SYSPLEX SYSTEM LOGGER SERVICES        ****/
+/****************************************************/
+/**** BEGIN USER/GROUP DEFINITIONS FOR    ****/
+/**** DISTRIBUTED FILE SERVICE SMB SERVER ****/
+ADDGROUP +
+   DFSGRP +
+   SUPGROUP(SYS1) +
+   OMVS(GID(3))
+ ADDUSER +
+   DFS +
+   DFLTGRP(DFSGRP) +
+   OMVS(UID(0) SHARED +
+   HOME('/opt/dfslocal/home/dfscntl')) +
+   AUTHORITY(CREATE) +
+   UACC(NONE)
+RDEFINE +
+   STARTED +
+   DFS.* +
+   STDATA( +
+      USER(DFS))
+RDEFINE +
+   STARTED +
+   DFSCM.* +
+   STDATA( +
+      USER(DFS))
+/****  END DEFINE AND PERMIT VARIOUS FACILITIES FOR  ****/
+/****  DISTRIBUTED FILE SERVICE SMB SERVER           ****/
+/********************************************************/
+/****  BEGIN DEFINE AND PERMIT VARIOUS FACILITIES    ****/
+/****  FOR UNIX SYSTEM SERVICES                      ****/
+ADDGROUP +
+  ZFSGRP  +
+  SUPGROUP(SYS1) +
+   OMVS(GID(45))
+ADDUSER +
+   ZFS +
+   DFLTGRP(ZFSGRP) +
+   AUTHORITY(CREATE) +
+   OMVS(UID(0) SHARED    +
+   HOME('/opt/dfslocal/home/dfscntl'))
+CONNECT  +
+   ZFS +
+   GROUP(DFSGRP) +
+   AUTH(CREATE)
+RDEFINE +
+   STARTED +
+   ZFS.* +
+   STDATA( +
+      USER(DFS))
+/*    End   Define and Permit various facilities for */
+/*    UNIX System Services                           */
+/*****************************************************/
+/*  DEFINE TTY, UUCPG AND UUCP GROUPS  */
+ADDGROUP  +
+  TTY  +
+   OMVS(GID(2))
+ADDGROUP  +
+  UUCPG  +
+  OMVS(GID(8765))
+ADDUSER +
+  UUCP +
+  DFLTGRP(UUCPG) +
+  OMVS(UID(396) +
+  HOME('/usr/spool/uucppublic') +
+  PROGRAM('/bin/sh'))
+/*  DEFINE RACF STORAGE GROUP          */
+ADDGROUP +
+  STCGRP +
+  OMVS(GID(5)) +
+  SUPGROUP(SYS1)
+/****  PERMIT ACCESS TO BPX FACILITY TO STORAGE GROUP   *****/
+PE +
+   BPX.DAEMON +
+   CLASS(FACILITY) +
+   ID(STCGRP) +
+   ACC(READ)
+/**** SET UID(0), HOME DIRECTORY AND  ****/
+/**** PROGRAM DIRECTORY FOR IBMUSER   ****/
+ALTUSER +
+   IBMUSER +
+   OMVS(UID(0) SHARED +
+   HOME('/') +
+   ASSIZEMAX(268435456) +
+   PROGRAM('/bin/sh'))
+/* DEFINE OMVS GROUP AND USER    */
+ADDGROUP +
+   OMVSGRP +
+   OMVS(GID(1))
+ADDUSER +
+   OMVSKERN +
+   DFLTGRP(OMVSGRP) +
+   OMVS(UID(0) SHARED +
+   HOME('/') +
+   PROGRAM('/bin/sh'))  +
+   NOPASSWORD +
+   NOOIDCARD
+/****  BEGIN DEFINE VARIOUS STARTED TASKS FOR OMVS  ****/
+RDEFINE +
+   STARTED +
+   BPXAS.* +
+   STDATA( +
+      USER(OMVSKERN) +
+      GROUP(OMVSGRP))
+RDEFINE +
+   STARTED +
+   OMVS.* +
+   STDATA( +
+      TRUSTED(YES) +
+      USER(OMVSKERN) +
+      GROUP(OMVSGRP))
+RDEFINE +
+   STARTED +
+   BPXOINIT.* +
+   STDATA( +
+      TRUSTED(NO) +
+      USER(OMVSKERN) +
+      GROUP(OMVSGRP))
+/****  END DEFINE VARIOUS STARTED TASKS FOR OMVS  ****/
+/****************************************************************/
+/**** BEGIN DEFINE GROUP AND USER FOR IBM HTTP SERVER BASE   ****/
+ADDGROUP +
+  IMWEB +
+   OMVS(GID(205)) +
+  SUPGROUP(SYS1)
+ADDUSER +
+   WEBADM +
+   DFLTGRP(IMWEB) +
+   OMVS(UID(206) +
+   HOME('/usr/lpp/internet') +
+   PROGRAM('/bin/sh'))
+ADDUSER +
+   WEBSRV +
+   DFLTGRP(IMWEB) +
+   OMVS(UID(0) SHARED +
+   HOME('/usr/lpp/internet') +
+   PROGRAM('/bin/sh'))
+PE +
+   BPX.DAEMON +
+   CLASS(FACILITY) +
+   ID(WEBSRV) +
+   ACC(READ)
+/*  END DEFINE GROUP AND USER FOR IBM HTTP Server Base */
+/*******************************************************/
+/*  BEGIN DEFINE USER AND STARTED TASK FOR Z/OS UNIX  */
+/*  SYSTEM SERVICES INTEGRATED CALL LEVEL INTERFACE   */
+ADDUSER +
+   HSAPIPLC +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT HSAPIPLC +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   HSAPIPLC.* +
+   STDATA( +
+      USER(HSAPIPLC) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/*  END DEFINE USER AND STARTED TASK FOR                      */
+/*  z/OS UNIX System Services Integrated Call Level Interface */
+/**************************************************************/
+/*  BEGIN DEFINE USER FOR SYSLOG DAEMON */
+ADDUSER +
+   SYSLOGD +
+   DFLTGRP(STCGRP) +
+   OMVS(UID(0) SHARED +
+   HOME('/') +
+   PROGRAM('/bin/sh')) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT SYSLOGD +
+   GROUP(STCGRP) +
+   AUTH(USE)
+/*  END DEFINE USER FOR SYSLOG DAEMON   */
+/****************************************/
+/*  BEGIN DEFINE USER FOR SMFCLEAR      */
+ADDUSER +
+   SMFCLEAR +
+   DFLTGRP(SYS1)
+/*  BEGIN USER SMFCLEAR TO DEFAULT GROUP*/
+CONNECT +
+   SMFCLEAR +
+   GROUP(STCGRP)
+/*  BEGIN DEFINE THE USER, CONNECT IT TO DEFAULT GROUP, STARTED */
+/*  PROCEDURE AND FACILITIES FOR HCD AND Health Checker for z/OS*/
+ADDUSER  +
+   HZSPROC +
+   OMVS(UID(0) SHARED HOME('/') PROGRAM('/bin/sh'))  +
+   NOPASSWORD  +
+   NOOIDCARD +
+   DFLTGRP(STCGRP)
+CONNECT HZSPROC +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE                         +
+   STARTED                      +
+   HZSPROC.*                    +
+   STDATA(                      +
+      USER(HZSPROC)             +
+      PRIVILEGED(YES)           +
+      TRUSTED(YES)              +
+      GROUP(STCGRP))
+AD                              +
+    'SYS1.CPAC.HZSPDATA'                 +
+    GENERIC                     +
+    OWNER(IBMUSER)              +
+    UACC(NONE)
+SETROPTS +
+    GENERIC(DATASET STARTED XFACILIT PROGRAM SDSF OPERCMDS) +
+    REFRESH
+RDEFINE                       +
+    XFACILIT                  +
+    HZS.*.QUERY               +
+    UACC(NONE)
+RDEFINE                          +
+    XFACILIT                     +
+    HZS.**.MESSAGES              +
+    UACC(NONE)
+PE +
+    'SYS1.CPAC.HZSPDATA'          +
+    GENERIC              +
+    ID(HZSPROC)          +
+    ACC(UPDATE)
+PE                            +
+    HZS.*.QUERY               +
+    CLASS(XFACILIT)           +
+    ID(IBMUSER)               +
+    ACC(READ)
+PE                            +
+    HZS.**.MESSAGES           +
+    CLASS(XFACILIT)           +
+    ID(IBMUSER)               +
+    ACC(READ)
+/*  END DEFINE THE USER, CONNECT IT TO DEFAULT GROUP, STARTED    */
+/*  PROCEDURE AND FACILITIES FOR HCD AND HEALTH CHECKER FOR Z/OS */
+/****************************************************************/
+/*  DEFINE USER FOR SMFDUMP AND CONNECT TO DEFAULT GROUP         */
+ADDUSER +
+   SMFDUMP +
+   DFLTGRP(SYS1)
+CONNECT +
+   SMFDUMP +
+   GROUP(STCGRP)
+/*  DEFINE USER FOR VLF, CONNECT TO DEFAULT GROUP  AND DEFINE    */
+/*  BEGIN PROCEDURE FOR VLF                                      */
+ADDUSER +
+   VLF  +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT VLF +
+   GROUP(SYS1) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   VLF.* +
+   STDATA( +
+      USER(VLF) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/* BEGIN DEFINE USER IRRDPTAB, CONNECT TO GROUP SYS1 AND DEFINE */
+/* STARTED PROCEDURE FOR AUTOMATIC DYNAMIC PARSE                */
+/* INITIALIZATION AT THE TIME OF IPL.                           */
+ADDUSER +
+   IRRDPTAB +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT IRRDPTAB +
+   GROUP(SYS1) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   IRRDPTAB.* +
+   STDATA( +
+      USER(IRRDPTAB) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/* END DEFINE USER IRRDPTAB, CONNECT TO GROUP SYS1 AND DEFINE   */
+/* STARTED PROCEDURE FOR AUTOMATIC DYNAMIC PARSE                */
+/* INITIALIZATION AT THE TIME OF IPL.                           */
+/****************************************************************/
+/* BEGIN DEFINE USER, CONNECT AND STARTED PROCEDURE FOR         */
+/* RACF TRUSTED ATTRIBUTE USED FOR STARTED PROCEDURES AND       */
+/* ADDRESS SPACES.                                              */
+ADDUSER +
+   IEEVMPCR +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT IEEVMPCR +
+   GROUP(SYS1) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   IEEVMPCR.* +
+   STDATA( +
+      USER(IEEVMPCR) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+ADDUSER +
+   APSWPROC +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT APSWPROC +
+   GROUP(SYS1) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   APSWPROC.* +
+   STDATA( +
+      USER(APSWPROC) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/* END DEFINE USER, CONNECT AND STARTED PROCEDURE FOR          */
+/* RACF TRUSTED ATTRIBUTE USED FOR STARTED PROCEDURES AND      */
+/* ADDRESS SPACES.                                             */
+/***************************************************************/
+/* DEFINE USER BPXOINIT AND CONNECT TO DEFAULT GROUP,          */
+/* THIS USER IS REQUIRED TO INITIALIZE THE STARTED PROCEDURE   */
+ADDUSER +
+   BPXOINIT +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT BPXOINIT +
+   GROUP(SYS1) +
+   AUTH(USE)
+/* DEFINE AND CONNECT USER RACF. ALSO DEFINE THE STARTED       */
+/* PROCEDURE FOR RACF, SO AS RACF GETS ACTIVATED WHEN IT STARTS*/
+/* AT IPL.                                                     */
+ADDUSER +
+   RACF +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+PE +
+   IRRDPI00 +
+   CLASS(FACILITY) +
+   ID(RACF) +
+   ACC(READ)
+CONNECT RACF +
+   GROUP(SYS1) +
+   AUTH(USE)
+CONNECT RACF +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   RACF.* +
+   STDATA( +
+      USER(RACF) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/* END RACF DEFINITIONS FOR USER RACF.                         */
+/***************************************************************/
+/* DEFINE AND CONNECT USER TCPSTC, ALSO DEFINE THE STARTED     */
+/* PROCEDURE FOR TCPIP.                                        */
+ADDUSER +
+   TCPSTC +
+   DFLTGRP(STCGRP) +
+   OMVS(UID(0) SHARED +
+   HOME('/') +
+   PROGRAM('/bin/sh')) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT TCPSTC +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   TCPIP.* +
+   STDATA( +
+      USER(TCPSTC) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/* END DEFINE TCPIP PROFILE.                                 */
+/*************************************************************/
+/* DEFINE AND CONNECT USER XCFAS FOR CROSS-SYSTEM COUPLING   */
+/* FACILITY, ALSO DEFINE THE STARTED PROCEDURE FOR TCPIP.    */
+ADDUSER +
+   XCFAS +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT XCFAS +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   XCFAS.* +
+   STDATA( +
+      USER(XCFAS) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/* END DEFINE XCF PROFILE.                  */
+/********************************************/
+/* DEFINE AND CONNECT USER FOR LOG FACILITY */
+ADDUSER +
+   IXGLOGR +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT IXGLOGR +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   IXGLOGR.* +
+   STDATA( +
+      USER(IXGLOGR) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/* END DEFINE LOG FACILITY PROFILE          */
+/********************************************/
+/* DEFINE AND CONNECT USER FOR DUMP DATASET */
+ADDUSER +
+   DUMPSRV +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT DUMPSRV +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   DUMPSRV.* +
+   STDATA( +
+      USER(DUMPSRV) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/* END DEFINE DUMP DATASET PROFILE          */
+/********************************************/
+/* DEFINE AND CONNECT USER FOR I/O SERVICE  */
+ADDUSER +
+   IOSAS +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT IOSAS +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   IOSAS.* +
+   STDATA( +
+      USER(IOSAS) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/* END DEFINE I/O SERVICE PROFILE           */
+/********************************************/
+/* DEFINE AND CONNECT USER FOR SMF  */
+ADDUSER +
+   SMF +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT SMF +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   SMF.* +
+   STDATA( +
+      USER(SMF) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/* END DEFINE SMF PROFILE           */
+/************************************/
+/* DEFINE AND CONNECT USER FOR WLM  */
+ADDUSER +
+   WLM +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT WLM +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   WLM.* +
+   STDATA( +
+      USER(WLM) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/* END DEFINE WLM PROFILE           */
+/************************************/
+/* DEFINE AND CONNECT USER FOR JES  */
+ADDUSER +
+   JESXCF +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT JESXCF +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   JESXCF.* +
+   STDATA( +
+      USER(JESXCF) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/*  END DEFINE JES PROFILE          */
+/************************************/
+/*  DEFINE AND CONNECT USER ANTMAIN */
+ADDUSER +
+   ANTMAIN +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT ANTMAIN +
+   GROUP(STCGRP) +
+   AUTH(USE)
+/*  END DEFINE ANTMAIN PROFILE      */
+/************************************/
+/*  DEFINE AND CONNECT USER FOR CATALOG SERVICE */
+ADDUSER +
+   CATALOG  +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT CATALOG +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   CATALOG.* +
+   STDATA( +
+      USER(CATALOG) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/*  END DEFINE CATALOG PROFILE                */
+/**********************************************/
+/*  DEFINE AND CONNECT USER FOR VTAM SERVICES */
+ADDUSER +
+   VTAM +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT VTAM +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   VTAM.* +
+   STDATA( +
+      USER(VTAM) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/*  END DEFINE VTAM PROFILE                   */
+/**********************************************/
+/* DEFINE AND CONNECT USER FOR MSYS SERVICES  */
+ADDUSER +
+   MSOAPROC +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT MSOAPROC +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   MSOAPROC.* +
+   STDATA( +
+      USER(MSOAPROC) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/*    END DEFINE MSYS PROFILE    */
+/**********************************************/
+/* DEFINE AND CONNECT USER FOR JES2           */
+ADDUSER +
+   JES2 +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT JES2 +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   JES2.* +
+   STDATA( +
+      USER(JES2) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/*                                                  */
+/**** BEGIN JES3 PROFILE (COMMENTED BELOW)       ****/
+/*                                                  */
+/* ADDUSER +                                        */
+/*    JES3 +                                        */
+/*    DFLTGRP(STCGRP) +                         */
+/*    NOPASSWORD +                                  */
+/*    NOOIDCARD                                     */
+/* CONNECT JES3 +                                   */
+/*    GROUP(STCGRP) +                           */
+/*    AUTH(USE)                                     */
+/* RDEFINE +                                        */
+/*    STARTED +                                     */
+/*    JES3.* +                                      */
+/*    STDATA( +                                     */
+/*       USER(JES3) +                               */
+/*       PRIVILEGED(YES) +                          */
+/*       TRUSTED(YES) +                             */
+/*       GROUP(STCGRP))                         */
+/*                                                  */
+/**** END JES3 PROFILE                           ****/
+/*                                                  */
+/*    END DEFINE JES2 PROFILE                       */
+/****************************************************/
+/* DEFINE AND CONNECT USER FOR BCP   */
+ADDUSER +
+   BLSJPRMI +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT BLSJPRMI +
+   GROUP(STCGRP) +
+   AUTH(USE)
+/* END DEFINE BCP PROFILE            */
+/*************************************/
+/* DEFINE AND CONNECT USER FOR SMS   */
+ADDUSER +
+   SMS +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT SMS +
+   GROUP(STCGRP) +
+   AUTH(USE)
+/* END DEFINE SMS PROFILE            */
+/*****************************************************************/
+/* DEFINE AND CONNECT USER FOR Communications Server IP Services */
+ADDUSER +
+   EZAZSSI +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT EZAZSSI +
+   GROUP(STCGRP) +
+   AUTH(USE)
+/* END DEFINE Communications Server PROFILE                      */
+/*****************************************************************/
+/* DEFINE AND CONNECT USER FOR ADDRESS SPACE ANTAS000 */
+ADDUSER +
+   ANTAS000 +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT ANTAS000 +
+   GROUP(STCGRP) +
+   AUTH(USE)
+/* END DEFINE ADDRESS SPACE ANTAS000 PROFILE          */
+/******************************************************/
+/* DEFINE AND CONNECT USER FOR INIT PROFILE           */
+ADDUSER +
+   INIT +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT INIT +
+   GROUP(STCGRP) +
+   AUTH(USE)
+/* END DEFINE INIT PROFILE                            */
+/*********************************************************/
+/* DEFINE AND CONNECT USER FOR TNF AND VMCF SUBSYSTEM OF */
+/* COMMUNICATIONS SERVER IP SERVICE                      */
+ADDUSER +
+   TNF +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT TNF +
+   GROUP(STCGRP) +
+   AUTH(USE)
+ADDUSER +
+   VMCF +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT VMCF +
+   GROUP(STCGRP) +
+   AUTH(USE)
+/* END DEFINE THE TNF AND VMCF PROFILE FOR */
+/* COMMUNICATIONS SERVER IP SERVICE        */
+/*******************************************/
+/* DEFINE AND CONNECT USER FOR TCAS        */
+ADDUSER +
+   TCAS +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT TCAS +
+   GROUP(STCGRP) +
+   AUTH(USE)
+/* END DEFINE THE TCAS PROFILE             */
+/*******************************************/
+/* DEFINE AND CONNECT USER FOR LLA.          */
+ADDUSER +
+   LLA +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT LLA +
+   GROUP(STCGRP) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   LLA.* +
+   STDATA( +
+      USER(LLA) +
+      PRIVILEGED(YES) +
+      TRUSTED(YES) +
+      GROUP(STCGRP))
+/* END DEFINE THE LLA PROFILE                */
+/*********************************************/
+/* DEFINE AND CONNECT USER FOR FTP           */
+ADDUSER +
+   FTPD +
+   DFLTGRP(STCGRP) +
+   OMVS(UID(0) SHARED +
+   HOME('/') +
+   PROGRAM('/bin/sh')) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT FTPD +
+   GROUP(STCGRP) +
+   AUTH(USE)
+/* END DEFINE THE FTP PROFILE                */
+/*********************************************/
+/* DEFINE AND CONNECT USER FOR OSNMPD daemon */
+ ADDUSER +
+  OSNMPD +
+  DFLTGRP(STCGRP) +
+  OMVS(UID(0) SHARED +
+  HOME('/')) +
+  NOPASSWORD +
+  NOOIDCARD
+RDEFINE +
+ STARTED +
+ OSNMPD.* +
+ STDATA(USER(OSNMPD))
+ PERMIT  +
+ BPX.DAEMON +
+ CLASS(FACILITY) +
+ ID(OSNMPD) +
+ ACCESS(READ)
+ CONNECT OSNMPD +
+ GROUP(STCGRP) +
+ AUTH(USE)
+/* END DEFINE OSNMPD daemon PROFILE       */
+/******************************************/
+RDEFINE +
+   STARTED +
+   ** +
+   STDATA( +
+      USER(=MEMBER) +
+      GROUP(STCGRP))
+/* DEFINE AND PERMIT CSF PROFILES FOR ICSF*/
+ADDUSER +
+   CSFSTART +
+   DFLTGRP(STCGRP) +
+   NOPASSWORD +
+   NOOIDCARD
+PE CSFCMK CLASS(CSFSERV) ID(CSFSTART) ACC(READ)
+PE CSFSMK CLASS(CSFSERV) ID(CSFSTART) ACC(READ)
+PE CSFREFR CLASS(CSFSERV) ID(CSFSTART) ACC(READ)
+PE CSFOWH CLASS(CSFSERV) ID(CSFSTART) ACC(READ)
+PE CSFPMCI CLASS(CSFSERV) ID(CSFSTART) ACC(READ)
+/* END DEFINE AND PERMIT CSF PROFILES     */
+/******************************************/
+/* DEFINE USERID's TSO1 to TSO5 */
+ADDUSER +
+   TSO1     +
+   DFLTGRP(SYS1) +
+   OWNER(IBMUSER) +
+   PASSWORD(TSO1) +
+   UACC(READ) +
+   AUDITOR +
+   SPECIAL +
+   OPERATIONS +
+   TSO(ACCTNUM(ACCT#) +
+   PROC(IKJACCNT) +
+   SIZE(6500))
+ADDUSER +
+   TSO2     +
+   DFLTGRP(SYS1) +
+   OWNER(IBMUSER) +
+   PASSWORD(TSO2) +
+   UACC(READ) +
+   AUDITOR +
+   SPECIAL +
+   OPERATIONS +
+   TSO(ACCTNUM(ACCT#) +
+   PROC(IKJACCNT) +
+   SIZE(6500))
+ADDUSER +
+   TSO3     +
+   DFLTGRP(SYS1) +
+   OWNER(IBMUSER) +
+   PASSWORD(TSO3) +
+   UACC(READ) +
+   AUDITOR +
+   SPECIAL +
+   OPERATIONS +
+   TSO(ACCTNUM(ACCT#) +
+   PROC(IKJACCNT) +
+   SIZE(6500))
+ADDUSER +
+   TSO4     +
+   DFLTGRP(SYS1) +
+   OWNER(IBMUSER) +
+   PASSWORD(TSO4) +
+   UACC(READ) +
+   AUDITOR +
+   SPECIAL +
+   OPERATIONS +
+   TSO(ACCTNUM(ACCT#) +
+   PROC(IKJACCNT) +
+   SIZE(6500))
+ADDUSER +
+   TSO5     +
+   DFLTGRP(SYS1) +
+   OWNER(IBMUSER) +
+   PASSWORD(TSO5) +
+   UACC(READ) +
+   AUDITOR +
+   SPECIAL +
+   OPERATIONS +
+   TSO(ACCTNUM(ACCT#) +
+   PROC(IKJACCNT) +
+   SIZE(6500))
+/* END DEFINE USERID's TSO1 to TSO5  */
+/********************************************************************/
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR AOP */
+ADDGROUP +
+     AOP +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(AOP) +
+   AUTH(JOIN)
+AD +
+     'AOP.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'AOP.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR AOP */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR ASM */
+ADDGROUP +
+     ASM +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(ASM) +
+   AUTH(JOIN)
+AD +
+     'ASM.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'ASM.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR ASM */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR AZD */
+ADDGROUP +
+     AZD +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(AZD) +
+   AUTH(JOIN)
+AD +
+     'AZD.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'AZD.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR AZD */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR BAQ */
+ADDGROUP +
+     BAQ +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(BAQ) +
+   AUTH(JOIN)
+AD +
+     'BAQ.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'BAQ.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR BAQ */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR BBL */
+ADDGROUP +
+     BBL +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(BBL) +
+   AUTH(JOIN)
+AD +
+     'BBL.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'BBL.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR BBL */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR BDT1 */
+ADDGROUP +
+     BDT1 +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(BDT1) +
+   AUTH(JOIN)
+AD +
+     'BDT1.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'BDT1.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR BDT1 */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR CBC */
+ADDGROUP +
+     CBC +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(CBC) +
+   AUTH(JOIN)
+AD +
+     'CBC.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'CBC.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR CBC */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR CDS */
+ADDGROUP +
+     CDS +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(CDS) +
+   AUTH(JOIN)
+AD +
+     'CDS.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'CDS.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR CDS */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR CEE */
+ADDGROUP +
+     CEE +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(CEE) +
+   AUTH(JOIN)
+AD +
+     'CEE.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'CEE.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR CEE */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR CFZ */
+ADDGROUP +
+     CFZ +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(CFZ) +
+   AUTH(JOIN)
+AD +
+     'CFZ.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'CFZ.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR CFZ */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR CPAC */
+ADDGROUP +
+     CPAC +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(CPAC) +
+   AUTH(JOIN)
+AD +
+     'CPAC.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'CPAC.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR CPAC */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR CSF */
+ADDGROUP +
+     CSF +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(CSF) +
+   AUTH(JOIN)
+AD +
+     'CSF.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'CSF.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR CSF */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR DGA */
+ADDGROUP +
+     DGA +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(DGA) +
+   AUTH(JOIN)
+AD +
+     'DGA.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'DGA.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR DGA */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR EUVF */
+ADDGROUP +
+     EUVF +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(EUVF) +
+   AUTH(JOIN)
+AD +
+     'EUVF.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'EUVF.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR EUVF */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR FFST */
+ADDGROUP +
+     FFST +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(FFST) +
+   AUTH(JOIN)
+AD +
+     'FFST.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'FFST.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR FFST */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR FNT */
+ADDGROUP +
+     FNT +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(FNT) +
+   AUTH(JOIN)
+AD +
+     'FNT.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'FNT.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR FNT */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR GDDM */
+ADDGROUP +
+     GDDM +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(GDDM) +
+   AUTH(JOIN)
+AD +
+     'GDDM.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'GDDM.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR GDDM */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR GIM */
+ADDGROUP +
+     GIM +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(GIM) +
+   AUTH(JOIN)
+AD +
+     'GIM.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'GIM.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR GIM */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR GLD */
+ADDGROUP +
+     GLD +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(GLD) +
+   AUTH(JOIN)
+AD +
+     'GLD.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'GLD.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR GLD */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR GSK */
+ADDGROUP +
+     GSK +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(GSK) +
+   AUTH(JOIN)
+AD +
+     'GSK.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'GSK.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR GSK */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR HAP */
+ADDGROUP +
+     HAP +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(HAP) +
+   AUTH(JOIN)
+AD +
+     'HAP.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'HAP.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR HAP */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR HKC */
+ADDGROUP +
+     HKC +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(HKC) +
+   AUTH(JOIN)
+AD +
+     'HKC.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'HKC.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR HKC */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR IBMZ */
+ADDGROUP +
+     IBMZ +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(IBMZ) +
+   AUTH(JOIN)
+AD +
+     'IBMZ.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'IBMZ.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR IBMZ */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR ICQ */
+ADDGROUP +
+     ICQ +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(ICQ) +
+   AUTH(JOIN)
+AD +
+     'ICQ.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'ICQ.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR ICQ */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR IGY */
+ADDGROUP +
+     IGY +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(IGY) +
+   AUTH(JOIN)
+AD +
+     'IGY.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'IGY.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR IGY */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR IOE */
+ADDGROUP +
+     IOE +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(IOE) +
+   AUTH(JOIN)
+AD +
+     'IOE.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'IOE.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR IOE */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR ISF */
+ADDGROUP +
+     ISF +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(ISF) +
+   AUTH(JOIN)
+AD +
+     'ISF.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'ISF.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR ISF */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR ISP */
+ADDGROUP +
+     ISP +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(ISP) +
+   AUTH(JOIN)
+AD +
+     'ISP.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'ISP.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR ISP */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR IXM */
+ADDGROUP +
+     IXM +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(IXM) +
+   AUTH(JOIN)
+AD +
+     'IXM.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'IXM.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR IXM */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR IZD */
+ADDGROUP +
+     IZD +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(IZD) +
+   AUTH(JOIN)
+AD +
+     'IZD.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'IZD.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR IZD */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR IZU */
+ADDGROUP +
+     IZU +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(IZU) +
+   AUTH(JOIN)
+AD +
+     'IZU.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'IZU.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR IZU */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR JAVA */
+ADDGROUP +
+     JAVA +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(JAVA) +
+   AUTH(JOIN)
+AD +
+     'JAVA.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'JAVA.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR JAVA */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR MQ */
+ADDGROUP +
+     MQ +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(MQ) +
+   AUTH(JOIN)
+AD +
+     'MQ.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'MQ.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR MQ */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR NETVIEW */
+ADDGROUP +
+     NETVIEW +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(NETVIEW) +
+   AUTH(JOIN)
+AD +
+     'NETVIEW.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'NETVIEW.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR NETVIEW */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR OMVS */
+ADDGROUP +
+     OMVS +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(OMVS) +
+   AUTH(JOIN)
+AD +
+     'OMVS.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'OMVS.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR OMVS */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR PAGE */
+ADDGROUP +
+     PAGE +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(PAGE) +
+   AUTH(JOIN)
+AD +
+     'PAGE.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'PAGE.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR PAGE */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR REXX */
+ADDGROUP +
+     REXX +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(REXX) +
+   AUTH(JOIN)
+AD +
+     'REXX.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'REXX.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR REXX */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR SMPE */
+ADDGROUP +
+     SMPE +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(SMPE) +
+   AUTH(JOIN)
+AD +
+     'SMPE.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'SMPE.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR SMPE */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR SYS1 */
+CONNECT +
+   IBMUSER +
+   GROUP(SYS1) +
+   AUTH(JOIN)
+AD +
+     'SYS1.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'SYS1.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR SYS1 */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR TCPIP */
+ADDGROUP +
+     TCPIP +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(TCPIP) +
+   AUTH(JOIN)
+AD +
+     'TCPIP.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'TCPIP.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR TCPIP */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR TCPIVP */
+ADDGROUP +
+     TCPIVP +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(TCPIVP) +
+   AUTH(JOIN)
+AD +
+     'TCPIVP.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'TCPIVP.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+PE +
+     'TCPIVP.**' +
+     CLASS(DATASET) +
+     ID(OSNMPD) +
+     ACCESS(UPDATE)
+/*  END DEFINE DATASET PROFILE FOR TCPIVP */
+/*  BEGIN ADD RACF PROFILES FOR HLQS    */
+/*  DEFINE DATASET PROFILE FOR TIVOLI */
+ADDGROUP +
+     TIVOLI +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(TIVOLI) +
+   AUTH(JOIN)
+AD +
+     'TIVOLI.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'TIVOLI.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END DEFINE DATASET PROFILE FOR TIVOLI */
+/*  END ADD RACF PROFILES FOR HLQS          */
+/****************************************************************/
+/*  BEGIN ADD RACF PROFILES FOR SSA         */
+ADDGROUP +
+     Z24SUP +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(Z24SUP) +
+   AUTH(JOIN)
+AD +
+     'Z24SUP.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'Z24SUP.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END ADD RACF PROFILES FOR SSA   */
+/*  BEGIN ADD RACF PROFILES FOR SSA         */
+ADDGROUP +
+     Z24MST +
+     SUPGROUP(SYS1)
+CONNECT +
+   IBMUSER +
+   GROUP(Z24MST) +
+   AUTH(JOIN)
+AD +
+     'Z24MST.**' +
+     GENERIC +
+     OWNER(IBMUSER) +
+     UACC(READ)
+PE +
+     'Z24MST.**' +
+     ID(IBMUSER) +
+     ACC(ALTER)
+/*  END ADD RACF PROFILES FOR SSA   */
+/*******************************************************/
+/****  BEGIN DEFINE RACF PROFILE FOR RACF DATABASE  ****/
+AD +
+    'SYS1.RACF' +
+     UACC(NONE)
+PE +
+    'SYS1.RACF' +
+   ID(IBMUSER) +
+   ACC(ALTER)
+AD +
+    'SYS1.RACFSEC' +
+     UACC(NONE)
+PE +
+    'SYS1.RACFSEC' +
+   ID(IBMUSER) +
+   ACC(ALTER)
+/****  END DEFINE RACF PROFILE FOR RACF DATABASE    ****/
+/****************************************************************/
+/****  BEGIN DEFINE XCF, WLM, LOGR AND SYS1 DATASET PROFILES ****/
+AD  +
+   'SYS1.XCF.**'  +
+   UACC(READ)
+PE +
+   'SYS1.XCF.**'  +
+   ID(IBMUSER) +
+   ACC(ALTER)
+PE +
+   'SYS1.XCF.**'  +
+   ID(XCFAS) +
+   ACC(UPDATE)
+AD  +
+   'SYS1.WLM.**'  +
+   UACC(READ)
+PE +
+   'SYS1.WLM.**'  +
+   ID(IBMUSER) +
+   ACC(ALTER)
+PE +
+   'SYS1.WLM.**'  +
+   ID(XCFAS) +
+   ACC(UPDATE)
+AD  +
+   'SYS1.LOGR.**'  +
+   UACC(READ)
+PE +
+   'SYS1.LOGR.**'  +
+   ID(IBMUSER) +
+   ACC(ALTER)
+PE +
+   'SYS1.LOGR.**'  +
+   ID(XCFAS) +
+   ACC(UPDATE)
+PE +
+   'SYS1.**' +
+   ID(SMFCLEAR) +
+   ACC(CONTROL)
+PE +
+   'SYS1.**' +
+   ID(SMFDUMP) +
+   ACC(CONTROL)
+/****  END DEFINE XCF, WLM, LOGR AND SYS1 DATASET PROFILES  ****/
+/***************************************************************/
+/**** BEGIN DEFINE SDSF PROFILE ****/
+ADDUSER +
+   SDSF +
+   DFLTGRP(SYS1) +
+   NOPASSWORD +
+   NOOIDCARD
+CONNECT SDSF +
+   GROUP(SYS1) +
+   AUTH(USE)
+RDEFINE +
+   STARTED +
+   SDSF.* +
+   STDATA( +
+      USER(SDSF) +
+      GROUP(SYS1))
+RDEFINE +
+  SDSF +
+  ** +
+  UACC(NONE)
+PE   +
+  ** +
+  CL(SDSF) +
+  ID(IBMUSER) +
+  ACC(READ)
+RDEFINE  +
+  OPERCMDS +
+  ** +
+  UACC(UPDATE)
+  PE +
+    ** +
+    CL(OPERCMDS) +
+    ID(IBMUSER) +
+    ACC(ALTER)
+  RDEFINE +
+    JESSPOOL +
+    ** +
+    UACC(NONE)
+  PE  +
+    ** +
+    CL(JESSPOOL) +
+    ID(IBMUSER) +
+    ACC(READ)
+/****  END DEFINE SDSF PROFILE  ****/
+/***********************************/
+  SETROPTS +
+     RACLIST(STARTED FACILITY LOGSTRM SDSF OPERCMDS JESSPOOL) +
+     REFRESH
+  SETROPTS +
+     GENERIC(DATASET STARTED XFACILIT PROGRAM SDSF OPERCMDS JESSPOOL) +
+     REFRESH
+  SETROPTS +
+     WHEN(PROGRAM) +
+     REFRESH
+/*  BEGIN RESOLVER FOR TCPIP SETUP */
+ ADDUSER +
+   RESOLVER +
+   DFLTGRP(OMVSGRP) +
+   OMVS(UID(43) HOME('/')) +
+   NOPASSWORD
+ RDEFINE +
+    STARTED +
+    RESOLVER.* +
+    STDATA( +
+       USER(RESOLVER) +
+       GROUP(OMVSGRP))
+  SETROPTS +
+     RACLIST(STARTED) +
+     REFRESH
+/****  END RESOLVER FOR TCPIP SETUP   ****/
+/******************************************************************/
+/****  BEGIN DEFINE CEA AND SYSTEM REXX PROFILE  ****/
+/**** IF NOT USING AUTOUID, THEN REVIEW THE UID VALUE BELOW */
+/**** ALSO REVIEW THE HOME DIRECTORY BELOW AND UPDATE IF REQUIRED */
+ADDUSER +
+   CEA +
+   DFLTGRP(SYS1) +
+   OMVS(UID(9002) HOME('/') FILEPROCMAX(1024))
+RDEFINE +
+   STARTED +
+   CEA.** +
+   STDATA( +
+      USER(CEA) +
+      GROUP(SYS1) +
+      TRACE(YES) +
+       )
+/****  END DEFINE CEA AND SYSTEM REXX PROFILE  ****/
+SETROPTS +
+   RACLIST(STARTED) +
+   REFRESH
+/****************************************************************/
+/****  BEGIN DEFINE SYSREXX PROFILES           ****/
+ADDUSER +
+   AXRUSER +
+   DFLTGRP(SYS1)
+CONNECT +
+   AXRUSER +
+   GROUP(SYS1)
+SETROPTS +
+   CLASSACT(SURROGAT) +
+   GENERIC(SURROGAT) +
+   RACLIST(SURROGAT)
+RDEFINE +
+   SURROGAT +
+   SYSREXX.* +
+   UACC(NONE)
+PERMIT +
+   SYSREXX.* +
+   CLASS(SURROGAT) +
+   ACCESS(READ) +
+   ID(AXRUSER)
+PERMIT +
+   SYSREXX.* +
+   CLASS(SURROGAT) +
+   ACCESS(READ) +
+   ID(IBMUSER)
+SETROPTS +
+   RACLIST(SURROGAT) +
+   REFRESH
+SETROPTS +
+   GENERIC(STARTED) +
+   RACLIST(STARTED) +
+   CLASSACT(STARTED)
+RDEFINE +
+   STARTED +
+   AXR*.* +
+   STDATA( +
+      USER(AXRUSER) +
+      GROUP(SYS1) +
+      PRIVILEGED(NO) +
+      TRUSTED(NO) +
+      TRACE(NO))
+SETROPTS +
+   RACLIST(STARTED) +
+   REFRESH
+/****  END DEFINE SYSREXX PROFILES             ****/
+/**** SETUP PROGRAM CONTROL TO AUTHORIZE LIBRARY     ****/
+RALTER +
+  PROGRAM * +
+ ADDMEM('CEE.SCEERUN'//NOPADCHK) +
+ UACC(READ)
+RALTER +
+  PROGRAM * +
+  ADDMEM('CEE.SCEERUN2'//NOPADCHK) +
+  UACC(READ)
+SETROPTS +
+  WHEN(PROGRAM) +
+  REFRESH
+/*** UNCOMMENT THESE LINES BEFORE SUBMITTING THE JOB IF MLS IS USED ***/
+/*                                                                    */
+/* ALTUSER CEA SECLABEL(SYSMULTI)                                     */
+/* PERMIT SYSMULTI CLASS(SECLABEL) ACCESS(ALTER) ID(CEA)              */
+/* PERMIT SYSHIGH CLASS(SECLABEL) ACCESS(ALTER) ID(CEA)               */
+/* PERMIT SYSLOW CLASS(SECLABEL) ACCESS(ALTER) ID(CEA)                */
+/* ADDSD  CEA.*  SECLABEL(SYSNONE)                                    */
+/* SETROPTS GENERIC(STARTED) REFRESH                                  */
+/* SETROPTS RACLIST(STARTED) REFRESH                                  */
+/* SETR CLASSACT(SECLABEL)                                            */
+/* SETR RACLIST(SECLABEL) REFRESH                                     */
+SETROPTS +
+  GENERIC(SERVAUTH)
+RDEFINE +
+  SERVAUTH +
+  CEA.CEAGETPS +
+  UACC(NONE)
+RDEFINE +
+  SERVAUTH +
+  CEA.CEADOCMD +
+  UACC(NONE)
+RDEFINE +
+  SERVAUTH +
+  CEA.CEAGETPS +
+  UACC(NONE)
+RDEFINE +
+  SERVAUTH +
+  CEA.CEADOCMD +
+  UACC(NONE)
+/*********  BEGIN PFA SECURITY CHANGES ********************************/
+/* IF RACLIST IS ALREADY ACTIVATED IN THE STARTED CLASS               */
+/* THEN MODIFY THE BELOW COMMAND                                      */
+/* FROM  SETROPTS RACLIST(STARTED)                                    */
+/* TO    SETROPTS RACLIST(STARTED) REFRESH FOR THE PFA STARTED        */
+/*       CLASS TABLE                                                  */
+/*  Create userid to own PFA                                          */
+/* IF CURRENT PFA DEFINITION EXISTS THEN USER MUST ALTER THE USER TO  */
+/* USE THE CORRECT PFA PATH, SPECIFITED IN THE PFA CUSTOMIZATION  JOBS*/
+  ADDUSER PFAUSER +
+  OMVS(UID(7)     +
+   HOME('/var/pfa') +
+   PROGRAM('/bin/sh')) +
+   NOPASSWORD  +
+   NOOIDCARD +
+   DFLTGRP(STCGRP)
+  CONNECT PFAUSER +
+     GROUP(STCGRP) +
+     AUTH(USE)
+  CONNECT PFAUSER +
+     GROUP(OMVSGRP) +
+     AUTH(USE)
+/* ADD PFA TASK TO STARTED CLASS TABLE IN RACF */
+   SETROPTS GENERIC(STARTED)
+   RDEFINE STARTED PFA.* +
+    STDATA(USER(PFAUSER) +
+    GROUP(OMVSGRP))
+   SETROPTS RACLIST(STARTED) REFRESH
+/**********END OF PFA SECURITY CHANGES ********************************/
+/**********************************************************************/
+/*================= TCP/IP FTP SECURE CHANGES =======================*/
+/*                                                                   */
+/* This code assumes that the GEOTRUST certificate has been loaded   */
+/* into dtaset tsouid.GEOTRUST.CERT.  If this not the case you must  */
+/* change the dataset name accordingly.                              */
+/*                                                                   */
+  /* RACDCERT CERTAUTH ADD('tsouid.GEOTRUST.CERT') HIGHTRUST + */
+  /* WITHLABEL('GeoTrust Global CA')                           */
+  /* RACDCERT ID(tsouid) ADDRING(FtpSecur) */
+  /* RACDCERT ID(tsouid) CONNECT(CERTAUTH    +  */
+  /*  LABEL('GeoTrust Global CA')            +  */
+  /*  RING(FtpSecur) USAGE(CERTAUTH) DEFAULT)   */
+  /* SETROPTS RACLIST(DIGTCERT DIGTRING) REFRESH */
+/*                                                                   */
+/*===================================================================*/
+/****** Defines Resource Measurement Facility Services - Begin ******/
+ ADDUSER +
+  RMF +
+  DFLTGRP(STCGRP) +
+  NOPASSWORD +
+  NOOIDCARD
+ CONNECT +
+  RMF +
+  GROUP(STCGRP) +
+  AUTH(USE)
+ RDEFINE +
+  STARTED +
+  RMF.* +
+  STDATA( +
+   USER(RMF) +
+   PRIVILEGED(YES) +
+   TRUSTED(YES) +
+   GROUP(STCGRP))
+ ADDUSER +
+  RMFGAT +
+  DFLTGRP(STCGRP) +
+  NOPASSWORD +
+  NOOIDCARD
+ CONNECT +
+  RMFGAT +
+  GROUP(STCGRP) +
+  AUTH(USE)
+ RDEFINE +
+  STARTED +
+  RMFGAT.* +
+  STDATA( +
+   USER(RMFGAT) +
+   PRIVILEGED(YES) +
+   TRUSTED(YES) +
+   GROUP(STCGRP))
+ ADDUSER +
+  GPMSERVE +
+  DFLTGRP(STCGRP) +
+  NOPASSWORD +
+  NOOIDCARD
+ CONNECT +
+  GPMSERVE +
+  GROUP(STCGRP) +
+  AUTH(USE)
+ RDEFINE +
+  STARTED +
+  GPMSERVE.* +
+  STDATA( +
+   USER(GPMSERVE) +
+   PRIVILEGED(YES) +
+   TRUSTED(YES) +
+   GROUP(STCGRP))
+ SETROPTS RACLIST(STARTED ) REFRESH
+/****** Defines Resource Measurement Facility Services - End ******/
+/******************************************************************/
+/********** BEGIN Z/OSMF V2R4 SECURITY CHANGES ********/
+/*----------------------------------------------------------------------
+/*  Begin  z/OSMF "Core" Setup    */
+/*----------------------------------------------------------------------
+/* Delete existing Generic Profiles */
+/* Need to update the value of IZU_SAF_PROFILE_PREFIX as per the  */
+/* current setup                                                  */
+RDELETE ZMFAPLA IZU_SAF_PROFILE_PREFIX.ZOSMF.ADMINTASKS.**
+RDELETE ZMFAPLA IZU_SAF_PROFILE_PREFIX.ZOSMF.SETTINGS.*.VIEW
+RDELETE ZMFAPLA IZU_SAF_PROFILE_PREFIX.ZOSMF.SETTINGS.*.MODIFY
+/* Activate RACF Classes   */
+SETROPTS CLASSACT(SERVER)
+SETROPTS RACLIST(SERVER) GENERIC(SERVER)
+SETROPTS CLASSACT(APPL)
+SETROPTS CLASSACT(SERVAUTH)
+SETROPTS CLASSACT(ACCTNUM)
+SETROPTS CLASSACT(TSOPROC)
+SETROPTS CLASSACT(TSOAUTH)
+SETROPTS CLASSACT(OPERCMDS)
+SETROPTS RACLIST(TSOPROC)
+SETROPTS RACLIST(ACCTNUM)
+SETROPTS RACLIST(TSOAUTH)
+SETROPTS RACLIST(OPERCMDS)
+SETROPTS RACLIST(APPL) GENERIC(APPL)
+SETROPTS GRPLIST
+/* Create the z/OSMF Administrators group */
+ADDGROUP +
+IZUADMIN +
+OMVS(GID(9003))
+/* Create the z/OSMF Users group */
+ADDGROUP +
+IZUUSER +
+OMVS(GID(9004))
+/* Create a unauthenticated Group Name */
+ADDGROUP +
+IZUUNGRP +
+OMVS(GID(9012))
+/* Setup Started tasks Userid for the z/OSMF Server */
+ADDUSER +
+IZUSVR +
+DFLTGRP(IZUADMIN) +
+OMVS(UID(9010) +
+HOME(/global/zosmf/data/home/izusvr) +
+PROGRAM(/bin/sh)) +
+NAME('zOSMF Started Task Owner') +
+NOPASSWORD +
+NOOIDCARD
+/* Allow 10000 concurrently open files */
+ALU +
+IZUSVR +
+OMVS(FILEPROC(10000))
+/* Create a unauthenticated z/OSMF Guest userid */
+ADDUSER +
+IZUGUEST +
+RESTRICTED +
+DFLTGRP(IZUUNGRP) +
+OMVS(UID(9011)) +
+NAME('zOSMF Unauthenticated USERID') +
+NOPASSWORD +
+NOOIDCARD
+/* Allow users of the z/OSMF Configuration Workflow to extract    */
+/* profile information                                            */
+RDEFINE FACILITY IRR.RADMIN.LISTUSER
+RDEFINE FACILITY IRR.RADMIN.LISTGRP
+RDEFINE FACILITY IRR.RADMIN.RLIST
+RDEFINE FACILITY IRR.RADMIN.SETROPTS.LIST
+/*
+PERMIT IRR.RADMIN.LISTUSER CLASS(FACILITY) ID(IZUADMIN) +
+   ACCESS(READ)
+PERMIT IRR.RADMIN.LISTGRP CLASS(FACILITY) ID(IZUADMIN) +
+   ACCESS(READ)
+PERMIT IRR.RADMIN.RLIST CLASS(FACILITY) ID(IZUADMIN) +
+   ACCESS(READ)
+PERMIT IRR.RADMIN.SETROPTS.LIST CLASS(FACILITY) ID(IZUADMIN) +
+   ACCESS(READ)
+/* Define security for Authorized WLM Service(ZOSWLM )            */
+RDEFINE FACILITY BPX.WLMSERVER UACC(NONE)
+/* Permit the profile to z/OSMF started task user id              */
+PERMIT BPX.WLMSERVER CLASS(FACILITY) ID(IZUSVR) ACCESS(READ)
+/* Make changes effective                                         */
+SETROPTS RACLIST(FACILITY) REFRESH
+/* Profile definitions for Named Angel Support                    */
+RDEFINE SERVER BBG.ANGEL.IZUANG1 UACC(NONE)
+/* Permit the profile to z/OSMF started task user id              */
+PERMIT BBG.ANGEL.IZUANG1 CLASS(SERVER) ID(IZUSVR) ACCESS(READ)
+/* Make changes effective                                         */
+SETROPTS RACLIST(SERVER) REFRESH
+/* Define Started Profiles for z/OSMF Server */
+RDEFINE +
+STARTED +
+IZUSVR1.* +
+UACC(NONE) +
+STDATA(USER(IZUSVR) +
+GROUP(IZUADMIN) +
+PRIVILEGED(NO) +
+TRUSTED(NO) +
+TRACE(YES)
+RDEFINE +
+STARTED +
+IZUANG1.* +
+UACC(NONE) +
+STDATA(USER(IZUSVR) +
+GROUP(IZUADMIN) +
+PRIVILEGED(NO) +
+TRUSTED(NO) +
+TRACE(YES)
+RDEFINE +
+STARTED +
+IZUINSTP.* +
+UACC(NONE) +
+STDATA(USER(IZUSVR) +
+GROUP(IZUADMIN) +
+PRIVILEGED(NO) +
+TRUSTED(NO) +
+TRACE(YES)
+/* Define the APPL profile for the z/OSMF Server */
+RDEFINE +
+APPL +
+IZUDFLT  +
+UACC(NONE)
+/* Define SERVER profiles for z/OSMF Server */
+RDEFINE +
+SERVER +
+BBG.SECPFX.IZUDFLT +
+UACC(NONE)
+RDEFINE +
+SERVER +
+BBG.ANGEL +
+UACC(NONE)
+RDEFINE +
+SERVER +
+BBG.AUTHMOD.BBGZSAFM +
+UACC(NONE)
+RDEFINE +
+SERVER +
+BBG.AUTHMOD.BBGZSAFM.SAFCRED +
+UACC(NONE)
+RDEFINE +
+SERVER +
+BBG.AUTHMOD.BBGZSAFM.ZOSWLM +
+UACC(NONE)
+RDEFINE +
+SERVER +
+BBG.AUTHMOD.BBGZSAFM.TXRRS +
+UACC(NONE)
+RDEFINE +
+SERVER +
+BBG.AUTHMOD.BBGZSAFM.ZOSDUMP +
+UACC(NONE)
+/* Define TSOAUTH Procedure Profile */
+RDEFINE TSOAUTH CONSOLE UACC(NONE)
+PERMIT CONSOLE CLASS(TSOAUTH) ID(IZUADMIN) ACCESS(READ)
+PERMIT CONSOLE CLASS(TSOAUTH) ID(IZUUSER) ACCESS(READ)
+/* Note: Uncomment the profile definitions if profile is needed.      */
+/* Replace the USERNAME with USERID which needs access to RESOURCE    */
+/* PERMIT CONSOLE CLASS(TSOAUTH) ID(USERNAME) ACCESS(READ)           */
+/* Note: Uncomment the profile definitions if profile is needed.      */
+/* Replace the USERNAME with USERID which needs access to RESOURCE    */
+/* RDEFINE OPERCMDS MVS.MCSOPER.CONSOLENAME UACC(NONE)               */
+/* PERMIT MVS.MCSOPER.CONSOLENAME CLASS(OPERCMDS) ID(USERNAME) +     */
+/* ACCESS(READ)                                                      */
+RDEFINE OPERCMDS MVS.MCSOPER.IZU@* UACC(NONE)
+PERMIT MVS.MCSOPER.IZU@* CLASS(OPERCMDS) ID(IZUADMIN) ACCESS(READ)
+PERMIT MVS.MCSOPER.IZU@* CLASS(OPERCMDS) ID(IZUUSER) ACCESS(READ)
+/* Permit the z/OSMF unauthenticated USERID access */
+PERMIT +
+IZUDFLT +
+CLASS(APPL) +
+ID(IZUGUEST) +
+ACCESS(READ)
+/* Permit the started task USERID access */
+PERMIT +
+BBG.SECPFX.IZUDFLT +
+CLASS(SERVER) +
+ACCESS(READ) +
+ID(IZUSVR)
+PERMIT +
+BBG.ANGEL +
+CLASS(SERVER) +
+ACCESS(READ) +
+ID(IZUSVR)
+PERMIT +
+BBG.AUTHMOD.BBGZSAFM +
+CLASS(SERVER) +
+ACCESS(READ) +
+ID(IZUSVR)
+PERMIT +
+BBG.AUTHMOD.BBGZSAFM.SAFCRED +
+CLASS(SERVER) +
+ACCESS(READ) +
+ID(IZUSVR)
+PERMIT +
+BBG.AUTHMOD.BBGZSAFM.ZOSWLM +
+CLASS(SERVER) +
+ACCESS(READ) +
+ID(IZUSVR)
+PERMIT +
+BBG.AUTHMOD.BBGZSAFM.TXRRS +
+CLASS(SERVER) +
+ACCESS(READ) +
+ID(IZUSVR)
+PERMIT +
+BBG.AUTHMOD.BBGZSAFM.ZOSDUMP +
+CLASS(SERVER) +
+ACCESS(READ) +
+ID(IZUSVR)
+/* Define the BPX.CONSOLE profile to supress */
+/* the BPXM023I message prefix for console messages */
+RDEFINE +
+FACILITY +
+BPX.CONSOLE +
+UACC(NONE)
+/* Permit the started task USERID access*/
+PERMIT +
+BPX.CONSOLE +
+CLASS(FACILITY) +
+ID(IZUSVR) +
+ACCESS(READ)
+/* Define Sync-to-thread Facility Class */
+RDEFINE +
+FACILITY +
+BBG.SYNC.IZUDFLT +
+UACC(NONE)
+/* Permit the started task USERID access */
+PERMIT +
+BBG.SYNC.IZUDFLT +
+CLASS(FACILITY) +
+ACCESS(CONTROL) +
+ID(IZUSVR)
+/* Define the Facility profile for working with digital certificates */
+RDEFINE +
+FACILITY +
+IRR.DIGTCERT.LIST +
+UACC(NONE)
+RDEFINE +
+FACILITY +
+IRR.DIGTCERT.LISTRING +
+UACC(NONE)
+/* Define Facility profile for RUSERMAP */
+RDEFINE +
+FACILITY +
+IRR.RUSERMAP +
+UACC(NONE)
+/* Permit the started task UserID acesss */
+PERMIT +
+IRR.DIGTCERT.LIST +
+CLASS(FACILITY) +
+ACCESS(READ) +
+ID(IZUSVR)
+PERMIT +
+IRR.DIGTCERT.LISTRING +
+CLASS(FACILITY) +
+ACCESS(READ) +
+ID(IZUSVR)
+/* Permit definition for RUSERMAP */
+PERMIT +
+IRR.RUSERMAP +
+CLASS(FACILITY) +
+ACCESS(READ) +
+ID(IZUSVR)
+/* Create CA certificate for z/OSMF server */
+RACDCERT +
+CERTAUTH +
+GENCERT +
+SUBJECTSDN(CN('z/OSMF CertAuth for Security Domain') +
+OU('IZUDFLT')) +
+WITHLABEL('zOSMFCA') +
+TRUST NOTAFTER(DATE(2023/05/17))
+RACDCERT +
+ADDRING(IZUKeyring.IZUDFLT) +
+ID(IZUSVR)
+/* Create the server certificate for z/OSMF server   */
+RACDCERT +
+ID(IZUSVR) +
+GENCERT +
+SUBJECTSDN(CN('*') +
+O('IBM') +
+OU('IZUDFLT')) +
+WITHLABEL('DefaultzOSMFCert.IZUDFLT') +
+SIGNWITH(CERTAUTH LABEL('zOSMFCA')) +
+NOTAFTER(DATE(2023/05/17))
+RACDCERT +
+ALTER  +
+(LABEL('DefaultzOSMFCert.IZUDFLT'))  +
+ID(IZUSVR) +
+TRUST
+RACDCERT +
+ID(IZUSVR) +
+CONNECT (LABEL('DefaultzOSMFCert.IZUDFLT') +
+RING(IZUKeyring.IZUDFLT) DEFAULT)
+RACDCERT +
+ID(IZUSVR) +
+CONNECT (RING(IZUKeyring.IZUDFLT) +
+LABEL('zOSMFCA') CERTAUTH)
+/* Create the z/OS Security Administrators group */
+ADDGROUP +
+IZUSECAD +
+OMVS(GID(9006))
+/* Activate the ZMFAPLA class */
+SETROPTS +
+CLASSACT(ZMFAPLA) +
+GENERIC(ZMFAPLA) +
+RACLIST(ZMFAPLA)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.SETTINGS.SYSTEMS +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.SETTINGS.FTP_SERVERS +
+UACC(NONE)
+/* The EJBROLE definitions are case-sensitive in RACF. */
+/*  Insure you preserve case for these commands */
+SETROPTS +
+CLASSACT(EJBROLE) +
+GENERIC(EJBROLE) +
+RACLIST(EJBROLE )
+RDEFINE +
+EJBROLE IZUDFLT.*.izuUsers +
+UACC(NONE)
+/* Define the ZMFAPLA profile for the z/OSMF server  */
+RDEFINE +
+SERVER BBG.SECCLASS.ZMFAPLA +
+UACC(NONE)
+/* Permit the started task USERID access */
+PERMIT +
+BBG.SECCLASS.ZMFAPLA +
+CLASS(SERVER) +
+ACCESS(READ) +
+ID(IZUSVR)
+/*  Profile Definitions for "Core"   */
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.ADMINTASKS.USAGESTATISTICS +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.ADMINTASKS.APPLINKING +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.ADMINTASKS.IMPORTMANAGER +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.ADMINTASKS.LINKSTASK +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.ADMINTASKS.LOGGER +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.ADMINTASKS.UI_LOG_MANAGEMENT +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.LINK.** +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.SETTINGS.SYSTEMS.VIEW +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.SETTINGS.SYSTEMS.MODIFY +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.SETTINGS.FTP_SERVERS.VIEW +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.SETTINGS.FTP_SERVERS.MODIFY +
+UACC(NONE)
+/* For the MODIFY command, CONSOLES uses a combination of SAF         */
+/* authority and console authority to make a decision about whether   */
+/* a command is allowed. If security objectives allow any logged-on   */
+/* operator to issue all display commands, there is no need to define */
+/* SAF resource profile MVS.MODIFY.*  Otherwise, if SAF authority     */
+/* is used, it is recommended to use generic resource profile         */
+/* MVS.MODIFY.* to control MODIFY commands including z/OSMF.          */
+/* Following discrete resource profile is provided as a sample:       */
+/* Note: Uncomment and update the below RACF definitions if you       */
+/* intend to use PTF UI57089 function  based on your requirement:     */
+/* 1.IZUSVR1 to your started task name.                               */
+/* 2.USERNAME to userid which needs access.                           */
+/*    RDEFINE OPERCMDS MVS.MODIFY.STC.IZUSVR1 UACC(NONE)              */
+/*    PERMIT  MVS.MODIFY.STC.IZUSVR1 CLASS(OPERCMDS) ID(USERNAME) +   */
+/*    ACCESS(READ)                                                    */
+/*-------------------------------------------*/
+/*                                           */
+/*  End z/OSMF "Core" Setup                  */
+/*                                           */
+/*-------------------------------------------*/
+/* Profile Definitions for "z/OSMF notification" */
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.NOTIFICATION.SETTINGS +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.NOTIFICATION.SETTINGS.ADMIN +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.NOTIFICATION.MODIFY +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.GENERAL.SETTINGS +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.CONSOLES.ZOSOPER +
+UACC(NONE)
+/*----------------------------------------------------------------*/
+/* Define the ZMFAPLA profiles for the following resources:       */
+/*   - Cloud Provisioning's Software Services task                */
+/*   - Cloud Provisioning's Resource Management task              */
+/*   - The Workflow Editor task                                   */
+/*   - System Variables administrator resource                    */
+/*----------------------------------------------------------------*/
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.PROVISIONING.SOFTWARE_SERVICES +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.PROVISIONING.RESOURCE_MANAGEMENT +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.WORKFLOW.EDITOR +
+UACC(NONE)
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.VARIABLES.SYSTEM.ADMIN +
+UACC(NONE)
+/*----------------------------------------------------------------*/
+/* Grant authority to the z/OSMF Administrator group to modify and*/
+/* delete System Variables via the Systems task or the REST API.  */
+/*----------------------------------------------------------------*/
+PERMIT +
+IZUDFLT.ZOSMF.VARIABLES.SYSTEM.ADMIN +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+/*-------------------------------------------*/
+/*                                           */
+/*   Begin "Workflow" Setup                  */
+/*                                           */
+/*-------------------------------------------*/
+/*   Profile Definitions for "Workflow"      */
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.WORKFLOW.WORKFLOWS +
+UACC(NONE)
+/* Profile Definitions for "Workflow administrator role" */
+RDEFINE +
+ZMFAPLA +
+IZUDFLT.ZOSMF.WORKFLOW.ADMIN +
+UACC(NONE)
+/*--------------------------------------------*/
+/*                                            */
+/*  End "Workflow" Setup                      */
+/*                                            */
+/*--------------------------------------------*/
+/*--------------------------------------------*/
+/*                                            */
+/*  ------------------------------------------*/
+/*                                            */
+/*   Begin "zOSMF User Role" Setup            */
+/*                                            */
+/*--------------------------------------------*/
+PERMIT +
+IZUDFLT +
+CLASS(APPL) +
+ID(IZUUSER) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.*.izuUsers +
+CLASS(EJBROLE) +
+ID(IZUUSER) +
+ACCESS(READ)
+/*      For user role set up                          */
+PERMIT +
+IZUDFLT.ZOSMF +
+CLASS(ZMFAPLA) +
+ID(IZUUSER) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.SETTINGS.FTP_SERVERS +
+CLASS(ZMFAPLA) +
+ID(IZUUSER) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.SETTINGS.SYSTEMS +
+CLASS(ZMFAPLA) +
+ID(IZUUSER) +
+ACCESS(READ)
+/*  Permit definitions for "Core"  */
+PERMIT +
+IZUDFLT.ZOSMF.LINK.** +
+CLASS(ZMFAPLA) +
+ID(IZUUSER) +
+ACCESS(READ)
+/*  Permit definitions for "Workflow"   */
+PERMIT +
+IZUDFLT.ZOSMF.WORKFLOW.WORKFLOWS +
+CLASS(ZMFAPLA) +
+ID(IZUUSER) +
+ACCESS(READ)
+/*  Permit definitions for notification */
+PERMIT +
+IZUDFLT.ZOSMF.NOTIFICATION.SETTINGS +
+CLASS(ZMFAPLA) +
+ID(IZUUSER) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.NOTIFICATION.MODIFY +
+CLASS(ZMFAPLA) +
+ID(IZUUSER) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.GENERAL.SETTINGS +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.CONSOLES.ZOSOPER +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.CONSOLES.ZOSOPER +
+CLASS(ZMFAPLA) +
+ID(IZUUSER) +
+ACCESS(READ)
+/*-------------------------------*/
+/*                               */
+/*  End "zOSMF User Role" Setup  */
+/*                               */
+/*-------------------------------*/
+/*-----------------------------------------*/
+/*                                         */
+/* Begin "zOSMF Administrator Role" Setup  */
+/*                                         */
+/*-----------------------------------------*/
+PERMIT +
+IZUDFLT +
+CLASS(APPL) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.*.izuUsers +
+CLASS(EJBROLE) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.SETTINGS.SYSTEMS +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.SETTINGS.FTP_SERVERS +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+/* Permit definitions for "Core"      */
+PERMIT +
+IZUDFLT.ZOSMF.ADMINTASKS.USAGESTATISTICS  +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.ADMINTASKS.APPLINKING +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.ADMINTASKS.IMPORTMANAGER +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.ADMINTASKS.LINKSTASK +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.ADMINTASKS.LOGGER +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.ADMINTASKS.UI_LOG_MANAGEMENT +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.LINK.** +
+CLASS(ZMFAPLA) ID(IZUADMIN) ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.SETTINGS.SYSTEMS.VIEW +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.SETTINGS.SYSTEMS.VIEW +
+CLASS(ZMFAPLA) +
+ID(IZUUSER) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.SETTINGS.SYSTEMS.MODIFY +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.SETTINGS.FTP_SERVERS.VIEW +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.SETTINGS.FTP_SERVERS.VIEW +
+CLASS(ZMFAPLA) +
+ID(IZUUSER) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.SETTINGS.FTP_SERVERS.MODIFY +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+/* Permit definitions for "Workflow"      */
+PERMIT +
+IZUDFLT.ZOSMF.WORKFLOW.WORKFLOWS +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+/* Permit definitions for "Workflow administrator role"  */
+PERMIT +
+IZUDFLT.ZOSMF.WORKFLOW.ADMIN +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+/* Permit definitions for "z/OSMF notification"  */
+PERMIT +
+IZUDFLT.ZOSMF.NOTIFICATION.SETTINGS +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.NOTIFICATION.SETTINGS.ADMIN +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF.NOTIFICATION.MODIFY +
+CLASS(ZMFAPLA) +
+ID(IZUADMIN) +
+ACCESS(READ)
+/*---------------------------------------*/
+/*                                       */
+/*  End "zOSMF Administrator Role" Setup */
+/*                                       */
+/*---------------------------------------*/
+/*------------------------------------------------*/
+/*                                                */
+/*  Begin "zOS Security Administrator Role" Setup */
+/*                                                */
+/*------------------------------------------------*/
+PERMIT +
+IZUDFLT CLASS(APPL) +
+ID(IZUSECAD) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.*.izuUsers +
+CLASS(EJBROLE) +
+ID(IZUSECAD) +
+ACCESS(READ)
+PERMIT +
+IZUDFLT.ZOSMF +
+CLASS(ZMFAPLA) +
+ID(IZUSECAD) +
+ACCESS(READ)
+/*   Permit definitions for "Workflow"   */
+PERMIT +
+IZUDFLT.ZOSMF.WORKFLOW.WORKFLOWS +
+CLASS(ZMFAPLA) +
+ID(IZUSECAD) +
+ACCESS(READ)
+/* This USER ID must be used to connect to the z/OSMF Logon */
+/* If required Change the USER ID name to connect to the z/OSMF group */
+/*********************************************************************/
+/* If your installation utilizes hardware crypto in combination with */
+/* ICSF, various services like CSFRNGL, CSFDSV, CSFOWH, CSFIQF , etc.*/
+/* may be protected by profiles established in your security product.*/
+/* In certain cases, z/OSMF will utilize these services, and the     */
+/* z/OSMF started task USERID will need to be permitted to these     */
+/* profiles. If concrete profiles in the CSFSERV class has been      */
+/* defined to protect these resources, then, the following commented */
+/* commands would permit the started task userid to that profile     */
+/* which is used by associated ICSF service.                         */
+/*********************************************************************/
+/* PERMIT CSFIQF CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* encipher callable service */
+/* PERMIT CSFENC CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* cryptographic variable encipher callable */
+/* PERMIT CSFCVE CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* decipher callable service */
+/* PERMIT CSFDEC CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* symmetric algorithm encipher callable service */
+/* PERMIT CSFSAE CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* symmetric algorithm decipher callable service */
+/* PERMIT CSFSAD CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* one-way hash generate callable service */
+/* PERMIT CSFOWH CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* random number generate callable service */
+/* PERMIT CSFRNG CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR)*/
+/* random number generate long callable service */
+/* PERMIT CSFRNGL CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR)*/
+/* PKA key generate callable service */
+/* PERMIT CSFPKG CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* digital signature generate service */
+/* PERMIT CSFDSG CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* digital signature verify callable service */
+/* PERMIT CSFDSV CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* PKA key token change callable service */
+/* PERMIT CSFPKT CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* retained key list callable service */
+/* PERMIT CSFRKL CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* PKA Public Key Extract callable service */
+/* PERMIT CSFPKX CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* PKA encrypt callable service */
+/* PERMIT CSFPKE CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* PKA decrypt callable service */
+/* PERMIT CSFPKD CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* PKA key import callable service */
+/* PERMIT CSFPKI CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* multiple clear key import callable service */
+/* PERMIT CSFCKM CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* key generate callable service */
+/* PERMIT CSFKGN CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/* ECC Diffie-Hellman callable service */
+/* PERMIT CSFEDH CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR)*/
+/* key token build callable service */
+/* PERMIT CSFKTB CLASS(CSFSERV) ACCESS(READ) ID(IZUSVR) */
+/*                                                          */
+/* SETROPTS RACLIST(CSFSERV) REFRESH" */
+CONNECT +
+IBMUSER +
+GROUP(IZUADMIN)
+SETROPTS +
+RACLIST(APPL) +
+REFRESH
+SETROPTS +
+RACLIST(EJBROLE) +
+REFRESH
+SETROPTS +
+RACLIST(ZMFAPLA) +
+REFRESH
+SETROPTS +
+RACLIST(SERVER) +
+REFRESH
+SETROPTS +
+RACLIST(STARTED) +
+REFRESH
+SETROPTS +
+RACLIST(FACILITY) +
+REFRESH
+/* CEA launcher services starts */
+SETROPTS CLASSACT(SERVAUTH)
+RDEFINE SERVAUTH +
+CEA.CEATSO.* +
+UACC(NONE)
+PERMIT CEA.CEATSO.* +
+CLASS(SERVAUTH)     +
+ID   (IZUADMIN)   +
+ACCESS(READ)
+PERMIT CEA.CEATSO.* +
+CLASS(SERVAUTH)     +
+ID   (IZUUSER)   +
+ACCESS(READ)
+PERMIT CEA.CEATSO.* +
+CLASS(SERVAUTH) +
+ID(IZUSVR) +
+ACCESS(READ)
+SETROPTS RACLIST(SERVAUTH) REFRESH
+/* CEA launcher services ends */
+/* CEA launcher services starts for V2R3*/
+SETROPTS CLASSACT(SERVAUTH)
+RDEFINE SERVAUTH +
+CEA.SIGNAL.* +
+UACC(NONE)
+PERMIT CEA.SIGNAL.* +
+CLASS(SERVAUTH) +
+ID(IZUSVR) +
+ACCESS(READ)
+SETROPTS RACLIST(SERVAUTH) REFRESH
+/* CEA launcher services ends */
+/* Define ACCTNUM profile */
+SETROPTS CLASSACT(ACCTNUM)
+SETROPTS RACLIST(ACCTNUM)
+RDEFINE ACCTNUM +
+IZUACCT +
+UACC(NONE)
+PERMIT  IZUACCT +
+CLASS(ACCTNUM) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT  IZUACCT +
+CLASS(ACCTNUM) +
+ID(IZUUSER) +
+ACCESS(READ)
+SETROPTS +
+RACLIST(ACCTNUM) +
+REFRESH
+/* Define Logon procedure profile */
+SETROPTS CLASSACT(TSOPROC)
+SETROPTS RACLIST(TSOPROC)
+RDEFINE TSOPROC +
+IZUFPROC +
+UACC(NONE)
+PERMIT  IZUFPROC +
+CLASS(TSOPROC) +
+ID(IZUADMIN) +
+ACCESS(READ)
+PERMIT  IZUFPROC +
+CLASS(TSOPROC) +
+ID(IZUUSER) +
+ACCESS(READ)
+SETROPTS +
+RACLIST(TSOPROC) +
+REFRESH
+SETROPTS +
+RACLIST(TSOAUTH) +
+REFRESH
+SETROPTS +
+RACLIST(OPERCMDS) +
+REFRESH
+/* z/OSMF administrators and users are granted access to this      */
+/* navigation task.                                                */
+PERMIT IZUDFLT.ZOSMF.WORKFLOW.EDITOR CLASS(ZMFAPLA) +
+   ID(IZUADMIN) ACCESS(READ)
+/*   Profile Definitions for "Software Deployment"                */
+RDEFINE ZMFAPLA +
+  IZUDFLT.ZOSMF.SOFTWARE_DEPLOYMENT.SOFTWARE_MANAGEMENT +
+  UACC(NONE)
+RDEFINE ZMFAPLA +
+  IZUDFLT.ZOSMF.SOFTWARE_DEPLOYMENT.DATA.** +
+   UACC(NONE)
+RDEFINE ZMFAPLA +
+  IZUDFLT.ZOSMF.SOFTWARE_DEPLOYMENT.SOFTWARE_MANAGEMENT.+
+PRODUCT_INFO_FILE.RETRIEVE +
+   UACC(NONE)
+RDEFINE ZMFAPLA +
+   IZUDFLT.ZOSMF.SOFTWARE_DEPLOYMENT.SOFTWARE_MANAGEMENT.+
+CATEGORIES.MODIFY +
+   UACC(NONE)
+/* to mount UNIX file system data sets.                            */
+RDEFINE +
+UNIXPRIV +
+ SUPERUSER.FILESYS.MOUNT +
+UACC(NONE)
+/*   Begin zOSMF User Role Setup                                  */
+/*                                                                */
+/*   Permit definitions for Software Deployment                   */
+PERMIT IZUDFLT.ZOSMF.SOFTWARE_DEPLOYMENT.SOFTWARE_MANAGEMENT +
+   CLASS(ZMFAPLA) ID(IZUUSER) ACCESS(READ)
+PERMIT IZUDFLT.ZOSMF.SOFTWARE_DEPLOYMENT.DATA.** CLASS(ZMFAPLA) +
+   ID(IZUUSER) ACCESS(CONTROL)
+PERMIT IZUDFLT.ZOSMF.SOFTWARE_DEPLOYMENT.SOFTWARE_MANAGEMENT.+
+CATEGORIES.MODIFY CLASS(ZMFAPLA) +
+   ID(IZUUSER) ACCESS(READ)
+/* Allow user to mount UNIX file system data sets.                 */
+PERMIT SUPERUSER.FILESYS.MOUNT CLASS(UNIXPRIV) +
+   ID(IZUUSER) ACCESS(UPDATE)
+/*  End zOSMF User Role Setup                                      */
+/*   Begin zOSMF Administrator Role Setup                          */
+/*   Permit definitions for Software Deployment                    */
+PERMIT IZUDFLT.ZOSMF.SOFTWARE_DEPLOYMENT.SOFTWARE_MANAGEMENT +
+   CLASS(ZMFAPLA) ID(IZUADMIN) ACCESS(READ)
+PERMIT IZUDFLT.ZOSMF.SOFTWARE_DEPLOYMENT.DATA.** CLASS(ZMFAPLA) +
+   ID(IZUADMIN) ACCESS(CONTROL)
+PERMIT IZUDFLT.ZOSMF.SOFTWARE_DEPLOYMENT.SOFTWARE_MANAGEMENT.+
+PRODUCT_INFO_FILE.RETRIEVE +
+   CLASS(ZMFAPLA) ID(IZUADMIN) ACCESS(READ)
+PERMIT IZUDFLT.ZOSMF.SOFTWARE_DEPLOYMENT.SOFTWARE_MANAGEMENT.+
+CATEGORIES.MODIFY +
+   CLASS(ZMFAPLA) ID(IZUADMIN) ACCESS(READ)
+ /* Allow admin to Count UNIX file system data sets.               */
+PERMIT SUPERUSER.FILESYS.MOUNT CLASS(UNIXPRIV) +
+   ID(IZUADMIN) ACCESS(UPDATE)
+/*  End zOSMF Administrator Role Setup                             */
+/* Need to REFRESH these classes for Roles                        */
+SETROPTS RACLIST(ZMFAPLA) REFRESH
+SETROPTS RACLIST(UNIXPRIV) REFRESH
+/*----------------------------------------------*/
+/*                                              */
+/*  End "zOS Security Administrator Role" Setup */
+/*----------------------------------------------*/
+/*----------------------------------------------*/
+/*   End of Security for z/OSMF 2.4             */
+/*----------------------------------------------*/
+/****** END OF Z/OSMF V2R4 SECURITY CHANGES *****/
+/************************************************/
+/********** BEGIN V2R4 KC4z SECURITY CHANGES ********/
+/*------------------------------------------------------------------*/
+/*                                                                  */
+/*                                                                  */
+/*  Begin KC4z Setup                                                */
+/*                                                                  */
+/*                                                                  */
+/*------------------------------------------------------------------*/
+/* Create the KC4z Administrators group */
+/* If not using AUTOGID, then review the GID value below */
+ADDGROUP +
+HKCADMIN +
+OMVS(GID(305))
+/* Setup Started tasks Userid for the KC4z Server */
+/* If not using AUTOUID, then review the UID value below */
+/* Ensure that the HOME directory specified below exists */
+/* on the system */
+ADDUSER +
+HKCSVR +
+DFLTGRP(HKCADMIN) +
+OMVS(UID(304) +
+HOME(/u/hkcsvr) +
+PROGRAM(/bin/sh)) +
+NAME(' kc4z Started Task USERID') +
+NOPASSWORD +
+NOOIDCARD
+/* Allow 10000 concurrently open files */
+ALTUSER +
+HKCSVR +
+OMVS(FILEPROC(10000))
+/* Define Started Profiles for KC4z Server */
+RDEFINE +
+STARTED +
+HKCSVR1.* +
+UACC(NONE) +
+STDATA(USER(HKCSVR) +
+GROUP(HKCADMIN) +
+PRIVILEGED(NO) +
+TRUSTED(NO) +
+TRACE(YES)
+/* Sample commands to connect any additional administrator users to */
+/* the HKCADMIN group. Review and uncomment below commands          */
+/* as required                                                      */
+/* CONNECT ADMINUSER GROUP(HKCADMIN)    */
+/* LISTUSER ADMINUSER                   */
+SETROPTS +
+RACLIST(STARTED) +
+REFRESH
+/*-------------------------------------------*/
+/*                                           */
+/*  End KC4z Setup                           */
+/*                                           */
+/*-------------------------------------------*/
+/*********** BEGIN CIM V2.4 SECURITY CHANGES **************************/
+/*           Service group             */
+ADDGROUP +
+ CFZSRVGP +
+ OMVS(GID(9501))
+/*        Administration group         */
+ADDGROUP +
+ CFZADMGP +
+ OMVS(GID(9502))
+/*            User group               */
+ADDGROUP +
+ CFZUSRGP +
+ OMVS(GID(9503))
+/* Add a CIM user in the service group */
+ADDUSER +
+ CFZSRV +
+ DFLTGRP(CFZSRVGP) +
+ OMVS(PROGRAM('/bin/sh') +
+  HOME('/u/CFZSRV')  +
+  UID(9500)) +
+  NOPASSWORD NOOIDCARD
+ALTUSER +
+ CFZSRV +
+ DFLTGRP(CFZSRVGP) +
+ OMVS(PROGRAM('/bin/sh') +
+ HOME('/u/CFZSRV')  +
+  UID(9500)) +
+ NOPASSWORD NOOIDCARD NOPHRASE
+/*     Create class WBEM     */
+SETROPTS CLASSACT(WBEM) RACLIST(WBEM)
+/* Define profile CIMSERV and Activate it */
+RDEFINE WBEM CIMSERV UACC(NONE)
+/*    Define userid to run CIM server     */
+SETROPTS +
+  RACLIST(WBEM) +
+  REFRESH
+/* Permits default CIM User IDs to required resources */
+/* Sets up required surrogate                         */
+/* Permits CIM ID CFZSRV to BPX.SERVER            */
+/* Authorize CIM server to write SMF records          */
+/* Authorize CIM server to write to console           */
+PERMIT +
+ CIMSERV +
+ CL(WBEM) +
+ ACCESS(CONTROL) +
+ ID(CFZSRV)
+PERMIT +
+ CIMSERV +
+ CL(WBEM) +
+ ACCESS(CONTROL) +
+ ID(CFZADMGP)
+PERMIT +
+ CIMSERV +
+ CL(WBEM) +
+ ACCESS(UPDATE) +
+ ID(CFZUSRGP)
+SETROPTS +
+ RACLIST(WBEM) +
+ REFRESH
+SETROPTS +
+ CLASSACT(SURROGAT) +
+ RACLIST(SURROGAT) +
+ GENERIC(SURROGAT)
+RDEFINE +
+ SURROGAT BPX.SRV.** +
+ UACC(NONE)
+PERMIT +
+ BPX.SRV.** +
+ CL(SURROGAT) +
+ ACCESS(READ) +
+ ID(CFZSRV)
+SETROPTS +
+ RACLIST(SURROGAT) +
+ REFRESH
+PERMIT +
+ BPX.SERVER +
+ CL(FACILITY) +
+ ACCESS(UPDATE) +
+ ID(CFZSRV)
+SETROPTS +
+ RACLIST(FACILITY) +
+ REFRESH
+RDEFINE +
+ FACILITY +
+ BPX.SMF UACC(NONE)
+PERMIT  +
+ BPX.SMF +
+ CL(FACILITY) +
+ ACCESS(READ) +
+ ID(CFZSRV)
+RDEFINE +
+ FACILITY +
+ BPX.CONSOLE UACC(NONE)
+PERMIT +
+ BPX.CONSOLE +
+ CL(FACILITY) +
+ ACCESS(READ) +
+ ID(CFZSRV)
+SETROPTS +
+ RACLIST(FACILITY) +
+ REFRESH
+/* Permit CIM groups and users to net application CFZAPPL */
+/* This has no effect if class APPL is not active         */
+RDEFINE +
+ APPL  +
+ CFZAPPL +
+ UACC(NONE)
+PERMIT +
+ CFZAPPL +
+ CL(APPL) +
+ ACCESS(READ) +
+ ID(CFZSRV)
+PERMIT +
+ CFZAPPL +
+ CL(APPL) +
+ ACCESS(READ) +
+ ID(CFZADMGP)
+PERMIT +
+ CFZAPPL +
+ CL(APPL) +
+ ACCESS(READ) +
+ ID(CFZUSRGP)
+SETROPTS +
+ RACLIST(APPL) +
+ REFRESH
+/* Establishes CIM security setup required for ARM       */
+/* A sample ARM policy (CFZARMP) resides in SYS1.SAMPLIB */
+SETROPTS +
+ CLASSACT(FACILITY) +
+ RACLIST(FACILITY)
+RDEFINE +
+ FACILITY +
+ IXCARM.DEFAULT.CFZ_SRV_* +
+ UACC(NONE)
+PERMIT +
+ IXCARM.DEFAULT.CFZ_SRV_* +
+ CLASS(FACILITY) +
+ ID(CFZSRV) +
+ ACCESS(UPDATE)
+SETROPTS +
+ RACLIST(FACILITY) +
+ REFRESH
+/* Establishes CIM ID CFZSRV as the started task User for CIM */
+SETROPTS +
+ CLASSACT(STARTED) +
+ RACLIST(STARTED)
+RDEFINE +
+ STARTED +
+ CFZCIM.* STDATA(USER(CFZSRV) +
+ GROUP(CFZSRVGP)
+SETROPTS +
+ RACLIST(STARTED) +
+ REFRESH
+/* Setup for cluster/couple dataset providers for CIM */
+SETROPTS +
+ CLASSACT(FACILITY) +
+ RACLIST(FACILITY)
+RDEFINE +
+ FACILITY +
+ MRCLASS.CLUSTER +
+ UACC(NONE)
+PERMIT +
+ MRCLASS.CLUSTER +
+ CLASS(FACILITY) +
+ ID(CFZUSRGP) +
+ ACCESS(UPDATE)
+PERMIT +
+ MRCLASS.CLUSTER +
+ CLASS(FACILITY) +
+ ID(CFZADMGP) +
+ ACCESS(UPDATE)
+PERMIT +
+ MVSADMIN.XCF.CFRM +
+ CLASS(FACILITY) +
+ ID(CFZUSRGP) +
+ ACCESS(UPDATE)
+PERMIT +
+ MVSADMIN.XCF.CFRM +
+ CLASS(FACILITY) +
+ ID(CFZADMGP) +
+ ACCESS(UPDATE)
+SETROPTS +
+ RACLIST(FACILITY) +
+ REFRESH
+/* Enables the SMI-S CIM providers */
+RDEFINE +
+ FACILITY +
+ IOSCDR +
+ UACC(NONE)
+PERMIT +
+ IOSCDR +
+ CL(FACILITY) +
+ ID(CFZUSRGP) +
+ ACCESS(UPDATE)
+PERMIT +
+ IOSCDR +
+ CL(FACILITY) +
+ ID(CFZADMGP) +
+ ACCESS(UPDATE)
+PERMIT +
+ IOSCDR +
+ CL(FACILITY) +
+ ID(CFZSRVGP) +
+ ACCESS(UPDATE)
+RDEFINE +
+ FACILITY +
+ IOSPORTS +
+ UACC(NONE)
+PERMIT +
+ IOSPORTS +
+ CL(FACILITY) +
+ ID(CFZUSRGP) +
+ ACCESS(UPDATE)
+PERMIT +
+ IOSPORTS +
+ CL(FACILITY) +
+ ID(CFZADMGP) +
+ ACCESS(UPDATE)
+SETROPTS +
+ RACLIST(FACILITY) +
+ REFRESH
+/* Enables the Network CIM providers */
+SETROPTS +
+ CLASSACT(SERVAUTH) +
+ RACLIST(SERVAUTH) +
+ GENERIC(SERVAUTH)
+RDEFINE +
+ SERVAUTH +
+ EZB.CIMPROV.* +
+ UACC(NONE)
+PERMIT +
+ EZB.CIMPROV.* +
+ CL(SERVAUTH) +
+ ID(CFZADMGP) +
+ ACCESS(READ)
+PERMIT +
+ EZB.CIMPROV.* +
+ CL(SERVAUTH) +
+ ID(CFZUSRGP) +
+ ACCESS(READ)
+SETROPTS +
+ RACLIST(SERVAUTH) +
+ REFRESH
+/*   Setup CIM for WLM providers     */
+SETROPTS +
+ CLASSACT(FACILITY) +
+ RACLIST(FACILITY)
+PERMIT +
+ MVSADMIN.WLM.POLICY +
+ CLASS(FACILITY) +
+ ID(CFZUSRGP) +
+ ACCESS(UPDATE)
+PERMIT +
+ MVSADMIN.WLM.POLICY +
+ CLASS(FACILITY) +
+ ID(CFZADMGP) +
+ ACCESS(UPDATE)
+SETROPTS +
+ RACLIST(FACILITY) +
+ REFRESH
+RALT +
+ PROGRAM * ADDMEM('SYS1.SCEERUN'/'******'/NOPADCHK) +
+ UACC(READ)
+RALT +
+ PROGRAM * ADDMEM('SYS1.SCEERUN2'/'******'/NOPADCHK) +
+ UACC(READ)
+RDEFINE +
+ PROGRAM BLSUXTID
+RALT +
+ PROGRAM BLSUXTID +
+ ADDMEM('SYS1.MIGLIB'/'******'/NOPADCHK) +
+ UACC(READ)
+SETROPTS +
+ WHEN(PROGRAM) +
+ REFRESH
+SETROPTS +
+ CLASSACT(PTKTDATA) +
+ RACLIST(PTKTDATA) +
+ GENERIC(PTKTDATA)
+RDEFINE +
+ PTKTDATA +
+ IRRPTAUTH.GPMSERVE.* +
+ UACC(NONE)
+PERMIT +
+ IRRPTAUTH.GPMSERVE.* CL(PTKTDATA) +
+ ID(CFZSRVGP) +
+ ACCESS(UPDATE)
+SETROPTS +
+ RACLIST(FACILITY) +
+ REFRESH
+SETROPTS +
+ RACLIST(PTKTDATA) +
+ REFRESH
+/* If you have RMF installed, uncomment these lines and replace       */
+/* #rkeymask with a 16-digit (0-9,A-F) keymask before submitting job  */
+/* RDEFINE PTKTDATA GPMSERVE SSIGNON(KEYMASKED(#rkeymask))            */
+/* MLS users need to uncomment these lines before submitting the job  */
+/* RDEFINE FACILITY BPX.POE UACC(NONE)                                */
+/* PERMIT BPX.POE CLASS(FACILITY) ID(CFZADMGP) ACCESS(READ)         *  /
+/* SETROPTS RACLIST(FACILITY) REFRESH                                 */
+/* MLS users need to uncomment these lines before submitting the job  */
+/* ALTUSER CFZADMGP SECLABEL(SYSMULTI)                              *  /
+/* PERMIT SYSMULTI CLASS(SECLABEL) ID(CFZADMGP) ACCESS(READ)        *  /
+/* SETROPTS GENERIC(STARTED) REFRESH                                  */
+/* SETROPTS RACLIST(STARTED) REFRESH                                  */
+/* SETR CLASSACT(SECLABEL)                                            */
+/* SETR RACLIST(SECLABEL) REFRESH                                  */
+/**********END OF CIM V2.4 SECURITY CHANGES ***************************/
+/**********************************************************************/
+/**********    BEGIN z/OS Capacity Provisioning security    *******/
+/* The Capacity Provisioning Manager (CPM) must be running under  */
+/* a non-restricted ID, with an OMVS segment and unique UID;      */
+/* a non-zero uid is recommended.                                 */
+/* The HLQ/ALIAS for the runtime data sets must exist.            */
+/* This job is derived from SYS1.SAMPLIB(CPOSEC1)                 */
+ADDGROUP +
+CPOUGRP +
+OMVS(GID())
+ADDGROUP +
+CPOQUERY +
+OMVS(GID())
+ADDGROUP +
+CPOCTRL  +
+OMVS(GID())
+ADDUSER +
+cposrv +
+NORESTRICTED +
+NOOIDCARD +
+DFLTGRP(CPOUGRP) +
+OMVS(HOME('/u/cposrv') +
+UID()) +
+NOPASSWORD
+ALTUSER +
+cposrv +
+NORESTRICTED +
+NOOIDCARD +
+DFLTGRP(CPOUGRP) +
+OMVS(HOME('/u/cposrv') +
+UID()) +
+NOPASSWORD
+/* CP Manager uses a configured userid to logon to the    */
+/* observed systems                                       */
+/* This userid requires an OMVS segment and a unique      */
+/* non-zero UID                                           */
+/* This userid cpocim needs to match the parameter    */
+/* System Observation                                     */
+/* UserName                                               */
+/* in the capacity Provisioning Manager parameter dataset */
+/* prefix PARM(PARM)                                      */
+ADDUSER +
+cpocim +
+NORESTRICTED +
+DFLTGRP(CPOUGRP) +
+OMVS(HOME('/u/cpocim') +
+UID()) +
+PASSWORD(pppppppp)
+ALTUSER +
+cpocim +
+NORESTRICTED +
+DFLTGRP(CPOUGRP) +
+OMVS(HOME('/u/cpocim') +
+UID()) +
+PASSWORD(pppppppp)
+/* Started task/job definitions required..*/
+RDEFINE +
+STARTED +
+CPOSERV.* STDATA(USER(cposrv))
+SETROPTS +
+RACLIST (STARTED) +
+REFRESH
+/* Definitions related to Automatic Restart Management (ARM) */
+/* Uncomment the below RACF section if you wish to use ARM.  */
+/* RDEFINE  FACILITY IXCARM.SYSCPM.SYSCPO UACC(NONE)   */
+/* PERMIT  IXCARM.SYSCPM.SYSCPO CLASS(FACILITY) ID(cposrv) + */
+/* ACCESS(UPDATE) */
+/* SETROPTS RACLIST(FACILITY) REFRESH */
+/* Definitions related to the Capacity Provisioning */
+/* user required..                                  */
+/* Group IDs should be unique.                      */
+CONNECT +
+cposrv +
+GROUP(CPOQUERY) +
+AUTH(USE)
+CONNECT +
+cposrv  +
+GROUP(CPOCTRL) +
+AUTH(USE)
+/* Authorize system observation user to logon to CIM */
+CONNECT +
+cpocim +
+GROUP() +
+AUTH(USE)
+/* Definitions related to the setup of the domain.*/
+/* Required.*/
+/* Permit CPO qualifier into RACF DB */
+ADDGROUP CPO +
+SUPGROUP(SYS1)
+CONNECT IBMUSER +
+GROUP(CPO) +
+AUTH(JOIN)
+AD 'CPO.*' +
+GENERIC +
+OWNER(IBMUSER) +
+UACC(READ)
+PE 'CPO.*' +
+ID(IBMUSER) +
+ACC(ALTER)
+ADDSD +
+'CPO.DOMAIN1.*' +
+GENERIC +
+UACC(NONE)
+PERMIT +
+'CPO.DOMAIN1.*' +
+GENERIC ID(cposrv) +
+ACCESS(UPDATE)
+/* cposrv.* needs to be changed if RACF  */
+/* Enhanced Generic Naming                   */
+/* is not in effect                          */
+ADDSD +
+'cposrv.*' +
+GENERIC UACC(NONE)
+PERMIT +
+'cposrv.*'  +
+GENERIC ID(cposrv) +
+ACCESS(CONTROL)
+SETROPTS +
+GENERIC(DATASET) +
+REFRESH
+/* Permit CPM to use authorized console interfaces.            */
+/* Optional.                                                   */
+/* CPM messages will be prefixed with BPXM023I if not granted. */
+RDEFINE +
+FACILITY +
+BPX.CONSOLE +
+UACC(NONE)
+PERMIT  +
+BPX.CONSOLE CLASS(FACILITY) +
+ID(cposrv) +
+ACCESS(READ)
+SETROPTS  +
+RACLIST(FACILITY) +
+REFRESH
+/* Uncomment below RACF setting if you wish to use passtickets  */
+/* and secure signon                                            */
+/* Definitions related to the use of passtickets/secure signon. */
+/* Required. The KEYMASKED() value must be identical across all */
+/* runtime and observed systems.                                */
+/* SETROPTS +  */
+/* CLASSACT(PTKTDATA)    */
+/* SETROPTS +  */
+/* RACLIST(PTKTDATA)    */
+/* RDEFINE   +  */
+/* PTKTDATA CFZAPPL +  */
+/* SSIGNON(KEYMASKED(9999999999999999)) +  */
+/* APPLDATA('NO REPLAY PROTECTION')  */
+/* PERMIT +  */
+/* CFZAPPL +  */
+/* CLASS(PTKTDATA) +  */
+/* ID(cpocim) +  */
+/* ACCESS(READ)     */
+/* SETROPTS  +                                         */
+/* RACLIST(PTKTDATA)                                   */
+/* RDEFINE  +                                          */
+/* PTKTDATA IRRPTAUTH.CFZAPPL.cpocim               */
+/* PERMIT +                                            */
+/* IRRPTAUTH.CFZAPPL.cpocim +                      */
+/* CLASS(PTKTDATA) +                                   */
+/* ID(cposrv) +                                    */
+/* ACCESS(UPDATE)                                      */
+/* SETROPTS  +                                         */
+/* RACLIST(PTKTDATA) +                                 */
+/* REFRESH                                             */
+/*   End of passtickets security information                        */
+/********************************************************************/
+/* Definitions required to allow Capacity Provisioning Control      */
+/* Center (CPCC) users to connect to the CPM and query and/or       */
+/* modify CPM controls.                                             */
+/* Required for all users connecting from the CPCC.                 */
+/* Replace 'CPCCUSR' with the appropriate user ID(s).            */
+ADDUSER +
+CPCCUSR +
+DFLTGRP(SYS1)
+CONNECT  (CPCCUSR) +
+GROUP(CPOQUERY) +
+AUTH(USE)
+CONNECT  (CPCCUSR) +
+GROUP(CPOCTRL ) +
+AUTH(USE)
+CONNECT  +
+(CPCCUSR) +
+GROUP() +
+AUTH(USE)
+/* Uncomment the below RACF definitions based upon your environment */
+/* Definitions related to the use of z/OS BCPii.                    */
+/* Required when using BCPii. Not required for use with SNMP.       */
+/* Repeat definitions for additional CPCs.                          */
+/*  SETROPTS  +                                                     */
+/*  CLASSACT(SERVAUTH)                                              */
+/* RDEFINE +                                                        */
+/* SERVAUTH CEACONNECT +                                     */
+/* UACC(NONE)                                                       */
+/* RDEFINE   +                                                      */
+/* SERVAUTH CEASUBSCRIBE.ENF_0068* +                         */
+/* UACC(NONE)                                                       */
+/* If more generic CEA profiles have already been defined,          */
+/* such as CEA*, you may want to reuse those.                */
+/* PERMIT +                                                         */
+/* CEACONNECT +                                              */
+/* CLASS(SERVAUTH) +                                                */
+/* ID(cposrv) +                                                 */
+/* ACCESS(READ)                                                     */
+/* PERMIT +                                                         */
+/* CEASUBSCRIBE.ENF_0068* +                                  */
+/* CLASS(SERVAUTH) +                                                */
+/* ID(cposrv) +                                                 */
+/* ACCESS(READ)                                                     */
+/* SETROPTS  +                                                      */
+/* RACLIST(SERVAUTH) +                                              */
+/* REFRESH                                                          */
+/* RDEFINE  +                                                       */
+/* FACILITY HWI.APPLNAME.HWISERV +                                  */
+/* UACC(NONE)                                                       */
+/* The community name in APPLDATA() should be uppercase             */
+/* RDEFINE +                                                        */
+/* FACILITY HWI.TARGET.netname.cpc1 +                               */
+/* APPLDATA(' xxxxxxxxx') +                                         */
+/* UACC(NONE)                                                       */
+/* RDEFINE +                                                        */
+/*  FACILITY HWI.CAPREC.netname.cpc1.* +                            */
+/*  UACC(NONE)                                                      */
+/*  PERMIT +                                                        */
+/*  HWI.APPLNAME.HWISERV +                                          */
+/*  CLASS(FACILITY) +                                               */
+/*  ID(cposrv) +                                                */
+/*  ACCESS(READ)                                                    */
+/*  PERMIT +                                                        */
+/*  HWI.TARGET.netname.cpc1.* +                                     */
+/*  CLASS(FACILITY) +                                               */
+/*  ID(cposrv) +                                                */
+/*  ACCESS(CONTROL)                                                 */
+/* PERMIT +                                                         */
+/* HWI.CAPREC.netname.cpc1.* +                                      */
+/* CLASS(FACILITY) +                                                */
+/* ID(cposrv) +                                                 */
+/* ACCESS(READ)                                                     */
+/* SETROPTS +                                                       */
+/* RACLIST(FACILITY) +                                              */
+/* REFRESH                                                          */
+/*************   End of z/OS CP Security Setup  **************/
+/*************************************************************/
+/*       REFRESH ALL THE IMPACTED PROFILES          */
+SETROPTS +
+   RACLIST(STARTED FACILITY LOGSTRM) +
+   REFRESH
+SETROPTS +
+   GENERIC(DATASET STARTED XFACILIT) +
+   REFRESH
+SETROPTS +
+   WHEN(PROGRAM) +
+   REFRESH
+@@
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE),(4000,LT))
+/*
+//SETRC    EXEC PGM=IKJEFT1B,PARM='CPPEERCH'
+//SYSEXEC  DD   DSN=ZOS24.OS241147.ORDER.SCPPCENU,DISP=SHR
+//SYSPROC  DD   DSNAME=ZOS24.OS241147.ORDER.SCPPCENU,DISP=SHR
+//SYSTSPRT DD   SYSOUT=*
+//INDD1    DD   DSN=&LOG1,DISP=OLD
+//SYSTSIN  DD   DUMMY
+//*

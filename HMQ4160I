@@ -1,0 +1,56 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*
+//********************************************************************
+//* JOB: HMQ4160I  (product-supplied job ASMWIVP in library SASMSAM1)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job assembles the source statements from
+//*      member ASMASAMP from the SASMSAM1 library.  The assembly
+//*      of ASMASAMP verifies that the product is installed and
+//*      functions correctly.
+//*
+//* NOTES: 1. The assembly will have a return code of zero.
+//*        2. The program is not intended to be run; however, if it
+//*           is run, it sets a return code of zero and returns to the
+//*           caller.
+//*
+//********************************************************************
+//*  PROC to run ASSEMBLY                                            *
+//********************************************************************
+//PROCIVP  PROC
+//*
+//IVP      EXEC PGM=ASMA90,PARM='NOOBJECT,NODECK,BATCH'
+//SYSIN    DD DSN=ASM.SASMSAM1(ASMASAMP),
+//            DISP=SHR
+//SYSLIB   DD DSN=ASM.SASMMAC1,
+//            DISP=SHR
+//         DD DSN=SYS1.MACLIB,
+//            DISP=SHR
+//STEPLIB  DD DSN=ASM.SASMMOD1,
+//            DISP=SHR
+//SYSUT1   DD UNIT=SYSALLDA,SPACE=(CYL,(5,3))
+//SYSPRINT DD SYSOUT=*
+//SYSPUNCH DD DUMMY
+//*
+//EPROCIVP PEND
+//********************************************************************
+//*  Step to Execute the PROC                                        *
+//********************************************************************
+//EXECIVP EXEC PROCIVP
+/*

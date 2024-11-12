@@ -1,0 +1,57 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//********************************************************************
+//*  JOB: HSMA240C (no product-supplied job)
+//*
+//*  GDE: ServerPac INSTALL YOUR ORDER
+//*
+//*  DOC: This job does the following:
+//*
+//*  1) Update  Z24SUP.TCPIVP.TCPPARMS(PROFILE)
+//*     to TCP PORTS for z/OSMF port setup.
+//*     If necessary you can make the updates manually.
+//*     The TCPIP STARTED task may hold an enqueue on your
+//*     Z24SUP.TCPIVP.TCPPARMS(PROFILE)
+//*     which would require it to be brought down first.
+//*
+//*  2) To provide access default UID:GID values 9010:9003 are used in
+//*     CHOWN step.  This will allow you to start z/OSMF server
+//*     from first IPL using shipped RACF database.
+//*
+//*  MRC: The expected return code is 0.
+//*
+//********************************************************************
+//UPDTCP  EXEC PGM=IKJEFT1B,COND=(4000,LT)
+//SYSTSPRT  DD SYSOUT=*
+//SYSTSIN  DD *
+EDIT 'Z24SUP.TCPIVP.TCPPARMS(PROFILE)' OLD CNTL NONUM TEXT
+F ';16310 TCP PAGENT NOAUTOLOG'
+IN    443 TCP IZUSVR1 NODELAYACKS ; HTTPSSLPORT
+SAVE
+END
+/*
+//#NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,UPDTCP),(4000,LT))
+//*
+//CHOWN EXEC PGM=BPXBATCH,COND=(4000,LT)
+//STDPARM DD *
+sh
+chown -hR 9010:9003 /Service/global/zosmf
+/*
+//STDOUT DD SYSOUT=*
+//*
+//#NOTOK   EXEC PGM=CPPMAXRC,COND=((4,GE,CHOWN),(4000,LT))
+//*

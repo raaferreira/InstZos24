@@ -1,0 +1,10 @@
+ PPT PGMNAME(DFHSIP)                /* CICS                          */ 00040001
+     CANCEL                         /* CAN BE CANCELLED              */ 00050001
+     DSI                            /* REQUIRES DATA SET INTEGRITY   */ 00060001
+     NOPRIV                         /* NOT A PRIVILEGED JOB          */ 00070001
+     NOSYST                         /* NOT A SYSTEM TASK             */ 00080001
+     KEY(8)                         /* PROTECTION KEY                */ 00090001
+     NOSWAP                         /* NON-SWAPPABLE                 */ 00100001
+     PASS                           /* NO PASSWORD BYPASS            */ 00110001
+     NOPREF                         /* NO PREFERRED STORAGE REQUIRED */ 00120001
+     AFF(NONE)                      /* NO PROCESSOR AFFINITY         */ 00130001

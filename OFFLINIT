@@ -1,0 +1,154 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*-------------------------------------------------------------------
+//* GDE: ServerPac INSTALLATION
+//* DOC: INITIALIZE ALL NEEDED DASDS.
+//*
+//*  NOTE:
+//*     THIS JOB USES THE FOLLOWING VALUES FOR VTOC AND INDEX:
+//*
+//*      DEVICE     VTOC      INDEX
+//*      ------     -------   -------
+//*      3380-1     0,1,0029  02,0,006
+//*      3380-2     0,1,0044  03,0,009
+//*      3380-3     0,1,0059  04,0,012
+//*      3390-1     0,1,0029  02,0,006
+//*      3390-2     0,1,0059  04,0,012
+//*      3390-3     0,1,0074  05,0,015
+//*      3390-9     0,1,0224  15,0,045
+//*      3390-27    0,1,0672  45,0,135
+//*      3390-54    0,1,1344  90,0,270
+//*      BEFORE RUNNING THIS STEP, BE SURE THAT THE FOLLOWING
+//*      DEVICES HAVE BEEN PUT OFFLINE :
+//*        AD44
+//*        AE44
+//*        AF44
+//*        B044
+//*        B144
+//*        B143
+//*        B145
+//*        B243
+//*      AFTER HAVING COMPLETED THIS STEP, BE SURE THAT ABOVE
+//*      DEVICES ARE PUT ONLINE.
+//*
+//* NOTE: THIS JOBS REQUIRES AN OPERATOR RESPONSE FOR EACH DASD TO BE
+//*       INITIALIZED .
+//*
+//* MRC: THE MAXIMUM EXPECTED RETURN CODE IS: 0
+//*-------------------------------------------------------------------
+//OFFLINIT EXEC PGM=ICKDSF,COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+ INIT -
+      UNITADDRESS(AD44) -
+      DEVICETYPE(3390) -
+      PURGE    -
+      MAP      -
+      NOVERIFY -
+      NOCHECK -
+      NOVALIDATE -
+      NORECLAIM  -
+      VOLID(ZOS240) -
+      INDEX(15,0,045) -
+      VTOC(0,1,0224)
+ INIT -
+      UNITADDRESS(AE44) -
+      DEVICETYPE(3390) -
+      PURGE    -
+      MAP      -
+      NOVERIFY -
+      NOCHECK -
+      NOVALIDATE -
+      NORECLAIM  -
+      VOLID(ZOS241) -
+      INDEX(15,0,045) -
+      VTOC(0,1,0224)
+ INIT -
+      UNITADDRESS(AF44) -
+      DEVICETYPE(3390) -
+      PURGE    -
+      MAP      -
+      NOVERIFY -
+      NOCHECK -
+      NOVALIDATE -
+      NORECLAIM  -
+      VOLID(ZOS242) -
+      INDEX(15,0,045) -
+      VTOC(0,1,0224)
+ INIT -
+      UNITADDRESS(B044) -
+      DEVICETYPE(3390) -
+      PURGE    -
+      MAP      -
+      NOVERIFY -
+      NOCHECK -
+      NOVALIDATE -
+      NORECLAIM  -
+      VOLID(ZOS243) -
+      INDEX(15,0,045) -
+      VTOC(0,1,0224)
+ INIT -
+      UNITADDRESS(B144) -
+      DEVICETYPE(3390) -
+      PURGE    -
+      MAP      -
+      NOVERIFY -
+      NOCHECK -
+      NOVALIDATE -
+      NORECLAIM  -
+      VOLID(ZOS244) -
+      INDEX(15,0,045) -
+      VTOC(0,1,0224)
+ INIT -
+      UNITADDRESS(B143) -
+      DEVICETYPE(3390) -
+      PURGE    -
+      MAP      -
+      NOVERIFY -
+      NOCHECK -
+      NOVALIDATE -
+      NORECLAIM  -
+      VOLID(ZOS245) -
+      INDEX(15,0,045) -
+      VTOC(0,1,0224)
+ INIT -
+      UNITADDRESS(B145) -
+      DEVICETYPE(3390) -
+      PURGE    -
+      MAP      -
+      NOVERIFY -
+      NOCHECK -
+      NOVALIDATE -
+      NORECLAIM  -
+      VOLID(ZOS246) -
+      INDEX(15,0,045) -
+      VTOC(0,1,0224)
+ INIT -
+      UNITADDRESS(B243) -
+      DEVICETYPE(3390) -
+      PURGE    -
+      MAP      -
+      NOVERIFY -
+      NOCHECK -
+      NOVALIDATE -
+      NORECLAIM  -
+      VOLID(ZOS247) -
+      INDEX(15,0,045) -
+      VTOC(0,1,0224)
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,OFFLINIT),(4000,LT))
+//*

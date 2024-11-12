@@ -1,0 +1,663 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*-------------------------------------------------------------------
+//* DOC: CPPUPDTE EXECUTES THE MVS CUSTOM-BUILT CPAC
+//*      SUPPLIED BATCH UPDATING PROGRAM CPPUPDTE.
+//*      IT UPDATES ALL ELIGIBLE LIBRARIES BY GLOBALLY CHANGING
+//*      SELECTED FIELDS.
+//*      IF THE NEW STRING CONTAINS THE OLD STRING AS IT IS AND THIS
+//*      JOB IS RUN MULTIPLE TIMES, THEN THE OLD STRING WILL BE
+//*      REPLACED IN EVERY RUN. FOR EXAMPLE: IF CPAC.PROCLIB WAS
+//*      CHANGED TO CPAC.PROCLIB.V2R2 THEN IN FIRST RUN ALL LIBRARIES
+//*      WILL BE UPDATED WITH CPAC.PROCLIB.V2R2, IN SECOND RUN
+//*      CPAC.PROCLIB WILL BE AGAIN REPLACED WITH CPAC.PROCLIB.V2R2
+//*      WHICH WILL MAKE THE RESULTING STRING AS CPAC.PROCLIB.V2R2.V2R2
+//*      PROGRAM CPPUPDTE NOW ALLOWS LOWER CASE DATA ALSO AS INPUT.
+//*      SO CPPUPDTE SUPPORTS THE SPECIFICATION OF LOWER CASE DATA
+//*      AND UPPER CASE DATA AS THE STRING TO BE REPLACED.
+//*-------------------------------------------------------------------
+//CPPPROC  PROC
+//CPPUPDTE EXEC PGM=CPPUPDTE,PARM='UPDATE',COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//@CMDP   DD DISP=SHR,
+//            DSN=Z24MST.CPAC.CMDPROC
+//@IVPL   DD DISP=SHR,
+//            DSN=Z24MST.CPAC.IVPLIB
+//@PARM   DD DISP=SHR,
+//            DSN=Z24MST.CPAC.PARMLIB
+//@PROC   DD DISP=SHR,
+//            DSN=Z24MST.CPAC.PROCLIB
+//@PARM1  DD DISP=SHR,
+//            DSN=Z24MST.SYS1.IPLPARM
+//@PARM2  DD DISP=SHR,
+//            DSN=Z24MST.SYS1.PARMLIB
+//@TCPP   DD DISP=SHR,
+//            DSN=Z24SUP.TCPIVP.TCPPARMS
+//SYSIN    DD DUMMY
+//         PEND
+//CPPPROC1 PROC
+//CPPUPDTE EXEC PGM=CPPUPDTE,PARM='UPDATE',COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//@CMDP   DD DISP=SHR,
+//            DSN=Z24MST.CPAC.CMDPROC
+//@IVPL   DD DISP=SHR,
+//            DSN=Z24MST.CPAC.IVPLIB
+//@PARM   DD DISP=SHR,
+//            DSN=Z24MST.CPAC.PARMLIB
+//@PROC   DD DISP=SHR,
+//            DSN=Z24MST.CPAC.PROCLIB
+//SYSIN    DD DUMMY
+//         PEND
+//*
+//CPPPROC2 PROC
+//CPPUPDTE EXEC PGM=CPPUPDTE,PARM='UPDATE',COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//@SAMP DD DISP=SHR,
+//          DSN=Z24MST.CPAC.SAMPLIB
+//SYSIN    DD DUMMY
+//         PEND
+//*
+//*
+//CPP1 EXEC PROC=CPPPROC,PARM.CPPUPDTE='CHECK'
+//SYSIN DD DATA,DLM='%%'
+ULD401<+                                                       .NU..RU.
+ ZOS247<+                                        <==
+  SYS1.HASPCKPT<                                               .NU..RU.
+ULD400<+                                                       .NU..RU.
+ ZOS247<+                                        <==
+  SYS1.HASPCKP2<                                               .NU..RU.
+</********************************************************************
+%%
+//*
+//CPP2 EXEC PROC=CPPPROC,PARM.CPPUPDTE='CHECK'
+//SYSIN DD DATA,DLM='%%'
+</********************************************************************
+</********************************************************************
+</*
+</*
+</********************************************************************
+</*
+</*---------------TARGET SYSTEM MASTER CATALOG------------------------
+CATALOG.MVSICFM.VULD400<+                                  .NU..RU.
+ CATALOG.ZOS24.MASTER<<
+</*
+</********************************************************************
+</*
+</*---------------VOLSER OF TARGET SYSTEM'S IPL VOLUME----------------
+ULD400<+                                                   .NU..RU.
+ZOS240<<
+</*---------------DEVICE TYPE OF TARGET SYSTEM'S IPL VOLUME-----------
+3380<+                                                         .NU..RU.
+3390<+
+RES001<                                                        .NU..RU.
+</*
+</********************************************************************
+</*
+</*---------------COMMON PAGE DS--------------------------------------
+PAGE.VULD400.COMMON<+                                      .NU..RU.
+ PAGE.CPAC.COMMON<<
+</*---------------LOCAL PAGE DS---------------------------------------
+PAGE.VULD400.LOCAL1<+                                      .NU..RU.
+ PAGE.CPAC.LOCAL1<<
+</*---------------PLPA PAGE DS----------------------------------------
+PAGE.VULD400.PLPA<+                                        .NU..RU.
+ PAGE.CPAC.PLPA<<
+</*
+</********************************************************************
+</*
+</*---------------VOLSER OF TARGET SYSTEM'S CATALOG VOLUME------------
+ULD400<+                                                    .NU..RU.
+ZOS240<<
+</*---------------DEVICE TYPE OF TARGET SYSTEM'S CATALOG VOLUME-------
+3390<+                                                    .NU..RU.
+3390<<
+</*
+</********************************************************************
+</*
+</*---------------SYSOUT CLASS----------------------------------------
+SYSOUT=*<+                                                     .NU..RU.
+SYSOUT=*<<
+</*---------------UNIT TYPE FOR TAPES---------------------------------
+UNIT=3400-6<+                                                  .NU..RU.
+UNIT=DVDS<<
+</*---------------TIME ZONE-------------------------------------------
+TIMEZONE W.00.00.00<+                                          .NU..RU.
+TIMEZONE W.03.00.00<<
+</*---------------SPOOL VOLUME----------------------------------------
+ULD40<+                                                      .NU..RU.
+ZOS24<+
+SPOOL<                                                         .NU..RU.
+</*---------------IPCS VOLUME FOR BLSCDDIR CLIST---------------------
+ULD400<+                                                    .NU..RU.
+SUPZ35<+
+SET VOLUME=ULD400<                                          .NU..RU.
+</*
+</********************************************************************
+%%
+//*
+//*
+//CPP3 EXEC PROC=CPPPROC1,PARM.CPPUPDTE='CHECK'
+//SYSIN DD DATA,DLM='%%'
+</********************************************************************
+</*
+</*---------------NAME OF DRIVING SYSTEM'S MASTER CATALOG-------------
+CATALOG.VSYSCAT<+                                              .NU..RU.
+CATALOG.ZOST22.MASTER<<
+</*---------------VOLSER OF DRIVING SYSTEM'S CATALOG VOLUME-----------
+SYSCAT<+                                                       .NU..RU.
+ZOST20<<
+</*---------------DEVICE TYPE OF DRIVING SYSTEM'S CATALOG VOLUME------
+3380<+                                                         .NU..RU.
+ 3390<+
+SYSCAT<                                                        .NU..RU.
+</********************************************************************
+%%
+//*
+//*
+//   IF RC > 4 THEN
+//NOTOK EXEC PGM=CPPMAXRC
+//   ENDIF
+//*
+//*
+//CPPU1 EXEC PROC=CPPPROC,PARM.CPPUPDTE='UPDATE',COND=(4000,LT)
+//SYSIN    DD DATA,DLM='%%'
+ULD401<+                                                       .NU..RU.
+ ZOS247<+                                        <==
+  SYS1.HASPCKPT<                                               .NU..RU.
+ULD400<+                                                       .NU..RU.
+ ZOS247<+                                        <==
+  SYS1.HASPCKP2<                                               .NU..RU.
+</********************************************************************
+%%
+//********************************************************************
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((4,GE,CPPU1.CPPUPDTE),(4000,LT))
+//********************************************************************
+//*
+//CPPU2 EXEC PROC=CPPPROC,PARM.CPPUPDTE='UPDATE',COND=(4000,LT)
+//SYSIN    DD DATA,DLM='%%'
+</********************************************************************
+</********************************************************************
+</*
+</*---------------CHANGE SMF IDENTIFIER      -------------------------
+SID(CPAC)<+                                                    .NU..RU.
+ SID(IPO1)<<
+</*---------------CHANGE SYSPLEX PARAMETER   -------------------------
+SYSPLEX  SYSPLEX1<+                                            .NU..RU.
+ SYSPLEX  LOCAL<<
+</*
+</********************************************************************
+</*
+</*---------------TARGET SYSTEM MASTER CATALOG------------------------
+CATALOG.MVSICFM.VULD400<+                                  .NU..RU.
+ CATALOG.ZOS24.MASTER<<
+</*
+</********************************************************************
+</*
+</*---------------VOLSER OF TARGET SYSTEM'S IPL VOLUME----------------
+ULD400<+                                                   .NU..RU.
+ ZOS240<<
+</*---------------DEVICE TYPE OF TARGET SYSTEM'S IPL VOLUME-----------
+3380<+                                                         .NU..RU.
+ 3390<+
+ RES001<                                                       .NU..RU.
+</*
+</********************************************************************
+</*
+</*---------------COMMON PAGE DS--------------------------------------
+PAGE.VULD400.COMMON<+                                      .NU..RU.
+ PAGE.CPAC.COMMON<<
+</*---------------LOCAL PAGE DS---------------------------------------
+PAGE.VULD400.LOCAL1<+                                      .NU..RU.
+ PAGE.CPAC.LOCAL1<<
+</*---------------PLPA PAGE DS----------------------------------------
+PAGE.VULD400.PLPA<+                                        .NU..RU.
+ PAGE.CPAC.PLPA<<
+</********************************************************************
+</*
+</*---------------COMMON PAGE DS--------------------------------------
+PAGE.&SYSNAME..COMMON<+                                       .NU..RU.
+ PAGE.CPAC.COMMON<<
+</*---------------LOCAL PAGE DS---------------------------------------
+PAGE.&SYSNAME..LOCAL1<+                                       .NU..RU.
+ PAGE.CPAC.LOCAL1<<
+</*---------------PLPA PAGE DS----------------------------------------
+PAGE.&SYSNAME..PLPA<+                                         .NU..RU.
+ PAGE.CPAC.PLPA<<
+</*--------------- LOGREC   DS----------------------------------------
+SYS1.&SYSNAME..LOGREC<+                                       .NU..RU.
+ SYS1.CPAC.LOGREC<<
+</*--------------- SCDS     DS----------------------------------------
+COMMDS(SYS1.DFSMS.COMMDS)<+                                    .NU..RU.
+ COMMDS(SYS1.DFSMS.COMMDS)<<
+</*--------------- SERVERPAC LOGR DS ---------------------------------
+SYS1.LOGR.CDS01<+                                              .NU..RU.
+ SYS1.LOGR.CDS01<<
+</*--------------- SERVERPAC LOGR DS ---------------------------------
+SYS1.LOGR.CDS02<+                                              .NU..RU.
+ SYS1.LOGR.CDS02<<
+</*--------------- SERVERPAC LOGR DS ---------------------------------
+SYS1.LOGR.CDS03<+                                              .NU..RU.
+ SYS1.LOGR.CDS03<<
+</*--------------- SERVERPAC WLM DS  ---------------------------------
+SYS1.WLM.CDS01<+                                               .NU..RU.
+ SYS1.WLM.CDS01<<
+</*--------------- SERVERPAC WLM DS  ---------------------------------
+SYS1.WLM.CDS02<+                                               .NU..RU.
+ SYS1.WLM.CDS02<<
+</*--------------- SERVERPAC WLM DS  ---------------------------------
+SYS1.WLM.CDS03<+                                               .NU..RU.
+ SYS1.WLM.CDS03<<
+</*--------------- SERVERPAC XCF DS  ---------------------------------
+SYS1.XCF.CDS01<+                                               .NU..RU.
+ SYS1.XCF.CDS01<<
+</*--------------- SERVERPAC XCF DS  ---------------------------------
+SYS1.XCF.CDS02<+                                               .NU..RU.
+ SYS1.XCF.CDS02<<
+</*--------------- SERVERPAC XCF DS  ---------------------------------
+SYS1.XCF.CDS03<+                                               .NU..RU.
+ SYS1.XCF.CDS03<<
+</*--------------- ACDS     DS----------------------------------------
+ACDS(SYS1.DFSMS.ACDS)<+                                        .NU..RU.
+ ACDS(SYS1.DFSMS.ACDS)<<
+</*
+</*
+</********************************************************************
+</*
+</*---------------VOLSER OF TARGET SYSTEM'S CATALOG VOLUME------------
+ULD400<+                                                    .NU..RU.
+ ZOS240<<
+</*---------------DEVICE TYPE OF TARGET SYSTEM'S CATALOG VOLUME-------
+3390<+                                                    .NU..RU.
+ 3390<<
+</*
+</********************************************************************
+</*
+</*---------------SYSOUT CLASS----------------------------------------
+SYSOUT=*<+                                                     .NU..RU.
+ SYSOUT=*<<
+</*---------------UNIT TYPE FOR TAPES---------------------------------
+UNIT=3400-6<+                                                  .NU..RU.
+ UNIT=DVDS<<
+</*---------------TIME ZONE-------------------------------------------
+TIMEZONE W.00.00.00<+                                          .NU..RU.
+ TIMEZONE W.03.00.00<<
+</*---------------SPOOL VOLUME----------------------------------------
+ULD40<+                                                      .NU..RU.
+ ZOS24<+
+ SPOOL<                                                        .NU..RU.
+</*---------------IPCS  VOLUME FOR BLSCDDIR CLIST---------------------
+ULD400<+                                                    .NU..RU.
+ SUPZ35<+
+ SET VOLUME=ULD400<                                         .NU..RU.
+</*
+</********************************************************************
+%%
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((4,GE,CPPU2.CPPUPDTE),(4000,LT))
+//*
+//* ER
+//CPPU3 EXEC PROC=CPPPROC1,PARM.CPPUPDTE='UPDATE',COND=(4000,LT)
+//SYSIN    DD DATA,DLM='%%'
+</********************************************************************
+</*
+</*---------------NAME OF DRIVING SYSTEM'S MASTER CATALOG-------------
+CATALOG.VSYSCAT<+                                              .NU..RU.
+ CATALOG.ZOST22.MASTER<<
+</*---------------VOLSER OF DRIVING SYSTEM'S CATALOG VOLUME-----------
+SYSCAT<+                                                       .NU..RU.
+ ZOST20<<
+</*---------------DEVICE TYPE OF DRIVING SYSTEM'S CATALOG VOLUME------
+3380<+                                                         .NU..RU.
+ 3390<+
+ SYSCAT<                                                       .NU..RU.
+</********************************************************************
+%%
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((4,GE,CPPU3.CPPUPDTE),(4000,LT))
+//*
+//CPPSAMP EXEC PROC=CPPPROC2,PARM.CPPUPDTE='UPDATE'
+//SYSIN DD DATA,DLM='%%'
+</*---------------SELECTION OF GLOBAL CSI AGAINST SAMPLIB------
+GLOBAL.CSI<+                                                  .NU..RU.
+ Z24SUP.SMPE.GLOBAL.CSI<<
+TARGETZONE<+
+ MVST111<<
+DLIBZONE<+
+ MVSD111<<
+TARGETZONE<+
+ MVST100<<
+DLIBZONE<+
+ MVSD100<<
+TARGETZONE<+
+ MVST110<<
+DLIBZONE<+
+ MVSD110<<
+</********************************************************************
+%%
+//UPDATE   EXEC PGM=IEBUPDTE,PARM=NEW,COND=(4000,LT)
+//SYSUT2   DD DISP=SHR,
+//            DSN=Z24MST.CPAC.PARMLIB
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+./ ADD NAME=LPALST00
+SYS1.LPALIB,
+SYS1.SORTLPA,
+SYS1.SICELPA,
+MQ.V9R1MX.SCSQSNLE,
+MQ.V9R1MX.SCSQLINK,
+ISP.SISPLPA,
+CEE.SCEELPA,
+TCPIP.SEZALPA,
+SYS1.SERBLPA,
+SYS1.SDWWDLPA,
+SYS1.SBDTLPA,
+NETVIEW.SCNMLPA1
+./ ADD NAME=PROG00
+APF FORMAT(DYNAMIC)
+APF ADD
+    DSNAME(SYS1.LPALIB)                                  VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.LINKLIB)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.MIGLIB)                                  VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.CSSLIB)                                  VOLUME(ZOS240)
+APF ADD
+    DSNAME(CPAC.VTAMLIB)                                 VOLUME(ZOS247)
+APF ADD
+    DSNAME(CPAC.LINKLIB)                                 VOLUME(ZOS247)
+APF ADD
+    DSNAME(SYS1.SIEALNKE)                                VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.SIEAMIGE)                                VOLUME(ZOS240)
+APF ADD
+    DSNAME(TCPIP.SEZALOAD)                               VOLUME(ZOS240)
+APF ADD
+    DSNAME(MQ.V9R1MX.SCSQSNLE)                           VOLUME(ZOS240)
+APF ADD
+    DSNAME(MQ.V9R1MX.SCSQSNLC)                           VOLUME(ZOS240)
+APF ADD
+    DSNAME(MQ.V9R1MX.SCSQMVR1)                           VOLUME(ZOS240)
+APF ADD
+    DSNAME(MQ.V9R1MX.SCSQLINK)                           VOLUME(ZOS240)
+APF ADD
+    DSNAME(MQ.V9R1MX.SCSQAUTH)                           VOLUME(ZOS240)
+APF ADD
+    DSNAME(MQ.V9R1MX.SCSQANLU)                           VOLUME(ZOS240)
+APF ADD
+    DSNAME(MQ.V9R1MX.SCSQANLK)                           VOLUME(ZOS240)
+APF ADD
+    DSNAME(MQ.V9R1MX.SCSQANLF)                           VOLUME(ZOS240)
+APF ADD
+    DSNAME(MQ.V9R1MX.SCSQANLE)                           VOLUME(ZOS240)
+APF ADD
+    DSNAME(MQ.V9R1MX.SCSQANLC)                           VOLUME(ZOS240)
+APF ADD
+    DSNAME(IZD.SIZDLOAD)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(ISP.SISPLOAD)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(FFST.V120ESA.SEPWMOD3)                        VOLUME(ZOS240)
+APF ADD
+    DSNAME(FFST.V120ESA.SEPWMOD2)                        VOLUME(ZOS240)
+APF ADD
+    DSNAME(FFST.V120ESA.SEPWMOD1)                        VOLUME(ZOS240)
+APF ADD
+    DSNAME(CSF.SCSFMOD0)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(CEE.SCEERUN2)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(CEE.SCEERUN)                                  VOLUME(ZOS240)
+APF ADD
+    DSNAME(CBC.SCLBDLL2)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(CBC.SCLBDLL)                                  VOLUME(ZOS240)
+APF ADD
+    DSNAME(CBC.SCCNCMP)                                  VOLUME(ZOS240)
+APF ADD
+    DSNAME(ASM.SASMMOD1)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(TCPIP.SEZATCP)                                VOLUME(ZOS240)
+APF ADD
+    DSNAME(TCPIP.SEZALNK2)                               VOLUME(ZOS240)
+APF ADD
+    DSNAME(TCPIP.SEZADSIL)                               VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.VTAMLIB)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.SISTCLIB)                                VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.SHASMIG)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.SHASLNKE)                                VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.SERBLINK)                                VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.SBDTLINK)                                VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.SBDTLIB)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.SBDTCMD)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.NFSLIBE)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.DGTLLIB)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.DFQLLIB)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(SYS1.CMDLIB)                                  VOLUME(ZOS240)
+APF ADD
+    DSNAME(REXX.SEAGALT)                                 VOLUME(ZOS240)
+APF ADD
+    DSNAME(NETVIEW.SCNMLPA1)                             VOLUME(ZOS240)
+APF ADD
+    DSNAME(NETVIEW.SCNMLNK1)                             VOLUME(ZOS240)
+APF ADD
+    DSNAME(NETVIEW.SCNMLNKN)                             VOLUME(ZOS240)
+APF ADD
+    DSNAME(NETVIEW.SAQNLINK)                             VOLUME(ZOS240)
+APF ADD
+    DSNAME(NETVIEW.CNMLINK)                              VOLUME(ZOS240)
+APF ADD
+    DSNAME(MQ.V9R1MX.SCSQSNLU)                           VOLUME(ZOS240)
+APF ADD
+    DSNAME(MQ.V9R1MX.SCSQSNLK)                           VOLUME(ZOS240)
+APF ADD
+    DSNAME(MQ.V9R1MX.SCSQSNLF)                           VOLUME(ZOS240)
+LNKLST DEFINE NAME(LNKLST00)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.LINKLIB)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.MIGLIB)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.CSSLIB)
+LNKLST ADD NAME(LNKLST00) DSN(CPAC.VTAMLIB)
+LNKLST ADD NAME(LNKLST00) DSN(CPAC.LINKLIB)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.SIEALNKE)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.SIEAMIGE)
+LNKLST ADD NAME(LNKLST00) DSN(TCPIP.SEZALOAD)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.SORTLIB)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.SICELINK)
+LNKLST ADD NAME(LNKLST00) DSN(MQ.V9R1MX.SCSQAUTH)
+LNKLST ADD NAME(LNKLST00) DSN(IXM.SIXMLOD1)
+LNKLST ADD NAME(LNKLST00) DSN(ISP.SISPLOAD)
+LNKLST ADD NAME(LNKLST00) DSN(IGY.SIGYCOMP)
+LNKLST ADD NAME(LNKLST00) DSN(IBMZ.SIBMZCMP)
+LNKLST ADD NAME(LNKLST00) DSN(GIM.SGIMLMD0)
+LNKLST ADD NAME(LNKLST00) DSN(GDDM.SADMMOD)
+LNKLST ADD NAME(LNKLST00) DSN(FFST.V120ESA.SEPWMOD4)
+LNKLST ADD NAME(LNKLST00) DSN(FFST.V120ESA.SEPWMOD2)
+LNKLST ADD NAME(LNKLST00) DSN(CSF.SCSFSTUB)
+LNKLST ADD NAME(LNKLST00) DSN(CSF.SCSFMOD0)
+LNKLST ADD NAME(LNKLST00) DSN(CEE.SCEERUN2)
+LNKLST ADD NAME(LNKLST00) DSN(CEE.SCEERUN)
+LNKLST ADD NAME(LNKLST00) DSN(CBC.SCLBDLL2)
+LNKLST ADD NAME(LNKLST00) DSN(CBC.SCLBDLL)
+LNKLST ADD NAME(LNKLST00) DSN(CBC.SCCNCMP)
+LNKLST ADD NAME(LNKLST00) DSN(ASM.SASMMOD1)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.SHASMIG)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.SHASLNKE)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.SERBLINK)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.SCBDHENU)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.SBDTLINK)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.SBDTLIB)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.SBDTCMD)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.NFSLIBE)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.DGTLLIB)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.DFQLLIB)
+LNKLST ADD NAME(LNKLST00) DSN(SYS1.CMDLIB)
+LNKLST ADD NAME(LNKLST00) DSN(REXX.SEAGALT)
+LNKLST ADD NAME(LNKLST00) DSN(NETVIEW.SCNMLNKN)
+LNKLST ADD NAME(LNKLST00) DSN(NETVIEW.SAQNLINK)
+LNKLST ADD NAME(LNKLST00) DSN(NETVIEW.CNMLINK)
+LNKLST ACTIVATE NAME(LNKLST00)
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,UPDATE),(4000,LT))
+//*
+//*
+//*----------------------------------------------------------------
+//*
+//* REMOVE ANY REFERENCES TO DATA SETS, THAT WERE NOT RESTORED
+//* FROM TAPE, FROM THE IKJACCNT LOGON PROC, AS WELL AS FROM THE
+//* ISPPDF AND ISPFENU ALLOCATION CLISTS.
+//*
+//*----------------------------------------------------------------
+//PRCUPD   EXEC PGM=IKJEFT01,DYNAMNBR=99,COND=(4000,LT)
+//ISPTABL  DD UNIT=SYSALLDA,DISP=(NEW,PASS),SPACE=(TRK,(1,1,1)),
+//            DCB=(RECFM=FB,LRECL=255,BLKSIZE=2550)
+//ISPPROF  DD UNIT=SYSALLDA,DISP=(NEW,PASS),SPACE=(TRK,(1,1,1)),
+//            DCB=(RECFM=FB,LRECL=80,BLKSIZE=0)
+//ISPWRK1  DD UNIT=SYSALLDA,DISP=(NEW,PASS),SPACE=(TRK,(10,1)),
+//            DCB=(LRECL=256,BLKSIZE=2560,RECFM=FB)
+//ISPLOG   DD SYSOUT=*,DCB=(RECFM=VA,LRECL=125,BLKSIZE=129)
+//*
+//SYSEXEC  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPCENU
+//         DD DISP=SHR,DSN=MQ.V8R0M0.SCSQEXEC
+//         DD DISP=SHR,DSN=AOP.SAOPEXEC
+//         DD DISP=SHR,DSN=EUVF.SEUVFEXC
+//         DD DISP=SHR,DSN=SYS1.SEDGEXE1
+//         DD DISP=SHR,DSN=EOY.SEOYCLIB
+//         DD DISP=SHR,DSN=EOX.SEPHCLB1
+//         DD DISP=SHR,DSN=ISP.SISPEXEC
+//         DD DISP=SHR,DSN=IOE.SIOEEXEC
+//         DD DISP=SHR,DSN=SYS1.SBPXEXEC
+//         DD DISP=SHR,DSN=ISF.SISFEXEC
+//         DD DISP=SHR,DSN=GLD.SGLDEXEC
+//         DD DISP=SHR,DSN=FFST.V120ESA.SEPWSRC1
+//SYSPROC  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPCENU
+//         DD DISP=SHR,DSN=CPAC.CMDPROC
+//         DD DISP=SHR,DSN=SYS1.SBLSCLI0
+//         DD DISP=SHR,DSN=ABJ.H09F210.SABJCLST
+//         DD DISP=SHR,DSN=CBC.SCCNUTL
+//         DD DISP=SHR,DSN=SYS1.DGTCLIB
+//         DD DISP=SHR,DSN=CSF.SCSFCLI0
+//         DD DISP=SHR,DSN=EOY.SEOYCLIB
+//         DD DISP=SHR,DSN=EOX.SEPHCLB1
+//         DD DISP=SHR,DSN=SYS1.SERBCLS
+//         DD DISP=SHR,DSN=ISP.SISPCLIB
+//         DD DISP=SHR,DSN=SYS1.HRFCLST
+//         DD DISP=SHR,DSN=SYS1.SBDTCLI0
+//         DD DISP=SHR,DSN=GIM.SGIMCLS0
+//         DD DISP=SHR,DSN=ICQ.ICQCCLIB
+//         DD DISP=SHR,DSN=SYS1.SCBDCLST
+//         DD DISP=SHR,DSN=GDDM.SADMSAM
+//         DD DISP=SHR,DSN=FFST.V120ESA.SEPWCENU
+//ISPMLIB  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPMENU
+//         DD DISP=SHR,DSN=ABJ.H09F210.SABJMLIB
+//         DD DISP=SHR,DSN=MQ.V8R0M0.SCSQMSGE
+//         DD DISP=SHR,DSN=TCPIP.SEZAMENU
+//         DD DISP=SHR,DSN=AOP.SAOPMENU
+//         DD DISP=SHR,DSN=SYS1.DGTMLIB
+//         DD DISP=SHR,DSN=SYS1.DFQMLIB
+//         DD DISP=SHR,DSN=SYS1.SEDGMENU
+//         DD DISP=SHR,DSN=CSF.SCSFMSG0
+//         DD DISP=SHR,DSN=EOY.SEOYBENU
+//         DD DISP=SHR,DSN=EOY.SEOYMENU
+//         DD DISP=SHR,DSN=EOX.SEPHMSG1
+//         DD DISP=SHR,DSN=SYS1.SERBMENU
+//         DD DISP=SHR,DSN=ISP.SISPMENU
+//         DD DISP=SHR,DSN=SYS1.HRFMSG
+//         DD DISP=SHR,DSN=SYS1.SBDTMSG
+//         DD DISP=SHR,DSN=SYS1.SBLSMSG0
+//         DD DISP=SHR,DSN=SYS1.SBPXMENU
+//         DD DISP=SHR,DSN=ISF.SISFMLIB
+//         DD DISP=SHR,DSN=GIM.SGIMMENU
+//         DD DISP=SHR,DSN=ICQ.ICQMLIB
+//         DD DISP=SHR,DSN=SYS1.SCBDMENU
+//         DD DISP=SHR,DSN=GDDM.SADMMSG
+//ISPPLIB  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPPENU
+//         DD DISP=SHR,DSN=CPAC.ISPPLIB
+//         DD DISP=SHR,DSN=ISP.SISPPENU
+//         DD DISP=SHR,DSN=ABJ.H09F210.SABJPLIB
+//         DD DISP=SHR,DSN=MQ.V8R0M0.SCSQPNLE
+//         DD DISP=SHR,DSN=TCPIP.SEZAPENU
+//         DD DISP=SHR,DSN=SYS1.SBLSPNL0
+//         DD DISP=SHR,DSN=AOP.SAOPPENU
+//         DD DISP=SHR,DSN=SYS1.DFQPLIB
+//         DD DISP=SHR,DSN=SYS1.DGTPLIB
+//         DD DISP=SHR,DSN=SYS1.SEDGPENU
+//         DD DISP=SHR,DSN=CSF.SCSFPNL0
+//         DD DISP=SHR,DSN=EOY.SEOYPENU
+//         DD DISP=SHR,DSN=EOX.SEPHPNL1
+//         DD DISP=SHR,DSN=SYS1.SERBPENU
+//         DD DISP=SHR,DSN=SYS1.HRFPANL
+//         DD DISP=SHR,DSN=SYS1.SBDTPNL0
+//         DD DISP=SHR,DSN=SYS1.SHASPNL0
+//         DD DISP=SHR,DSN=SYS1.SBPXPENU
+//         DD DISP=SHR,DSN=ISF.SISFPLIB
+//         DD DISP=SHR,DSN=GIM.SGIMPENU
+//         DD DISP=SHR,DSN=ICQ.ICQPLIB
+//         DD DISP=SHR,DSN=SYS1.SCBDPENU
+//         DD DISP=SHR,DSN=GDDM.SADMPNL
+//         DD DISP=SHR,DSN=FFST.V120ESA.SEPWPENU
+//ISPSLIB  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPSENU
+//         DD DISP=SHR,DSN=ABJ.H09F210.SABJSLIB
+//         DD DISP=SHR,DSN=SYS1.DGTSLIB
+//         DD DISP=SHR,DSN=CSF.SCSFSKL0
+//         DD DISP=SHR,DSN=ISP.SISPSLIB
+//         DD DISP=SHR,DSN=ISP.SISPSENU
+//         DD DISP=SHR,DSN=SYS1.HRFSKEL
+//         DD DISP=SHR,DSN=SYS1.SBLSKEL0
+//         DD DISP=SHR,DSN=ISF.SISFSLIB
+//         DD DISP=SHR,DSN=GIM.SGIMSENU
+//         DD DISP=SHR,DSN=ICQ.ICQSLIB
+//ISPLLIB  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPLOAD
+//         DD DISP=SHR,DSN=ABJ.H09F210.SABJMOD1
+//         DD DISP=SHR,DSN=MQ.V8R0M0.SCSQANLE
+//         DD DISP=SHR,DSN=SYS1.DFQLLIB
+//         DD DISP=SHR,DSN=SYS1.DGTLLIB
+//ISPTLIB  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPTENU
+//         DD DISP=SHR,DSN=E002884.ISPF.ISPPROF
+//         DD DISP=SHR,DSN=ABJ.H09F210.SABJTLIB
+//         DD DISP=SHR,DSN=MQ.V8R0M0.SCSQTBLE
+//         DD DISP=SHR,DSN=SYS1.DGTTLIB
+//         DD DISP=SHR,DSN=CSF.SCSFTLIB
+//         DD DISP=SHR,DSN=EOY.SEOYTENU
+//         DD DISP=SHR,DSN=EOX.SEPHTBL1
+//         DD DISP=SHR,DSN=SYS1.SERBT
+//         DD DISP=SHR,DSN=SYS1.SERBTENU
+//         DD DISP=SHR,DSN=ISP.SISPTENU
+//         DD DISP=SHR,DSN=SYS1.SBLSTBL0
+//         DD DISP=SHR,DSN=SYS1.SBPXTENU
+//         DD DISP=SHR,DSN=ISF.SISFTLIB
+//         DD DISP=SHR,DSN=GIM.SGIMTENU
+//         DD DISP=SHR,DSN=ICQ.ICQTABLS
+//         DD DISP=SHR,DSN=SYS1.SCBDTENU
+//CPPCMDP  DD DISP=SHR,DSN=Z24MST.CPAC.CMDPROC
+//CPPPROC  DD DISP=SHR,DSN=Z24MST.CPAC.PROCLIB
+//SYSTSPRT DD SYSOUT=*
+//SYSTSIN  DD *
+   ISPSTART CMD(CPPECMD 111 )
+/*
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,PRCUPD),(4000,LT))
+//*

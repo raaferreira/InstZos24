@@ -1,0 +1,54 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*
+//********************************************************************
+//* JOB: HPG77C0I  (product-supplied job CFZIVP in library SAMPLIB)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: The installation verification program runs as local
+//*      CIM Client program and retrieves system information
+//*      through the CIM Runtime Environment and OS Management
+//*      Instrumentation.
+//*
+//* NOTES:
+//*
+//*    1. Ensure that the CIM Server is running.
+//*
+//*    2. Dependencies:
+//*       - TCP/IP must be active
+//*       - UNIX System Services (AKA OpenEdition): the userid
+//*         running this Server must have an OMVS segment in RACF
+//*         and a HOME directory in the USS file system
+//*       - CIM Server must be running
+//*
+//* MRC: The maximum expected return code is: 0
+//*
+//********************************************************************
+//*
+//********************************************************************
+//*  STEP 1 - Start cimivp on local host                             *
+//********************************************************************
+//STEP1    EXEC PGM=BPXBATCH,TIME=NOLIMIT,REGION=0M,
+//         PARM='PGM /usr/lpp/wbem/bin/cimivp 127.0.0.1'
+//STDENV   DD   PATH='/etc/wbem/cimserver.env'
+//STDOUT   DD SYSOUT=*
+//STDERR   DD SYSOUT=*
+//CEEDUMP  DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*
+//SYSMDUMP DD SYSOUT=*

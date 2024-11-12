@@ -1,0 +1,49 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*-------------------------------------------------------------------
+//*
+//*  - The ICKDSF INSTALL command should have previously been run
+//*    against the volume if it is a 3380, 3390.
+//*  - Ensure volume has been varied offline.
+//*  - Specify a device number (dddd) on the UNIT parameter to specify
+//*    the volume to be initialized.
+//*  - If you change the volume serial specified for VOLID, you must
+//*    also update the SMS configuration to add the specified volume
+//*    to the LOGGER Storage Group.
+//*  - When you submit this job, message ICK003D will be issued on
+//*    the operator console.  To allow the job to complete, it must
+//*    be replied to with "U".
+//*
+//*  - Remove the comments in the following ICKDSF control statements
+//*    before submitting the job.
+//*
+//* MRC: The maximum expected return code is: 0
+//*-------------------------------------------------------------------
+//INITSMS  EXEC PGM=ICKDSF,COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+ INIT -
+      UNIT(AC2B) -
+      VOLID(LOGZ24) -
+      NOVALIDATE -
+      NOVERIFY -
+      PURGE    -
+      STORAGEGROUP -
+      VTOC(0,3,76)
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,INITSMS),(4000,LT))
+//*

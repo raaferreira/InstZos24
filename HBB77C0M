@@ -1,0 +1,422 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=E002884,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*-------------------------------------------------------------------
+//*
+//* JOB: HBB77C0M (no product-supplied job)
+//*
+//* GDE: ServerPac INSTALLING OF YOUR ORDER
+//*
+//* DOC: RUN THE SCRIPT FILE AIRSHREP.sh REQUIRED FOR PFA FUNCTION.
+//*
+//*  ------------------------- IMPORTANT  ---------------------------
+//*  *                                                              *
+//*  * THIS JOB MUST BE SELECTED WITH THE "S" COMMAND FROM THE      *
+//*  * PREVIOUS PANEL TO BE CORRECTLY TAILORED. IF YOU SELECTED     *
+//*  * IT USING THE "B" COMMAND, RE-SELECT IT WITH THE "S" COMMAND  *
+//*  * BEFORE PROCEEDING.                                           *
+//*  *                                                              *
+//*  ------------------------- IMPORTANT  ---------------------------
+//*
+//*
+//* NOTE THAT:
+//*
+//* A) THE REPRESENTATION /--pfastorage--/ USED IN THE COMMENTS
+//* DENOTES THE PFA STORAGE LOCATION:
+//* /var/pfa
+//*
+//* BEFORE EXECUTING THIS JOB, ENSURE THAT PFA STORAGE LOCATION
+//* DIRECTORY MUST BE PRESENT ON THE SYSTEM.
+//* IF THIS DIRECTORY IS NOT PRESENT THEN YOU MAY NEED TO CREATE
+//* IT MANUALLY.
+//* THE PFA STORAGE LOCATION DIRECTORY IN THIS CASE IS:
+//* /var/pfa
+//*
+//* B) THE REPRESENTATION /--javapath--/ USED IN THE COMMENTS
+//* DENOTES THE JAVAPATH:
+//* /usr/lpp/java/J8.0/
+//*
+//* IMPORTANT NOTE:
+//*
+//* Verify the location of the java runtime libraries.
+//* Change the JAVAPATH to an existing path in CPPEUPDF EXEC.
+//* For SDK Java V8 JAVAPATH might be /usr/lpp/java/J8.0/ .
+//*
+//* C) AIRSHREP.sh CAN BE INVOKED IN TWO MODES- 'new' and 'migrate'
+//* BEFORE EXECUTING THE JOB UNCOMMENT THE DESIRED MODE
+//* USE EITHER 'new' OR 'migrate'. This script is no longer mandatory
+//* migration action.
+//*
+//* USE THE 'new' PARAMETER IF YOU WANT TO DELETE DATA FROM PRIOR
+//* RELEASE.
+//*
+//* --------------------------------------------------------------------
+//* //PARM='SH cd /var/pfa;/usr/lpp/bcp/AIRSHREP.sh new'
+//* --------------------------------------------------------------------
+//*
+//* NO ACTION WILL BE TAKEN IF YOU USE THE 'Migrate' PARAMETER,ONLY A
+//* MESSAGE WILL BE DISPLAYED.
+//* 'All migration will occur when PFA starts and this option is no
+//*  longer required'.
+//*
+//* --------------------------------------------------------------------
+//* //PARM='SH cd /var/pfa;/usr/lpp/bcp/AIRSHREP.sh migrate'
+//* --------------------------------------------------------------------
+//*
+//* STEPS:
+//*
+//* RUNSH EXECUTES THE SCRIPT AIRSHREP.sh
+//* THE SCRIPT AIRSHREP.sh CREATES THE FOLLOWING DIRECTORIES
+//* IN THE PATH /var/pfa
+//* /--pfastorage--/PFA_COMMON_STORAGE_USAGE
+//* /--pfastorage--/PFA_LOGREC_ARRIVAL_RATE
+//* /--pfastorage--/PFA_MESSAGE_ARRIVAL_RATE
+//* /--pfastorage--/PFA_SMF_ARRIVAL_RATE
+//* /--pfastorage--/PFA_ENQUEUE_REQUEST_RATE
+//* /--pfastorage--/PFA_JES_SPOOL_USAGE
+//*
+//* THE CPPEUPDF EXEC WILL REPLACE THE JAVAPATH IN THE ini FILE TO MATCH
+//* THE ONE EXISTING IN YOUR SYSTEM. THE ORIGINAL JAVAPATH MENTIONED IN
+//* THE ini FILE WILL BE COMMENTED BY THE CPPEUPDF EXEC
+//* AND THE JAVAPATH /usr/lpp/java/J8.0/
+//* MENTIONED IN CPPEUPDF EXEC WILL BE SET.
+//*
+//* THE FOLLOWING IS A SAMPLE SNAPSHOT OF WHAT CPPEUPDF WOULD DO:
+//*
+//* PATH=     /--javapath--/bin/classic:/--javapath--/bin
+//* /*PATH=     /usr/lpp/java/J1.4/bin/classic:/usr/lpp/java/J1.4/bin */
+//* LIBPATH=
+//*           /--javapath--/bin:/--javapath--/bin/classic:/lib:/usr/lib:
+//* /* LIBPATH=
+//*          /usr/lpp/java/J1.4/bin:/usr/lpp/java/J1.4/bin/classic:/lib:
+//*          /usr/lib: */
+//*
+//*---------------------------------------------------------------------
+//* THE FOLLOWING STEP WILL DO THE CUSTOMIZATION, IF /etc/PFA EXISTS
+//* CHKETC STEP RETURNS 0 IN THIS CASE
+//*
+//* UPDETC CUSTOMIZES THE JAVAPATH IN THE FOLLOWING FILE
+//* /etc/PFA/ini WITH THE PATH /--javapath--/
+//*---------------------------------------------------------------------
+//*
+//*---------------------------------------------------------------------
+//* IF /etc/PFA DOES NOT EXIST THEN IT SHOULD BE CREATED MANUALLY.
+//* CHKETC STEP RETURNS 4 IN THIS CASE.
+//*
+//*---------------------------------------------------------------------
+//*
+//* MRC: A RETURN CODE OF 4 IS EXPECTED FROM THIS JOB.
+//*
+//*---------------------------------------------------------------------
+//*
+//RUNSH EXEC PGM=BPXBATCH,TIME=NOLIMIT,REGION=0M,COND=(4000,LT),
+//**********************************************************************
+//* Invoke file AIRSHREP in 'migrate' or 'new' mode ********************
+//**********************************************************************
+//*PARM='SH cd /var/pfa;/usr/lpp/bcp/AIRSHREP.sh migrate'
+// PARM='SH cd /var/pfa;/usr/lpp/bcp/AIRSHREP.sh new'
+//**********************************************************************
+//* Invoke file AIRSHREP in 'migrate' or 'new' mode ********************
+//**********************************************************************
+//*
+//STDOUT DD PATH='/var/pfa/AIRSHREP.out',
+//          PATHOPTS=(OWRONLY,OCREAT),PATHMODE=SIRWXU
+//STDERR DD PATH='/var/pfa/AIRSHREP.error',
+//          PATHOPTS=(OWRONLY,OCREAT),PATHMODE=SIRWXU
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,RUNSH),(4000,LT))
+//
+//CHOWN1 EXEC PGM=BPXBATCH,COND=(4000,LT)
+//STDPARM DD *
+sh
+chown -R PFAUSER:STCGRP  /var/pfa
+/*
+//STDOUT DD PATH='/var/pfa/out1',
+//          PATHOPTS=(OWRONLY,OCREAT),PATHMODE=SIRWXU
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,CHOWN1),(4000,LT))
+//*
+//COPYCHK EXEC PGM=IEBGENER,COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSUT1 DD DATA,DLM=XX
+if test -d "/etc/PFA"
+then
+  echo ' >>> /etc/PFA exists '
+  exit 0
+fi
+if test ! -d "/etc/PFA"
+then
+  echo ' >>> /etc/PFA does not exist '
+  exit 4
+fi
+XX
+//SYSUT2   DD DSN=E002884.DIRCHECK.TEMP,
+//            UNIT=SYSALLDA,DISP=(NEW,CATLG),
+//            DCB=(LRECL=80,BLKSIZE=27920,RECFM=FB),
+//            SPACE=(CYL,(1,1))
+//SYSIN DD DUMMY
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,COPYCHK),(4000,LT))
+//*
+//PUTCHK  EXEC PGM=IKJEFT1B,COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSTSPRT DD SYSOUT=*
+//SYSTSIN  DD   *
+OPUT -
+'E002884.DIRCHECK.TEMP'-
+   '/var/pfa/CHTEMP.sh'
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,PUTCHK),(4000,LT))
+//*
+//DIRDEL EXEC PGM=IDCAMS,COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSOUT   DD SYSOUT=*
+//SYSIN    DD *
+  DELETE E002884.DIRCHECK.TEMP
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,DIRDEL),(4000,LT))
+//*
+//CHMOD   EXEC PGM=BPXBATCH,COND=(4000,LT)
+//STDPARM  DD *
+sh
+chmod 775 /var/pfa/CHTEMP.sh
+/*
+//STDOUT DD PATH='/var/pfa/out2',
+//          PATHOPTS=(OWRONLY,OCREAT),PATHMODE=SIRWXU
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,CHMOD),(4000,LT))
+//*
+//CHOWN EXEC PGM=BPXBATCH,COND=(4000,LT)
+//STDPARM DD *
+sh
+chown PFAUSER:OMVSGRP /var/pfa/CHTEMP.sh
+/*
+//STDOUT DD PATH='/var/pfa/out3',
+//          PATHOPTS=(OWRONLY,OCREAT),PATHMODE=SIRWXU
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,CHOWN),(4000,LT))
+//*
+//CHKETC EXEC PGM=BPXBATCH,TIME=NOLIMIT,REGION=0M,COND=(4000,LT),
+// PARM='SH /var/pfa/CHTEMP.sh'
+/*
+//STDOUT DD PATH='/var/pfa/CHTEMP.out',
+//          PATHOPTS=(OWRONLY,OCREAT),PATHMODE=SIRWXU
+//STDERR DD PATH='/var/pfa/CHTEMP.error',
+//          PATHOPTS=(OWRONLY,OCREAT),PATHMODE=SIRWXU
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((4,GE,CHKETC),(4000,LT))
+//*
+//*************************IF CHKETC STEP RETURNS 0 ********************
+//*      INI FILE IN /etc/PFA IS CUSTOMISED TO THE LEVEL OF JAVA
+//********* IF CHKETC STEP RETURNS 0 ***********************************
+//*
+//      IF (CHKETC.RC = 0) THEN
+//*
+//CHOWN2 EXEC PGM=BPXBATCH,COND=(4000,LT)
+//STDPARM DD *
+sh
+chown -R PFAUSER:STCGRP  /etc/PFA
+/*
+//STDOUT DD PATH='/var/pfa/out4',
+//          PATHOPTS=(OWRONLY,OCREAT),PATHMODE=SIRWXU
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,CHOWN2),(4000,LT))
+//*
+//CHCKINI EXEC PGM=BPXBATCH,COND=(4000,LT)
+//STDPARM DD *
+sh
+if test -f /etc/PFA/ini ;
+then
+else
+    cp /usr/lpp/bcp/samples/PFA/ini /etc/PFA/ini;
+    exit 0 ;
+fi
+/*
+//STDOUT DD SYSOUT=*
+//STDERR DD SYSOUT=*
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,CHCKINI),(4000,LT))
+//*
+//CHMODI  EXEC PGM=BPXBATCH,COND=(4000,LT)
+//STDPARM  DD *
+sh
+chmod 775 /etc/PFA/ini
+/*
+//*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,CHMODI),(4000,LT))
+//*
+//GETINI  EXEC PGM=IKJEFT01,COND=(4000,LT)
+//SYSPRINT DD   SYSOUT=*
+//SYSTSPRT DD   SYSOUT=*
+//SYSTSIN  DD   *
+OGET -
+'/etc/PFA/ini'-
+   'E002884.PFA.TEMP'
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,GETINI),(4000,LT))
+//*
+//UPDETC   EXEC PGM=IKJEFT1B,DYNAMNBR=99,COND=(4000,LT)
+//SYSEXEC  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPCENU
+//         DD DISP=SHR,DSN=MQ.V9R1MX.SCSQEXEC
+//         DD DISP=SHR,DSN=FFST.V120ESA.SEPWSRC1
+//         DD DISP=SHR,DSN=EUVF.SEUVFEXC
+//         DD DISP=SHR,DSN=ISF.SISFEXEC
+//         DD DISP=SHR,DSN=TCPIP.SEZAEXEC
+//         DD DISP=SHR,DSN=ISP.SISPEXEC
+//         DD DISP=SHR,DSN=SYS1.SBPXEXEC
+//         DD DISP=SHR,DSN=IOE.SIOEEXEC
+//         DD DISP=SHR,DSN=AOP.SAOPEXEC
+//         DD DISP=SHR,DSN=GLD.SGLDEXEC
+//         DD DISP=SHR,DSN=SYS1.SEDGEXE1
+//SYSPROC  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPCENU
+//         DD DISP=SHR,DSN=CPAC.CMDPROC
+//         DD DISP=SHR,DSN=SYS1.SBLSCLI0
+//         DD DISP=SHR,DSN=GIM.SGIMCLS0
+//         DD DISP=SHR,DSN=CBC.SCCNUTL
+//         DD DISP=SHR,DSN=ICQ.ICQCCLIB
+//         DD DISP=SHR,DSN=SYS1.SCBDCLST
+//         DD DISP=SHR,DSN=CSF.SCSFCLI0
+//         DD DISP=SHR,DSN=SYS1.SERBCLS
+//         DD DISP=SHR,DSN=FFST.V120ESA.SEPWCENU
+//         DD DISP=SHR,DSN=SYS1.HRFCLST
+//         DD DISP=SHR,DSN=ISP.SISPCLIB
+//         DD DISP=SHR,DSN=GDDM.SADMSAM
+//         DD DISP=SHR,DSN=SYS1.SBDTCLI0
+//         DD DISP=SHR,DSN=SYS1.DGTCLIB
+//ISPMLIB  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPMENU
+//         DD DISP=SHR,DSN=MQ.V9R1MX.SCSQMSGE
+//         DD DISP=SHR,DSN=GIM.SGIMMENU
+//         DD DISP=SHR,DSN=ICQ.ICQMLIB
+//         DD DISP=SHR,DSN=SYS1.SCBDMENU
+//         DD DISP=SHR,DSN=CSF.SCSFMSG0
+//         DD DISP=SHR,DSN=SYS1.SERBMENU
+//         DD DISP=SHR,DSN=ISF.SISFMLIB
+//         DD DISP=SHR,DSN=TCPIP.SEZAMENU
+//         DD DISP=SHR,DSN=SYS1.HRFMSG
+//         DD DISP=SHR,DSN=ISP.SISPMENU
+//         DD DISP=SHR,DSN=GDDM.SADMMSG
+//         DD DISP=SHR,DSN=SYS1.SBDTMSG
+//         DD DISP=SHR,DSN=SYS1.SBLSMSG0
+//         DD DISP=SHR,DSN=SYS1.SBPXMENU
+//         DD DISP=SHR,DSN=AOP.SAOPMENU
+//         DD DISP=SHR,DSN=SYS1.DGTMLIB
+//         DD DISP=SHR,DSN=SYS1.DFQMLIB
+//         DD DISP=SHR,DSN=SYS1.SEDGMENU
+//ISPPLIB  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPPENU
+//         DD DISP=SHR,DSN=CPAC.ISPPLIB
+//         DD DISP=SHR,DSN=ISP.SISPPENU
+//         DD DISP=SHR,DSN=SYS1.SHASPNL0
+//         DD DISP=SHR,DSN=MQ.V9R1MX.SCSQPNLE
+//         DD DISP=SHR,DSN=GIM.SGIMPENU
+//         DD DISP=SHR,DSN=ICQ.ICQPLIB
+//         DD DISP=SHR,DSN=SYS1.SCBDPENU
+//         DD DISP=SHR,DSN=CSF.SCSFPNL0
+//         DD DISP=SHR,DSN=SYS1.SERBPENU
+//         DD DISP=SHR,DSN=FFST.V120ESA.SEPWPENU
+//         DD DISP=SHR,DSN=ISF.SISFPLIB
+//         DD DISP=SHR,DSN=TCPIP.SEZAPENU
+//         DD DISP=SHR,DSN=SYS1.HRFPANL
+//         DD DISP=SHR,DSN=GDDM.SADMPNL
+//         DD DISP=SHR,DSN=SYS1.SBDTPNL0
+//         DD DISP=SHR,DSN=SYS1.SBLSPNL0
+//         DD DISP=SHR,DSN=SYS1.SBPXPENU
+//         DD DISP=SHR,DSN=AOP.SAOPPENU
+//         DD DISP=SHR,DSN=SYS1.DFQPLIB
+//         DD DISP=SHR,DSN=SYS1.DGTPLIB
+//         DD DISP=SHR,DSN=SYS1.SEDGPENU
+//ISPSLIB  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPSENU
+//         DD DISP=SHR,DSN=GIM.SGIMSENU
+//         DD DISP=SHR,DSN=ICQ.ICQSLIB
+//         DD DISP=SHR,DSN=CSF.SCSFSKL0
+//         DD DISP=SHR,DSN=ISF.SISFSLIB
+//         DD DISP=SHR,DSN=SYS1.HRFSKEL
+//         DD DISP=SHR,DSN=ISP.SISPSLIB
+//         DD DISP=SHR,DSN=ISP.SISPSENU
+//         DD DISP=SHR,DSN=SYS1.SBLSKEL0
+//         DD DISP=SHR,DSN=SYS1.DGTSLIB
+//ISPLLIB  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPLOAD
+//         DD DISP=SHR,DSN=MQ.V9R1MX.SCSQANLE
+//         DD DISP=SHR,DSN=SYS1.DFQLLIB
+//         DD DISP=SHR,DSN=SYS1.DGTLLIB
+//ISPTLIB  DD DISP=SHR,DSN=ZOS24.OS241147.ORDER.SCPPTENU
+//         DD DISP=SHR,DSN=E002884.ISPF.ISPPROF
+//         DD DISP=SHR,DSN=MQ.V9R1MX.SCSQTBLE
+//         DD DISP=SHR,DSN=GIM.SGIMTENU
+//         DD DISP=SHR,DSN=ICQ.ICQTABLS
+//         DD DISP=SHR,DSN=SYS1.SCBDTENU
+//         DD DISP=SHR,DSN=CSF.SCSFTLIB
+//         DD DISP=SHR,DSN=SYS1.SERBT
+//         DD DISP=SHR,DSN=SYS1.SERBTENU
+//         DD DISP=SHR,DSN=ISF.SISFTLIB
+//         DD DISP=SHR,DSN=ISP.SISPTENU
+//         DD DISP=SHR,DSN=SYS1.SBLSTBL0
+//         DD DISP=SHR,DSN=SYS1.SBPXTENU
+//         DD DISP=SHR,DSN=SYS1.DGTTLIB
+//ISPPROF  DD DSN=,UNIT=VIO,DISP=(,DELETE),
+//            DCB=(RECFM=FB,LRECL=80,BLKSIZE=23200,DSORG=PO),
+//            SPACE=(CYL,(1,1,1))
+//ISPLOG   DD SYSOUT=*,DCB=(RECFM=VA,LRECL=125,BLKSIZE=129)
+//ISPTABL  DD DSN=ZOS24.OS241147.ORDER.SCPPTENU,
+//            DISP=SHR
+//SCPPTENU DD DSN=ZOS24.OS241147.ORDER.SCPPTENU,
+//            DISP=SHR
+//SYSPRINT DD SYSOUT=*
+//SYSTSPRT DD SYSOUT=*
+//SYSOUT   DD SYSOUT=*
+//SYSTSIN  DD *
+  PROFILE PREFIX(E002884)
+  ISPSTART CMD(%CPPEUPDF CUSTOMIZE PFA +
+              /usr/lpp/java/J8.0/)
+/*
+//INPFILE  DD  DISP=SHR,DSN=E002884.PFA.TEMP
+//OUTFILE  DD  DISP=SHR,DSN=E002884.PFA.TEMP
+//SYSIN    DD  DUMMY
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,UPDETC),(4000,LT))
+//*
+//PUTINI  EXEC PGM=IKJEFT1B,COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSTSPRT DD SYSOUT=*
+//SYSTSIN  DD   *
+OPUT  'E002884.PFA.TEMP' -
+'/etc/PFA/ini'
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,PUTINI),(4000,LT))
+//*
+//INITMP EXEC PGM=IDCAMS,COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSOUT   DD SYSOUT=*
+//SYSIN    DD *
+  DELETE E002884.PFA.TEMP
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,INITMP),(4000,LT))
+//*
+//    ENDIF
+//*
+//**********************IF CHKETC STEP RETURNS 4 ***********************
+//*
+// IF (CHKETC.RC = 4) THEN
+//*
+//**********************************************************************
+//* IF /etc/PFA DOES NOT EXIST THEN IT SHOULD BE CREATED MANUALLY AND
+//* THEN RUN THIS JOB.
+//**********************************************************************
+//*
+//    ENDIF
+//*
+//RMVCHK  EXEC PGM=BPXBATCH,REGION=0M,COND=(4000,LT)
+//STDERR   DD PATH='/var/pfa/AIRSHREP.error',
+//          PATHOPTS=(OWRONLY,OCREAT),PATHMODE=SIRWXU
+//STDPARM  DD *
+SH rm /var/pfa/CHTEMP.sh;
+rm /var/pfa/CHTEMP.error;
+rm /var/pfa/CHTEMP.out
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,RMVCHK),(4000,LT))
+//*

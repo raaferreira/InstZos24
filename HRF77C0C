@@ -1,0 +1,107 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*-------------------------------------------------------------------
+//*
+//* JOB: HRF77C0C (product-supplied job COPYRDS in
+//*                SYS1.SAMPLIB(RACJCL))
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job does the following:
+//*   1) Verifies existing RACF primary and back-up databases
+//*      using the INDEX/MAP ALL for utility IRRUT200.
+//*
+//*   2) Copies existing RACF primary and back-up databases
+//*      into new databases using the COPY/SPLIT/MERGE
+//*      for utility IRRUT400.
+//*
+//* NOTE:
+//*      This job is optional, to be used by RACF
+//*      installations who want to copy their existing
+//*      databases.  If you run this job HRF77C0C (RACFCOPY),
+//*      you should also run the following jobs
+//*      HRF77C0E (RACPTMPL) and HRF77C0F (RACBTMPL) to
+//*      upgrade your templates.
+//*
+//* WARNING:
+//*      This job LOCKINPUTs your active RACF database for a
+//*      short period of time.  Any activity updating your
+//*      RACF database will fail with either an ABEND483
+//*      RC50 or ABEND485 RC50.
+//*
+//*-------------------------------------------------------------------
+//DIAGNP1      EXEC PGM=IRRUT200
+//SYSPRINT  DD SYSOUT=*
+//SYSRACF   DD DSN=SYS1.RACF,
+//             DISP=OLD,
+//             UNIT=3390,
+//             VOL=SER=ZOST24
+//SYSUT1    DD UNIT=VIO,
+//             SPACE=(CYL,(100))
+//SYSUT2    DD SYSOUT=*
+//SYSIN     DD *
+    INDEX
+    MAP ALL
+    END
+//*
+//COPYP2       EXEC PGM=IRRUT400,PARM='LOCKINPUT,FREESPACE(20)'
+//SYSPRINT  DD SYSOUT=*
+//INDD1     DD DSN=SYS1.RACF,
+//             DISP=OLD,
+//             UNIT=3390,
+//             VOL=SER=ZOST24
+//OUTDD1    DD DSN=Z24MST.SYS1.RACF,
+//             DISP=OLD
+//*
+//UNLKP3       EXEC PGM=IRRUT400,PARM='UNLOCKINPUT'
+//SYSPRINT  DD SYSOUT=*
+//INDD1     DD DSN=SYS1.RACF,
+//             DISP=OLD,
+//             UNIT=3390,
+//             VOL=SER=ZOST24
+/*
+//*
+//DIAGNB4      EXEC PGM=IRRUT200
+//SYSPRINT  DD SYSOUT=*
+//SYSRACF   DD DSN=SYS1.RACFSEC,
+//             DISP=OLD,
+//             UNIT=3390,
+//             VOL=SER=ZOST26
+//SYSUT1    DD UNIT=VIO,
+//             SPACE=(CYL,(100))
+//SYSUT2    DD SYSOUT=*
+//SYSIN     DD *
+    INDEX
+    MAP ALL
+    END
+//*
+//COPYB5       EXEC PGM=IRRUT400,PARM='LOCKINPUT,FREESPACE(20)'
+//SYSPRINT  DD SYSOUT=*
+//INDD1     DD DSN=SYS1.RACFSEC,
+//             DISP=OLD,
+//             UNIT=3390,
+//             VOL=SER=ZOST26
+//OUTDD1    DD DSN=Z24MST.SYS1.RACFSEC,
+//             DISP=OLD
+//*
+//UNLKB6       EXEC PGM=IRRUT400,PARM='UNLOCKINPUT'
+//SYSPRINT  DD SYSOUT=*
+//INDD1     DD DSN=SYS1.RACFSEC,
+//             DISP=OLD,
+//             UNIT=3390,
+//             VOL=SER=ZOST26
+/*

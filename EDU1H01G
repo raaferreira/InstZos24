@@ -1,0 +1,47 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*
+//******************************************************************
+//* JOB: EDU1H01G  (product-supplied job ICKVER in library SAMPLIB)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job verifies that Device Support Facilities (ICKDSF)
+//*      has been installed correctly by running the ANALYZE command
+//*      against the indicated device.
+//*
+//* MRC: The maximum expected return code is 0.
+//*
+//* NOTES:
+//*      Before submitting this job, change the following:
+//*
+//*      1. Change "ccuu" to the hexadecimal address of the device
+//*         to be inspected.  Device must be offline.
+//*
+//******************************************************************
+//DSFIVP    EXEC  PGM=ICKDSF,REGION=4M
+//**************************************************************
+//*     Device Support Facility Verification
+//**************************************************************
+//SYSPRINT  DD SYSOUT=*
+//SYSIN     DD *
+  ANALYZE    -
+  UNIT(9524) -
+  NODRIVE    -
+  SCAN       -
+  CYLR(1,2)
+/*

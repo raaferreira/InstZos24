@@ -1,0 +1,212 @@
+MT SIZE(64K)                           /* MASTER TRACE TBL SIZE      */ 00010001
+ /*                                                                  */ 00020001
+ /********************************************************************/ 00030001
+ /*                PROGRAM PROPERTIES TABLE ADDITIONS                */ 00040001
+ /********************************************************************/ 00050001
+ /* LIB: SYS1.PARMLIB(SCHED00)                                       */ 00060001
+ /* GDE: CBIPO MVS CUSTOMIZATION                                     */ 00070001
+ /* DOC: THIS MEMBER CONTAINS THE MVS CUSTOM-BUILT IPO               */ 00080001
+ /*      SUPPLIED SCHEDULER PARAMETER MEMBER, DEFINING               */ 00090001
+ /*      MASTER TRACE SIZE AND THE PPT ENTRIES                       */ 00100001
+ /*                                                                  */ 00110001
+ /*                                                                  */ 00120001
+ /*                                                                  */ 00130001
+ /*                  DIFFERENT JES2                                  */ 00140001
+ /*                                                                  */ 00150001
+PPT PGMNAME(EPWINIT)                   /* PROGRAM NAME               */ 00160001
+    NOCANCEL                           /* CAN NOT BE CANCELLED       */ 00170001
+    KEY(0)                             /* PROTECTION KEY             */ 00180001
+    NOSWAP                             /* NON-SWAPPABLE              */ 00190001
+/*     */                                                               00200001
+PPT PGMNAME(HASJES2A)                  /* PROGRAM NAME               */ 00210001
+    NOCANCEL                           /* CAN NOT BE CANCELLED       */ 00220001
+    KEY(1)                             /* PROTECTION KEY             */ 00230001
+    NOSWAP                             /* NON-SWAPPABLE              */ 00240001
+    PRIV                               /* PRIVILEDGED                */ 00250001
+    NODSI                              /* NO DATA SET INTEGRITY      */ 00260001
+    PASS                               /* NO PASSWORD BYPASS         */ 00270001
+    SYST                               /* SYSTEM TASK , NOT TIMED    */ 00280001
+    AFF(NONE)                          /* NO PROCESSOR AFFINITY      */ 00290001
+ /*                   CRYPTOGRAPHIC UNIT SUPPORT                     */ 00370001
+PPT PGMNAME(ICUMKG10)                  /* PROGRAM NAME               */ 00380001
+    CANCEL                             /* CAN BE CANCELLED           */ 00390001
+    KEY(1)                             /* PROTECTION KEY             */ 00400001
+    AFF(NONE)                          /* NO PROCESSOR AFFINITY      */ 00410001
+ /*                   CRYPTOGRAPHIC UNIT SUPPORT                     */ 00420001
+PPT PGMNAME(ICUMKM11)                  /* PROGRAM NAME               */ 00430001
+    CANCEL                             /* CAN BE CANCELLED           */ 00440001
+    KEY(1)                             /* PROTECTION KEY             */ 00450001
+    PRIV                               /* PRIVILEDGED                */ 00460001
+    SYST                               /* SYSTEM TASK , NOT TIMED    */ 00470001
+    AFF(NONE)                          /* NO PROCESSOR AFFINITY      */ 00480001
+ /*                   NETWORK PERFORMANCE MONITOR                    */ 00490001
+PPT PGMNAME(ERBMFMFC)                  /* PROGRAM NAME               */ 00500001
+    CANCEL                             /* CAN BE CANCELLED           */ 00510001
+    NOSWAP                             /* NON-SWAPPABLE              */ 00520001
+    NODSI                              /* NO DATA SET INTEGRITY      */ 00530001
+    PASS                               /* NO PASSWORD BYPASS         */ 00540001
+    SYST                               /* SYSTEM TASK , NOT TIMED    */ 00550001
+    AFF(NONE)                          /* NO PROCESSOR AFFINITY      */ 00560001
+ /*                   RMF                                            */ 00570001
+PPT PGMNAME(ERB3GMFC)                  /* PROGRAM NAME               */ 00580001
+    CANCEL                             /* CAN BE CANCELLED           */ 00590001
+    NOSWAP                             /* NON-SWAPPABLE              */ 00600001
+    NODSI                              /* NO DATA SET INTEGRITY      */ 00610001
+    PASS                               /* NO PASSWORD BYPASS         */ 00620001
+    SYST                               /* SYSTEM TASK , NOT TIMED    */ 00630001
+    AFF(NONE)                          /* NO PROCESSOR AFFINITY      */ 00640001
+ /*                   RACF ADDRESS SPACE                             */ 00650001
+ /*                VER COMENTARIOS NO INICIO                         */ 00660001
+ /*                                                                  */ 00670001
+PPT PGMNAME(SMFDUMP)                   /* PROGRAM NAME               */ 00680001
+    CANCEL                             /* CAN BE CANCELLED           */ 00690001
+    PASS                               /* PASSWORD BYPASS            */ 00700001
+    AFF(NONE)                          /* NO PROCESSOR AFFINITY      */ 00710001
+ /*                  DIFFERENT JES2                                  */ 00720001
+PPT PGMNAME(HASJESE1)                  /* PROGRAM NAME               */ 00730001
+    NOCANCEL                           /* CAN NOT BE CANCELLED       */ 00740001
+    KEY(1)                             /* PROTECTION KEY             */ 00750001
+    NOSWAP                             /* NON-SWAPPABLE              */ 00760001
+    PRIV                               /* PRIVILEDGED                */ 00770001
+    NODSI                              /* NO DATA SET INTEGRITY      */ 00780001
+    PASS                               /* NO PASSWORD BYPASS         */ 00790001
+    SYST                               /* SYSTEM TASK , NOT TIMED    */ 00800001
+    AFF(NONE)                          /* NO PROCESSOR AFFINITY      */ 00810001
+ /*                   CICS                                           */ 00820001
+PPT PGMNAME(FNMMAIN)                   /* PROGRAM NAME               */ 00830001
+    NOSWAP                             /* NON-SWAPPABLE              */ 00840001
+    KEY(6)                             /* PROTECTION KEY             */ 00850001
+    PRIV                               /* PRIVILEDGED                */ 00860001
+    LPREF                              /* PREFERED STORAGE REQD      */ 00870001
+PPT PGMNAME(EMSMAIN)                  /* PROGRAM NAME               */  00930001
+    CANCEL                             /* CAN BE CANCELLED           */ 00940001
+    NOSWAP                             /* NON-SWAPPABLE              */ 00950001
+ /*                   VIMP0001                                       */ 00960001
+PPT PGMNAME(VIMP0001)                 /* PROGRAM NAME               */  00970001
+    CANCEL                             /* CAN BE CANCELLED           */ 00980001
+    NOSWAP                             /* NON-SWAPPABLE              */ 00990001
+ /*                   NETVIEW TM                                     */ 01000001
+PPT PGMNAME(BNJLINTX)                 /* PROGRAM NAME               */  01010001
+    CANCEL                             /* CAN BE CANCELLED           */ 01020001
+    NOSWAP                             /* NON-SWAPPABLE              */ 01030001
+    KEY(8)                             /*                            */ 01040001
+ /*                   NETVIEW TM                                     */ 01050001
+PPT PGMNAME(CBFDISP)                 /* PROGRAM NAME               */   01060001
+    CANCEL                             /* CAN BE CANCELLED           */ 01070001
+    NOSWAP                             /* NON-SWAPPABLE              */ 01080001
+    KEY(8)                             /*                            */ 01090001
+ /*                   NETVIEW TM                                     */ 01100001
+PPT PGMNAME(DSIMNT)                 /* PROGRAM NAME               */    01110001
+    CANCEL                             /* CAN BE CANCELLED           */ 01120001
+    NOSWAP                             /* NON-SWAPPABLE              */ 01130001
+    KEY(8)                             /*                            */ 01140001
+ /*                   NETVIEW TM                                     */ 01150001
+PPT PGMNAME(EKGTC000)                 /* PROGRAM NAME               */  01160001
+    NOCANCEL                           /* CAN BE CANCELLED           */ 01170001
+    NOSWAP                             /* NON-SWAPPABLE              */ 01180001
+ /*                   NETVIEW TM                                     */ 01190001
+PPT PGMNAME(DUIFT000)                 /* PROGRAM NAME               */  01200001
+    CANCEL                             /* CAN BE CANCELLED           */ 01210001
+    NOSWAP                             /* NON-SWAPPABLE              */ 01220001
+    KEY(8)                             /*                            */ 01230001
+ /*                   DB2                                            */ 01240001
+PPT PGMNAME(DSNYASCP)                  /* PROGRAM NAME               */ 01250001
+    CANCEL                             /* CAN BE CANCELLED           */ 01260001
+    KEY(7)                             /* PROTECTION KEY             */ 01270001
+    NOSWAP                             /* NON-SWAPPABLE              */ 01280001
+    NOPRIV                             /* NO PRIVILEDGED             */ 01290001
+    DSI                                /*                            */ 01300001
+    PASS                               /*                            */ 01310001
+    SYST                               /*                            */ 01320001
+    AFF(NONE)                          /*                            */ 01330001
+PPT PGMNAME(DSNUTILB)                  /* PROGRAM NAME               */ 01340001
+    CANCEL                             /* CAN BE CANCELLED           */ 01350001
+    KEY(7)                             /* PROTECTION KEY             */ 01360001
+    SWAP                               /* SWAPPABLE                  */ 01370001
+    NOPRIV                             /* NO PRIVILEDGED             */ 01380001
+    DSI                                /*                            */ 01390001
+    PASS                               /*                            */ 01400001
+    NOSYST                             /*                            */ 01410001
+    AFF(NONE)                          /*                            */ 01420001
+PPT PGMNAME(DXRRLM00)                  /* PROGRAM NAME               */ 01430001
+    CANCEL                             /* CAN BE CANCELLED           */ 01440001
+    KEY(7)                             /* PROTECTION KEY             */ 01450001
+    NOSWAP                             /* NON-SWAPPABLE              */ 01460001
+    NOPRIV                             /* NO PRIVILEDGED             */ 01470001
+    DSI                                /*                            */ 01480001
+    PASS                               /*                            */ 01490001
+    SYST                               /*                            */ 01500001
+    AFF(NONE)                          /*                            */ 01510001
+PPT PGMNAME(APSPPIEP)                  /* PSF PROGRAM                */ 01520001
+    CANCEL                             /* CAN BE CANCELLED           */ 01530001
+    KEY(1)                             /* PROTECTION KEY             */ 01540001
+    NOSWAP                             /* NON-SWAPPABLE              */ 01550001
+    NOPRIV                             /* NO PRIVILEDGED             */ 01560001
+    NODSI                              /*                            */ 01570001
+    PASS                               /*                            */ 01580001
+    SYST                               /*                            */ 01590001
+    AFF(NONE)                          /*                            */ 01600001
+    NOPREF                             /*                            */ 01610001
+PPT PGMNAME(BFLSERVR)                  /* SLM PROGRAM                */ 01620001
+    NOSWAP                             /* NON-SWAPPABLE              */ 01630001
+ /*           PROGRAMA ESPIAO DE PERFORMANCE                         */ 01640001
+PPT PGMNAME(Z00083P)                   /* PROGRAM NAME               */ 01650001
+    NOCANCEL                           /* CAN BE CANCELLED           */ 01660001
+    NOSWAP                             /* PASSWORD BYPASS            */ 01670001
+    AFF(NONE)                          /* NO PROCESSOR AFFINITY      */ 01680001
+ /*           CA-ALLOCATE                                            */ 01690001
+PPT PGMNAME(VDSST451)                  /* PROGRAM NAME               */ 01700001
+    NOCANCEL                           /* CAN BE CANCELLED           */ 01710001
+    NOSWAP                             /* PASSWORD BYPASS            */ 01720001
+    AFF(NONE)                          /* NO PROCESSOR AFFINITY      */ 01730001
+ /*           PROGRAMA PRINCIPAL DE MICROFILMAGEM                    */ 01740001
+PPT PGMNAME(P04437P)                   /* PROGRAM NAME               */ 01750001
+    CANCEL                             /* CAN BE CANCELLED           */ 01760001
+    NOPASS                             /* PASSWORD BYPASS            */ 01770001
+    AFF(NONE)                          /* NO PROCESSOR AFFINITY      */ 01780001
+ /*           PROGRAMA PRINCIPAL DE EMISSAO DE RELATORIOS            */ 01790001
+PPT PGMNAME(P04831P)                   /* PROGRAM NAME               */ 01800001
+    CANCEL                             /* CAN BE CANCELLED           */ 01810001
+    NOSWAP                             /* PASSWORD BYPASS            */ 01820001
+    AFF(NONE)                          /* NO PROCESSOR AFFINITY      */ 01830001
+ /*  INFO/MANAGEMENT LOAD LIBRARY BLX SERVICE PROVIDER               */ 01840001
+ /*           INFO/CEN   6.2.2                                       */ 01850001
+PPT PGMNAME(BLXSSP00)                  /* BLX SERVICE PROVIDER       */ 01860001
+    NOSWAP                             /* PROGRAM IS NO SWAPPABLE    */ 01870001
+    KEY(8)                             /* PROGRAM IS A KEY(8) TASK   */ 01880001
+PPT PGMNAME(EZBTCPIP)                  /* PROGRAM NAME               */ 01890001
+    NOCANCEL                           /* CANN'T BE CANCELLED        */ 01900001
+    KEY(6)                             /* PROTECTION KEY             */ 01910001
+    NOSWAP                             /* NOSWAPPABLE                */ 01920001
+    PRIV                               /*    PRIVILEDGED             */ 01930001
+    SYST                               /*                            */ 01940001
+    LPREF                                                               01950001
+    SPREF                                                               01960001
+PPT PGMNAME(CBRIIAS)                   /* PROGRAM NAME               */ 01970001
+    KEY(5)                             /* USE DFP PROTECT KEY        */ 01980001
+    SWAP                               /*   SWAPPABLE                */ 01990001
+    SYST                     /* PGM IS SYSTEM TASK -WILL BE NOT TIMED*/ 02000001
+PPT PGMNAME(CBROAM)                    /* PROGRAM NAME               */ 02010001
+    KEY(5)                             /* PROTECTION KEY             */ 02020001
+    NOSWAP                             /* NOSWAPPABLE                */ 02030001
+    SYST                     /* PGM IS SYSTEM TASK -WILL BE NOT TIMED*/ 02040001
+PPT PGMNAME(EZAPPAAA)                  /* PROGRAM NAME               */ 02050001
+    NOSWAP                             /* NOSWAPPABLE                */ 02060001
+PPT PGMNAME(FTPD)                      /* PROGRAM NAME               */ 02050001
+    NOSWAP                             /* NOSWAPPABLE                */ 02060001
+PPT PGMNAME(FTP)                       /* PROGRAM NAME               */ 02050001
+    NOSWAP                             /* NOSWAPPABLE                */ 02060001
+PPT PGMNAME(CSQYASCP)                  /* PROGRAM NAME               */ 02070001
+    CANCEL                             /* CANN'T BE CANCELLED        */ 02080001
+    KEY(7)                             /* PROTECTION KEY             */ 02090001
+    SWAP                               /* NOSWAPPABLE                */ 02100001
+    NOPRIV                             /*    PRIVILEDGED             */ 02110001
+    SYST                               /*                            */ 02120001
+    DSI                                                                 02130001
+    NOPREF                                                              02140001
+    PASS                                                                02150001
+    AFF(NONE)                                                           02160001
+PPT PGMNAME(CSQXJST)                   /* PROGRAM NAME               */ 02170001
+    CANCEL                             /* CANN'T BE CANCELLED        */ 02180001
+    KEY(8)                             /* PROTECTION KEY             */ 02190001
+    NOSWAP                             /* NOSWAPPABLE                */ 02200001

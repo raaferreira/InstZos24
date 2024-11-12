@@ -1,0 +1,37 @@
+//RACFAIMC JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=E002884,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*-------------------------------------------------------------------
+//*
+//* JOB: RACFAIMC
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job does the following:
+//*   1) Checks the AIM stage of active RACF databases.
+//*
+//* NOTE:
+//*      This job is optional, to be used by RACF
+//*      installations who want to check the AIM stage of their
+//*      RACF databases before converting them to AIM stage 3.
+//*
+//*      The RACF database must be at AIM stage 3 in order to use
+//*      the AUTOUID and AUTOGID feature of Security Server.
+//*
+//*
+//*-------------------------------------------------------------------
+//CHECKAIM     EXEC PGM=IRRIRA00
+//SYSPRINT  DD SYSOUT=*

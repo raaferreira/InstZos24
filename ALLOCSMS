@@ -1,0 +1,33 @@
+//SSALSMS  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=E002884,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//ALCVSAM  EXEC PGM=IDCAMS,COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+    DEFINE   CLUSTER(                -                                   A---TRK
+        NAME(SMS.COMMDS.ZOS24)       -                                  .T     8
+        LINEAR                       -
+        REUSE                        -
+        VOLUMES(ZOS247)              -
+        CYL(1,1)                     -
+        SHAREOPTIONS(3,3)  )
+    DEFINE   CLUSTER(                -
+        NAME(SMS.ACDS1.ZOS24)        -
+        LINEAR                       -
+        REUSE                        -
+        VOLUMES(ZOS244)              -
+        CYL(15,5)                    -
+        SHAREOPTIONS(3,3)  )
+  DEFINE   CLUSTER(                  -
+      NAME(SMS.SCDS1.ZOS24)          -
+      LINEAR                         -
+      REUSE                          -
+      VOLUMES(ZOS242)                -
+      CYL(20,5)                      -
+      SHAREOPTIONS(2,3)  )
+//

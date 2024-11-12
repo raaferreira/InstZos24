@@ -1,0 +1,63 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//  SET LIBPRFX=CEE
+//*********************************************************************
+//* JOB: HADB630P  (product-supplied job IGYWIVP2 in library SIGYSAMP)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job compiles a COBOL program to list all compiler
+//*      error messages.
+//*
+//* NOTES:
+//*
+//*   1. Before running this job do the following:
+//*
+//*      a. If required, change the following high-level qualifiers
+//*         (HLQs):
+//*         - IGY (HLQ for the Enterprise COBOL target libraries)
+//*         - CEE (HLQ for the Language Environment target libraries)
+//*
+//*      b. To produce compiler messages in Japanese,
+//*         add 'LANGUAGE(JA)' to PARM.COBOL.
+//*         Also add the following to the compile step:
+//*         //CEEOPTS DD * NATLANG(JPN)
+//*
+//*   2. This job should complete with a return code of 0 and
+//*      put a list of compiler messages to the SYSPRINT data set.
+//*
+//*******************************************************************
+//*******************************************************************
+//*
+//* CAUTION:
+//*
+//*   Ensure that the PTFs for the following APARs have been applied
+//*   on your target system:
+//*
+//*   - PH10606, PH10740 and PH15585 (z/OS V2R2 Language Environment)
+//*   - PH07107, PH09543 and PH15589 (z/OS V2R3 Language Environment)
+//*
+//*******************************************************************
+//*******************************************************************
+//    JCLLIB ORDER=IGY.SIGYPROC
+//ERRMSG  EXEC IGYWC,
+//  LNGPRFX='IGY',
+//  LIBPRFX=&LIBPRFX,
+//  PARM.COBOL='NOTERM,NOLIST,NOVBREF,OPT(0),NOTEST,NOXREF'
+//COBOL.SYSIN DD DSN=IGY.SIGYSAMP(IGYIVP2),
+//      DISP=SHR
+//

@@ -1,0 +1,39 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*--------------------------------------------------------------------
+//* GDE: ServerPac z/OS INSTALLATION
+//* DOC: CREATE MEMBER 'LOAD00' IN IPLPARM OR PARMLIB.
+//*
+//* MRC: THE MAXIMUM EXPECTED RETURN CODE IS: 0
+//*--------------------------------------------------------------------
+//LOAD00   EXEC PGM=IEBGENER,COND=(4000,LT)
+//SYSPRINT DD SYSOUT=*
+//SYSUT1   DD DATA,DLM=##
+IODF     00 SYS1
+NUCLEUS  1
+SYSCAT   ZOS240113CCATALOG.ZOS24.MASTER
+SYSPLEX  LOCAL
+PARMLIB  SYS1.PARMLIB                                 ZOS247
+PARMLIB  CPAC.PARMLIB                                 ZOS247
+PARMLIB  SYS1.IBM.PARMLIB                             ZOS240
+##
+//SYSUT2   DD DISP=SHR,
+//   DSN=Z24MST.SYS1.IPLPARM(LOAD00)
+//SYSIN    DD DUMMY
+/*
+//NOTOK   EXEC PGM=CPPMAXRC,COND=((0,GE,LOAD00),(4000,LT))
+//*

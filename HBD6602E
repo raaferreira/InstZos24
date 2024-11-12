@@ -1,0 +1,49 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//********************************************************************
+//* JOB: HBD6602E (product-supplied job BDTTQBCH
+//*                 in SBDTSAMP(BDT$TQFM))
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job formats the TQI and message data set(s)
+//*
+//* NOTES:
+//*      1. The SYSNAME must correspond to the SYSNAME in the
+//*         PARMLIB member IEASYSxx.
+//*      2. If some of these data sets are already formatted,
+//*         delete corresponding DD statement from this JOB.
+//********************************************************************
+//TQIBATCH  EXEC PGM=BDTTQBCH
+//STEPLIB   DD  DSN=SYS1.SBDTLINK,
+//             DISP=SHR
+//BITMAPS   DD  DISP=SHR,DSN=BDT1.TQIBITS
+//DATAFILE  DD  DISP=SHR,DSN=BDT1.TQIDATA
+//SYSUDUMP  DD SYSOUT=*
+//SYSPRINT  DD SYSOUT=*
+//SYSIN     DD  *
+BUILD,SYSID=SYSA1
+//*
+//TQIMSG    EXEC PGM=BDTTQBCH
+//STEPLIB   DD  DSN=SYS1.SBDTLINK,
+//             DISP=SHR
+//MESSAGE   DD  DISP=SHR,DSN=BDT1.MSG0001
+//SYSUDUMP  DD SYSOUT=*
+//SYSPRINT  DD SYSOUT=*
+//SYSIN     DD  *
+FORMAT,SYSID=SYSA1,SYSNAME=IPO1
+//*

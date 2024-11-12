@@ -1,0 +1,251 @@
+//LOADRIMS JOB ...............
+//*******************************************************************/
+//* 5751-CS9                                                        */
+//* COPYRIGHT IBM CORP.  1988, 2019                                 */
+//*******************************************************************/
+//*
+//**********************************************
+//* DO NOT TURN CAPS ON. THIS JOB CONTAINS CASE
+//*         SENSITIVE CONTROL CARDS.
+//**********************************************
+//*
+//* Read all comments carefully and modify them to suit your
+//* environment before submitting the job.
+//*
+//* NOTE 1: CHANGE CustomPac.Qualifier to your environment's MASTER HLQ
+//*                volser              to a valid DASD volser
+//*
+//* NOTE 2: If you want your SCPPCENU CLIST data set to have RECFM=VB,
+//*         locate the statement that looks like:
+//*              archid="SCPPCENU" and change it to:
+//*              archid="SCPPCENV"
+//*
+//*         (Do not forget to specify the proper RECFM when you
+//*          generate the RECEIVE job later.)
+//*
+//* NOTE 3: Allocate and mount a UNIX file system to contain the
+//*         destination directory and its files.
+//*         On the SET statement below, specify the path for the
+//*         directory in which the CustomPac dialog and order
+//*         information will be stored.  Specify a directory
+//*         that has at least 100 cylinders (80 MB) of free space
+//*
+//* NOTE 4: Change host_userid to a userid which is authorized to
+//*         use Secure FTP. Ensure the appropriate Global Root CA
+//*         certificates are connected to the keyring with trust status.
+//*         Also review the KEYRING statement in the FTP.DATA input and
+//*         change the ShareableKeyRing as per RACF setup on your
+//*         system. For more information on the specific RACF tasks
+//*         that need to be completed on your system to support Secure
+//*         FTP, visit the Shopz home page at:
+//*         http://www.ibm.com/software/shopzseries
+//*         and click the "Connectivity Test" link in the "Connectivity
+//*         Test for SW download readiness" box.
+//*
+//* NOTE 5: If you want to use an existing FTP.DATA file or data set,
+//*         comment the CRTFTPD1 and DELFTPD1 steps.
+//*         In the DOWNLOAD step, update the <FTPOPTIONS> tag
+//*         value used for the SMPCLNT DD input with the
+//*         directory path and file name or data set name for the
+//*         existing FTP.DATA file.
+//*         <FTPOPTIONS> -f /tmp/host_userid.ftp.data
+</FTPOPTIONS>
+//*                                or
+//*         <FTPOPTIONS> -f "//'tsouid.FTP.DATA'" </FTPOPTIONS>
+//*
+//* NOTE 6: The <FTPOPTIONS> tag contains only -f parameter. You can
+//*         add any additional parameters as required by your
+//*         system settings.
+//*
+//* NOTE 7: Update the SMPJHOME DD Statement to point to location
+//*         of the Java runtime libraries.
+//*
+//*         Replace xxxx in the SMPJHOME DD Statement to the level of
+//*         Java running on your system.
+//*
+//*         SMP/E will use Java(TM)for the SHA-1 package integrity
+//*         check if ICSF is not available.
+//*
+//SETPATH  SET PATH='/service/very/big/omvs/filesystem/for/download/'
+//*
+//*
+//* Create a temporary FTP.DATA file to be used for FTP by GIMGTPKG.
+//CRTFTPD1  EXEC PGM=IKJEFT1B
+//SYSTSPRT  DD SYSOUT=*
+//DATAIN    DD *
+  ; These FTP.DATA statements provide the FTP client with information
+  ; to communicate with the IBM download server securely using TLS.
+  SECURE_MECHANISM  TLS
+  TLSRFCLEVEL       CCCNONOTIFY
+  TLSMECHANISM      FTP
+  SECURE_FTP        REQUIRED
+  SECURE_CTRLCONN   CLEAR    ; Commands may be clear (unencrypted).
+  SECURE_DATACONN   PRIVATE  ; Payload must be encrypted.
+  KEYRING           *AUTH*/*
+  EPSV4             TRUE
+/*
+//FTPDATA  DD PATH='/tmp/host_userid.ftp.data',
+//            PATHOPTS=(OWRONLY,OCREAT,OTRUNC),PATHMODE=SIRWXU
+//SYSTSIN  DD *
+  OCOPY INDD(DATAIN) OUTDD(FTPDATA)
+/*
+//*
+//DOWNLOAD EXEC PGM=GIMGTPKG
+//*
+//*   *******************************************************
+//*   *   Download the order data
+//*   *******************************************************
+//*
+//SMPOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+//*
+//SMPNTS   DD PATHDISP=KEEP,
+// PATH='&PATH.'
+//SMPJHOME DD PATH='/usr/lpp/java/xxxx/'
+//*
+//SMPSRVR  DD *
+<!--                                                                -->
+<!--  The server information provided below reflects the FTP        -->
+<!--  server name, source directory, userid and pw to access        -->
+<!--  the package from the IBM download server.                     -->
+<!--  However if you are using a workstation configured as an       -->
+<!--  FTP server, you must update the applicable information for    -->
+<!--  that workstation.                                             -->
+<!--                                                                -->
+<!--  All users must retain the specified 'hash' and 'id' values.   -->
+<SERVER
+  host="deliverycb-bld.dhe.ibm.com"
+  user="P581612o"
+  pw="p4631263132b10c">
+  <PACKAGE
+      file="2020051150175/PROD/order/GIMPAF.XML"
+      hash="2FA1563F8F3FFE4DF13EFB7F0A973645233A933C"
+      id="OS241147.order">
+  </PACKAGE>
+</SERVER>
+/*
+//SMPCLNT  DD *
+<CLIENT  retry="3">
+    <FTPOPTIONS>-f /tmp/host_userid.ftp.data </FTPOPTIONS>
+<!--                                                               -->
+<!--  Specify needed firewall information and commands below.      -->
+<!--                                                               -->
+<!--  Notes: 1. All tags below are commented out.  Remove the      -->
+<!--            XML comment start and end tags to specify          -->
+<!--            firewall information.                              -->
+<!--         2. The tags here are defined by SMP/E.  For           -->
+<!--            information about them, see SMP/E Commands.        -->
+<!--                                                               -->
+<!--    <FIREWALL>                                                 -->
+<!--      <SERVER                                                  -->
+<!--        host="host name|host ip address"                       -->
+<!--           user="userid"                                       -->
+<!--           pw="password"                                       -->
+<!--           port="port number"                                  -->
+<!--           account="account information">                      -->
+<!--      </SERVER>                                                -->
+<!--      <FIRECMD>                                                -->
+<!--        firewall specific command                              -->
+<!--      </FIRECMD>                                               -->
+<!--    </FIREWALL>                                                -->
+<!--                                                               -->
+</CLIENT>
+/*
+//*
+//GIMUNZIP EXEC PGM=GIMUNZIP,COND=(0,LT)
+//*
+//*   *******************************************************
+//*   *   Load the master dialog data sets
+//*   *******************************************************
+//*
+//*
+//SMPDIR     DD PATHDISP=KEEP,
+// PATH='&PATH.OS241147.order'
+//*
+//SMPOUT     DD SYSOUT=*
+//SYSPRINT   DD SYSOUT=*
+//SYSUT3     DD UNIT=SYSALLDA,SPACE=(CYL,(50,10))
+//SYSUT4     DD UNIT=SYSALLDA,SPACE=(CYL,(25,5))
+//SYSIN      DD *
+<!--                                                                -->
+<!--  The volume must be specified below on the volume attributes   -->
+<!--  of the ARCHDEF statements. The volume you specify will be     -->
+<!--  used to allocate the dialog data sets.                        -->
+<!--  Please refer to NOTE 2 for allocation of the SCPPCENU CLIST   -->
+<!--  data set.                                                     -->
+<!--                                                                -->
+<GIMUNZIP>
+   <ARCHDEF
+      archid="DOCLIB"
+      newname="CustomPac.Qualifier.DOCLIB"
+      volume="volser"/>
+   <ARCHDEF
+      archid="SCPPCENU"
+      newname="CustomPac.Qualifier.SCPPCENU"
+      volume="volser"/>
+   <ARCHDEF
+      archid="SCPPEENU"
+      newname="CustomPac.Qualifier.SCPPEENU"
+      replace="yes"
+      volume="volser"/>
+   <ARCHDEF
+      archid="SCPPHENU"
+      newname="CustomPac.Qualifier.SCPPHENU"
+      replace="yes"
+      volume="volser"/>
+   <ARCHDEF
+      archid="SCPPLENU"
+      newname="CustomPac.Qualifier.SCPPLENU"
+      volume="volser"/>
+   <ARCHDEF
+      archid="SCPPLOAD"
+      newname="CustomPac.Qualifier.SCPPLOAD"
+      volume="volser"/>
+   <ARCHDEF
+      archid="SCPPMENU"
+      newname="CustomPac.Qualifier.SCPPMENU"
+      volume="volser"/>
+   <ARCHDEF
+      archid="SCPPPENU"
+      newname="CustomPac.Qualifier.SCPPPENU"
+      volume="volser"/>
+   <ARCHDEF
+      archid="SCPPTENU"
+      newname="CustomPac.Qualifier.SCPPTENU"
+      volume="volser"/>
+</GIMUNZIP>
+/*
+//*
+//INVUPDT1 EXEC PGM=IDCAMS,COND=(0,LT)
+//*
+//*   ****************************************************************
+//*   *   Add or replace Version record with the key"V" to SCPPVENU
+//*   ****************************************************************
+//*
+//SYSPRINT DD  SYSOUT=*
+//*
+//IVENU    DD   DSN=CustomPac.Qualifier.SCPPSENU(VERSION),DISP=SHR
+//SYSIN    DD  *
+  DEFINE CLUSTER(                          -
+                   NAME(CustomPac.Qualifier.SCPPVENU) -
+                   CYL(5  1)                  -
+                   FREESPACE(30 30)           -
+                   KEYS(30 0)                 -
+                   RECORDSIZE(1024 32760)     -
+                   UNIQUE                     -
+                   SHAREOPTIONS(2 3)          -
+                   VOLUME(volser)             -
+                 )                            -
+            DATA ( NAME(CustomPac.Qualifier.SCPPVENU.DATA)) -
+            INDEX( NAME(CustomPac.Qualifier.SCPPVENU.INDEX))
+
+     REPRO INFILE(IVENU) OUTDATASET(CustomPac.Qualifier.SCPPVENU)
+
+/*
+//* Delete the temporary FTP.DATA file created earlier.
+//DELFTPD1  EXEC PGM=IKJEFT01,COND=(0,LT)
+//SYSTSPRT  DD SYSOUT=*
+//SYSTSIN   DD *
+  BPXBATCH SH rm /tmp/host_userid.ftp.data
+/*
+//*

@@ -1,0 +1,468 @@
+//DFPX1IVP JOB 60798,E002884,CLASS=W,NOTIFY=ROSCAAO,MSGCLASS=Q
+//*****************************************************************     00100000
+//*                                                                     00150000
+//*PROPRIETARY STATEMENT                                                00200000
+//*LICENSED MATERIALS - PROPERTY OF IBM                                 00210000
+//*5650-ZOS                                                             00220000
+//*COPYRIGHT IBM CORP. 1982, 1997                                       00230000
+//*END PROPRIETARY STATEMENT                                            00450000
+//*                                                                     00500000
+//*****************************************************************     00550000
+//*       DFSMSDFP IVP FOR ICF CATALOG AND AMS FUNCTIONS                00600000
+//*         NON-SMS MANAGED VERSION  UPDATED: 03/13/97                  00650000
+//*****************************************************************     00750000
+//*  NOTE: THIS JOB CAN BE RUN ON A SYSTEM THAT HAS EITHER ACTIVE       01450000
+//*  OR INACTIVE STORAGE MANAGEMENT SUBSYSTEM (SMS). ALL VOLUMES,       01500000
+//*  CATALOGS, AND OTHER VSAM DATA SETS CREATED AND USED IN THIS JOB    01550000
+//*  ARE NON-SMS MANAGED.                                               01600000
+//*                                                                     01650000
+//*  YOU MAY NEED TO MAKE CHANGES TO THIS JCL TO EXECUTE ON YOUR SYSTEM 01700000
+//*                                                                     01750000
+//*  THE FOLLOWING STRINGS REPRESENT CHANGES                            01800000
+//*  YOU MAY WANT TO MAKE:                                              01850000
+//*                                                                     01900000
+//*    ZOST70    -    A NON-SMS MANAGED VOLUME (PREFERABLY EMPTY)       01950000
+//*    ZOST71    -    A DIFFERENT NON-SMS MANAGED VOLUME                02000000
+//*    CATALOG.ZOS24.MASTER  -    THE NAME OF THE MASTER CATALOG
+//*******************************************************************   02250000
+//* JOBSTEPS                                                            02300000
+//* --------                                                            02350000
+//*   STEP01  DELETE THE VSAM CLUSTERS AND ICF CATALOGS FOR CLEANUP.    02400000
+//*   STEP02  DEFINE THE FIRST ICF USERCATALOG.                 *3 CYL* 02450000
+//*   STEP03  DEFINE A KSDS CLUSTER IN THE FIRST USERCATALOG.           02500000
+//*   STEP04  PLACE DATA IN THE CLUSTER USING REPRO.                    02550000
+//*   STEP05  DEFINE THE SECOND ICF USERCATALOG.                *3 CYL* 02600000
+//*   STEP06  DEFINE AN ESDS CLUSTER IN THE SECOND USERCATALOG.         02650000
+//*   STEP07  MERGE THE 2ND ICF CATALOG INTO THE 1ST ICF CATALOG        02700000
+//*             USING REPRO MERGECAT.                                   02750000
+//*   STEP08  LIST THE FIRST ICF CATALOG AND VERIFY THE MERGED          02800000
+//*             VSAM CLUSTER ENTRIES.                                   02850000
+//*   STEP09  EXPORT THE ICF CATALOG INTO A TEMPORARY DATA SET.         02900000
+//*   STEP10  IMPORT THE EXPORTED ICF CATALOG.                          02950000
+//*   STEP11  DIAGNOSE TO ASSURE A SUCCESSFUL IMPORT.                   03000000
+//*   STEP12  DELETE THE VSAM CLUSTERS AND ICF CATALOGS FOR CLEANUP.    03050000
+//*******************************************************************   03150000
+//*  SETUP:                                                             03300000
+//*        THE USER MUST FIRST MOUNT TWO NON-SMS SCRATCH VOLUMES.       03320000
+//*        A SCRATCH VOLUME IS DEFINED AS A VOLUME THAT DOES NOT        03340000
+//*        HAVE ANY DATA SETS THAT WILL REQUIRE FURTHER USE.            03360000
+//*                                                                     03380000
+//*        IN THE FOLLOWING JOBSTREAM, ADJUST VALUES FOR                03400000
+//*        THESE DEVICES AS INDICATED BY COMMENT FLAGS.                 03450000
+//*******************************************************************   03616600
+//* CHANGE ACTIVITY =                                                   03633200
+//*                                                                     03650000
+//* $01=OW30493,HDZ11D0,971118,SJPLGFL,OW30493: Remove STEPCAT  @01A*   03675000
+//* $02=OW30566,HDZ11D0,971225,SJPLAAB,OW30666: Add Define Alias    *   03725000
+//*     and Delete Alias to resolve REPRO failure.              @02A*   03775000
+//*******************************************************************   03825000
+//*                                                                     04150000
+//STEP01    EXEC PGM=IDCAMS                                             04200000
+//*                                                                     04250000
+//*   CLEAN-UP BEFORE STARTING.                                         04300000
+//*                                                                     04550000
+//SYSPRINT DD  SYSOUT=A                                                 04600000
+//VOL1     DD  UNIT=SYSDA,VOL=SER=ZOST70,DISP=OLD   /*NONSMS VOL1*/     04650000
+//VOL2     DD  UNIT=SYSDA,VOL=SER=ZOST71,DISP=OLD   /*NONSMS VOL2*/     04700000
+//SYSIN    DD  *                                                        04750000
+   /***************************************************/                04800000
+   /* STEP01  DELETE THE VSAM DATA SETS, ALIAS, VVRS  */                04850000
+   /*         AND USERCATALOGS WHICH MAY HAVE BEEN    */                04900000
+   /*         PREVIOUSLY DEFINED.                     */                04950000
+   /*         EXPECT A NON-ZERO RETURN CODE IF THEY   */                05000000
+   /*         DON'T EXIST.                            */                05050000
+   /***************************************************/                05100000
+   /*****************************************/                          05300000
+   /*   DELETE CLUSTERS & VVRS.             */                          05350000
+   /*****************************************/                          05400000
+       DELETE  (DFPX1IVP.KSDS) CLUSTER PURGE                            05419500
+                                                                        05439000
+       DELETE          -                                                05458500
+         DFPX1IVP.KSDS.DATA -                                           05478000
+         FILE (VOL2)         -                                          05497500
+         VVR -                                                          05517000
+         CATALOG (DFX1CAT1)                                             05536500
+                                                                        05556000
+       DELETE          -                                                05575500
+         DFPX1IVP.KSDS.INDEX -                                          05595000
+         FILE (VOL2)         -                                          05614500
+         VVR -                                                          05634000
+         CATALOG (DFX1CAT1)                                             05653500
+                                                                        05673000
+       DELETE  (DFPX1IVP.ESDS) CLUSTER PURGE                            05692500
+                                                                        05712000
+       DELETE          -                                                05731500
+         DFPX1IVP.ESDS.DATA -                                           05751000
+         FILE (VOL2)          -                                         05770500
+         VVR -                                                          05790000
+         CATALOG (DFX1CAT1)                                             05809500
+                                                                        05829000
+   /*****************************************/                          05850000
+   /*   DELETE ALIAS.                       */                          05900000
+   /*****************************************/                          05950000
+       DELETE DFPX1IVP ALIAS                                            05964200
+                                                                        05978400
+   /*****************************************/                          05992600
+   /*   DELETE ICF USERCATALOGS.            */                          06006800
+   /*****************************************/                          06021000
+       DELETE  (DFX1CAT1) -                                             06035500
+               USERCATALOG -                                            06050000
+               FILE(VOL1) -                                             06100000
+               FORCE                                                    06150000
+                                                                        06200000
+       DELETE  (DFX1CAT2) -                                             06250000
+               USERCATALOG -                                            06450000
+               FILE(VOL1) -                                             06500000
+               FORCE                                                    06750000
+   /*****************************************/                          06800000
+   /*   EXPORT DISCONNECT THE CATALOGS      */                          06850000
+   /*****************************************/                          06900000
+       EXPORT DFX1CAT1 DISCONNECT                                       06950000
+       EXPORT DFX1CAT2 DISCONNECT                                       07000000
+   /*****************************************/                          07100000
+   /*   RESET CONDITION CODES               */                          07150000
+   /*****************************************/                          07200000
+       SET MAXCC = 0                                                    07250000
+       SET LASTCC = 0                                                   07300000
+/*                                                                      07350000
+//STEP02  EXEC PGM=IDCAMS,COND=(8,LE)                                   07400000
+//*                                                                     07450000
+//*   DEFINE THE FIRST ICF CATALOG.                                     07500000
+//*                                                                     07600000
+//SYSPRINT DD  SYSOUT=A                                                 07650000
+//VOL      DD  UNIT=SYSDA,VOL=SER=ZOST70,DISP=OLD   /*NONSMS VOL1*/     07700000
+//SYSIN    DD  *                                                        07750000
+   /*********************************************************/          07800000
+   /* STEP02  DEFINE AN ICF USERCATALOG IN A NONSMS-MANAGED */          07850000
+   /*         VOLUME. EXPECT THIS STEP TO BE SUCCESSFUL.    */          07900000
+   /*********************************************************/          07950000
+    DEFINE USERCATALOG -                                                08000000
+      (NAME(DFX1CAT1) -                                                 08050000
+      CYLINDERS(3 2) -                                                  08100000
+      VOLUME(ZOST70)                    /*NONSMS VOL1*/ -               08150000
+      FREESPACE(10 10) -                                                08250000
+      RECORDSIZE(4086 4086) -                                           08300000
+      ICFCATALOG -                                                      08350000
+      FILE(VOL)) -                                                      08400000
+      CATALOG(CATALOG.ZOS24.MASTER)                /*MASTERCAT*/
+                                                                        08466600
+   DEFINE ALIAS (NAME(DFPX1IVP) RELATE(DFX1CAT1))                       08483300
+/*                                                                      08500000
+//STEP03  EXEC PGM=IDCAMS,COND=(8,LE)                                   08550000
+//*                                                                     09500000
+//*   DEFINE A KSDS CLUSTER AND LIST ITS ENTRY                          09550000
+//*                                                                     09600000
+//SYSPRINT DD  SYSOUT=A                                                 09650000
+//VOL      DD  UNIT=SYSDA,VOL=SER=ZOST71,DISP=OLD   /*NONSMS VOL2*/     09700000
+//SYSIN    DD  *                                                        09750000
+   /********************************************************/           09800000
+   /*  STEP03  DEFINE AND CATALOG A KSDS CLUSTER IN A      */           09850000
+   /*          NONSMS MANAGED VOLUME.                      */           09900000
+   /*          EXPECT SUCCESSFUL COMPLETION OF THIS DEFINE.*/           09950000
+   /********************************************************/           10000000
+       DEFINE  CLUSTER -                                                10050000
+               (NAME(DFPX1IVP.KSDS) -                                   10100000
+               TRACKS(1 1) -                                            10150000
+               VOLUMES(ZOST71)               /*NONSMS VOL2*/ -          10200000
+               FILE(VOL) -                                              10250000
+               RECORDSIZE(80 80) -                                      10350000
+               KEYS(5 0) -                                              10400000
+               FREESPACE(10 10)) -                                      10450000
+               CATALOG(DFX1CAT1)                                        10500000
+                                                                        10550000
+   /******************************************************/             10562500
+   /*   LIST THE ENTRY IF THE DEFINE WAS SUCCESSFUL.     */             10575000
+   /******************************************************/             10587500
+  IF MAXCC = 0 -                                                        10600000
+     THEN -                                                             10650000
+       LISTCAT ENTRIES(DFPX1IVP.KSDS) -                                 10700000
+               ALL -                                                    10750000
+               CATALOG(DFX1CAT1)                                        10800000
+/*                                                                      10850000
+//STEP04  EXEC PGM=IDCAMS                                               10900000
+//*                                                                     11450000
+//*   PLACE DATA IN THE DEFINED CLUSTER                                 11500000
+//*                                                                     11550000
+//SYSPRINT DD  SYSOUT=A                                                 11650000
+//DSDATA   DD  *                                                        11700000
+ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRST11750000
+BCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTU11800000
+CDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUV11850000
+DEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVW11900000
+EFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWX11950000
+FGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXY12000000
+GHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ12050000
+HIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZA12100000
+IJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZAB12150000
+JKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABC12200000
+/*                                                                      12250000
+//DSNM     DD  DSN=DFPX1IVP.KSDS,DISP=OLD                               12300000
+//SYSIN    DD  *                                                        12350000
+   /***************************************************/                12370800
+   /*  STEP04  PLACE DATA IN THE DEFINED CLUSTER.     */                12420800
+   /*          THIS STEP SHOULD BE SUCCESSFUL (RC=0). */                12470800
+   /***************************************************/                12578800
+         REPRO INFILE(DSDATA) -                                         12650000
+               OUTFILE(DSNM)                                            12700000
+                                                                        12750000
+  IF LASTCC = 0 -                                                       12800000
+     THEN -                                                             12850000
+         PRINT INFILE(DSNM)                                             12883300
+                                                                        12916600
+  DELETE DFPX1IVP ALIAS                                                 12933200
+/*                                                                      12950000
+//STEP05  EXEC PGM=IDCAMS,COND=(8,LE)                                   13000000
+//*                                                                     13050000
+//*   DEFINE ANOTHER INTEGRATED CATALOG FACILITY CATALOG                13100000
+//*                                                                     13150000
+//SYSPRINT DD  SYSOUT=A                                                 13200000
+//VOL      DD  UNIT=SYSDA,VOL=SER=ZOST70,DISP=OLD   /*NONSMS VOL1*/     13250000
+//SYSIN    DD  *                                                        13300000
+   /******************************************************/             13350000
+   /*  STEP05  DEFINE A 2ND ICF USERCATALOG IN A NONSMS  */             13400000
+   /*          MANAGED VOLUME. EXPECT THIS STEP TO BE    */             13450000
+   /*          SUCCESSFUL (RC=0).                        */             13500000
+   /******************************************************/             13550000
+    DEFINE     USERCATALOG -                                            13600000
+      (NAME(DFX1CAT2) -                                                 13650000
+      CYLINDERS(3 2) -                                                  13700000
+      VOLUME(ZOST70)                    /*NONSMS VOL1*/ -               13750000
+      FREESPACE(10 10) -                                                13850000
+      RECORDSIZE(4086 4086) -                                           13900000
+      ICFCATALOG -                                                      13950000
+      FILE(VOL)) -                                                      14000000
+      CATALOG(CATALOG.ZOS24.MASTER)                /*MASTERCAT*/
+/*                                                                      14650000
+//STEP06  EXEC PGM=IDCAMS,COND=(8,LE)                                   14700000
+//*                                                                     14750000
+//*   DEFINE AN ESDS CLUSTER AND LIST ITS ENTRY                         14800000
+//*                                                                     14850000
+//SYSPRINT DD  SYSOUT=A                                                 14900000
+//VOL      DD  UNIT=SYSDA,VOL=SER=ZOST71,DISP=OLD    /*NONSMS VOL2*/    14950000
+//SYSIN    DD  *                                                        15000000
+   /*****************************************************/              15050000
+   /*   STEP06  DEFINE AND CATALOG AN ESDS CLUSTER IN A */              15100000
+   /*           NONSMS MANAGED VOLUME. EXPECT THIS      */              15150000
+   /*           DEFINE TO BE SUCCESSFUL (RC=0).         */              15200000
+   /*****************************************************/              15250000
+       DEFINE  CLUSTER -                                                15300000
+               (NAME(DFPX1IVP.ESDS) -                                   15350000
+               TRACKS(1 1) -                                            15400000
+               VOLUMES(ZOST71)       /*NONSMS VOL2*/ -                  15450000
+               FILE(VOL) -                                              15500000
+               RECORDSIZE(80 80) -                                      15600000
+               NONINDEXED -                                             15650000
+               FREESPACE(10 10)) -                                      15700000
+               CATALOG(DFX1CAT2)                                        15750000
+                                                                        15800000
+   /*****************************************************/              15812500
+   /*   LIST THE ENTRY IF THE DEFINE WAS SUCCESSFUL.    */              15825000
+   /*****************************************************/              15837500
+  IF MAXCC = 0 -                                                        15850000
+     THEN -                                                             15900000
+       LISTCAT ENTRIES(DFPX1IVP.ESDS) -                                 15950000
+               ALL -                                                    16000000
+               CATALOG(DFX1CAT2)                                        16050000
+/*                                                                      16100000
+//STEP07  EXEC PGM=IDCAMS                                               16150000
+//*                                                                     17450000
+//*   MERGE THE TWO INTEGRATED CATALOG FACILITY CATALOGS                17500000
+//*                                                                     17550000
+//UCAT1    DD  DSN=DFX1CAT1,DISP=OLD                                    17600000
+//UCAT2    DD  DSN=DFX1CAT2,DISP=OLD                                    17650000
+//SYSPRINT DD  SYSOUT=A                                                 17800000
+//SYSIN    DD  *                                                        17850000
+   /*********************************************************/          17900000
+   /*   STEP07  MERGE THE 2ND ICF CATALOG TO THE 1ST        */          17950000
+   /*           USERCATALOG VIA REPRO MERGECAT.             */          18000000
+   /*           EXPECT THIS STEP TO BE SUCCESSFUL (RC=0).   */          18050000
+   /*********************************************************/          18100000
+       REPRO -                                                          18150000
+             INFILE (UCAT2) -                                           18200000
+             OUTFILE (UCAT1) -                                          18250000
+             LEVEL(DFPX1IVP) -                                          18300000
+             MERGECAT                                                   18350000
+/*                                                                      18400000
+//STEP08  EXEC PGM=IDCAMS,COND=(8,LE)                                   18450000
+//*                                                                     18500000
+//*   LIST THE CATALOG TO SHOW TWO CLUSTER ENTRIES                      18550000
+//*                                                                     18600000
+//SYSPRINT DD  SYSOUT=A                                                 18650000
+//VOL      DD  UNIT=SYSDA,VOL=SER=ZOST70,DISP=OLD    /*NONSMS VOL1*/    18700000
+//SYSIN    DD  *                                                        18750000
+   /****************************************************/               18800000
+   /*   STEP08  LIST THE CATALOG TO VERIFY THE MERGED  */               18850000
+   /*           ESDS ENTRY FROM THE 2ND CATALOG.       */               18900000
+   /*           EXPECT THIS STEP TO BE SUCCESSFUL.     */               18950000
+   /****************************************************/               19000000
+       LISTCAT -                                                        19050000
+               ALL -                                                    19100000
+               FILE(VOL) -                                              19150000
+               CATALOG(DFX1CAT1)                                        19200000
+/*                                                                      19250000
+//STEP09  EXEC PGM=IDCAMS,COND=(8,LE)                                   19300000
+//*                                                                     20450000
+//*   EXPORT THE CATALOG TO DISK FOR BACKUP                             20500000
+//*   MARK THE CATALOG TEMPORARY (A BACKUP COPY EXISTS)                 20550000
+//*                                                                     20600000
+//SYSPRINT DD  SYSOUT=A                                                 20700000
+//DISK     DD  DSNAME=EXPORT.DFX1CAT1,UNIT=SYSDA,DISP=(NEW,PASS),       20750000
+//             VOL=SER=ZOST71,SPACE=(CYL,(1,1))         /*IVPVOL*/      20800000
+//SYSIN    DD  *                                                        20850000
+   /**********************************************************/         20900000
+   /*   STEP09  EXPORT THE CATALOG TO DISK FOR BACKUP.       */         20950000
+   /*           MARK THE CATALOG TEMPORARY (A BACKUP COPY    */         21000000
+   /*           IS CREATED). THIS STEP SHOULD BE SUCCESSFUL. */         21050000
+   /**********************************************************/         21100000
+       EXPORT  DFX1CAT1 -                                               21150000
+               OUTFILE(DISK) -                                          21250000
+               TEMPORARY                                                21300000
+/*                                                                      21350000
+//STEP10  EXEC PGM=IDCAMS,COND=(8,LE)                                   21400000
+//*                                                                     21450000
+//*   REPLACE THE CATALOG WITH THE BACKUP COPY                          21500000
+//*                                                                     21550000
+//SYSPRINT DD  SYSOUT=A                                                 21600000
+//UCAT1    DD  UNIT=SYSDA,VOL=SER=ZOST70,DISP=OLD,  /*NONSMS VOL1*/     21650000
+//             DSNAME=DFX1CAT1,AMP='AMORG'                              21700000
+//DISK1    DD  DSNAME=EXPORT.DFX1CAT1,DISP=(OLD,PASS)                   21750000
+//SYSIN    DD  *                                                        21800000
+   /*************************************************/                  21850000
+   /*   STEP10  REPLACE THE CATALOG WITH THE BACKUP */                  21900000
+   /*           COPY VIA IMPORT. EXPECT THIS STEP   */                  21950000
+   /*           TO BE SUCCESSFUL.                   */                  22000000
+   /*************************************************/                  22050000
+    IMPORT     INFILE(DISK1) -                                          22100000
+      OUTFILE(UCAT1) -                                                  22150000
+      CATALOG(CATALOG.ZOS24.MASTER)                /*MASTERCAT*/
+/*                                                                      22250000
+//STEP11  EXEC PGM=IDCAMS,COND=(8,LE)                                   22300000
+//*                                                                     22350000
+//*   VERIFY THAT IMPORT WAS SUCCESSFUL                                 22400000
+//*                                                                     22450000
+//SYSPRINT DD  SYSOUT=A                                                 22500000
+//UCAT1    DD  UNIT=SYSDA,VOL=SER=ZOST70,DISP=OLD,   /*NONSMS VOL1*/    22550000
+//             DSN=DFX1CAT1,AMP='AMORG'                                 22600000
+//VVDS1    DD  UNIT=SYSDA,VOL=SER=ZOST70,DISP=OLD,   /*NONSMS VOL1*/    22650000
+//             DSN=SYS1.VVDS.VZOST70,AMP='AMORG'                        22700000
+//SYSIN    DD  *                                                        22750000
+   /**************************************************************/     22800000
+   /*   STEP11  VERIFY THAT IMPORT WAS SUCCESSFUL (CATALOG IN    */     22850000
+   /*           SYNCH) VIA A DIAGNOSE COMMAND. EXPECT NO MORE    */     22900000
+   /*           THAN RETURN CODE 4 FOR THIS STEP.                */     22950000
+   /**************************************************************/     23000000
+       DIAGNOSE -                                                       23050000
+               ICFCATALOG -                                             23100000
+               INFILE(UCAT1) -                                          23150000
+               COMPAREDD(VVDS1) -                                       23200000
+               LIST NODUMP                                              23250000
+/*                                                                      23300000
+//STEP12  EXEC PGM=IDCAMS                                               23350000
+//*                                                                     23400000
+//*   CLEANUP                                                           23450000
+//*                                                                     23500000
+//SYSPRINT DD  SYSOUT=A                                                 23600000
+//VOL1     DD  UNIT=SYSDA,VOL=SER=ZOST70,DISP=OLD    /*NONSMS VOL1*/    23650000
+//VOL2     DD  UNIT=SYSDA,VOL=SER=ZOST71,DISP=OLD    /*NONSMS VOL2*/    23700000
+//SYSIN    DD  *                                                        23750000
+   /****************************************************/               23766300
+   /*  STEP12  DEFINE THE CLUSTERS' HLQ AS AN ALIAS    */               23782600
+   /*          OF THE USERCATALOG TO ENABLE LOCATING   */               23798900
+   /*          THE ENTRIES DURING THE DELETE CLUSTER   */               23815200
+   /*          REQUESTS THAT FOLLOW. EXPECT THIS STEP  */               23831500
+   /*          TO BE SUCCESSFUL (RC=0).                */               23847800
+   /****************************************************/               23864100
+       DEFINE ALIAS (NAME(DFPX1IVP) RELATE(DFX1CAT1))                   23880400
+                                                                        23896700
+   /*******************************************************/            23913000
+   /* STEP12  DELETE THE KSDS CLUSTER. IF THE ICF CATALOG */            23929300
+   /*         DOES NOT EXIST, DELETE THE CLUSTER'S VVR    */            23945600
+   /*         ENTRIES (DATA & INDEX) FOR VOLUME CLEANUP.  */            23961900
+   /*         EXPECT EITHER THE "DELETE CLUSTER" OR       */            23978200
+   /*         "DELETE VVR" TO BE SUCCESSFUL.              */            23994500
+   /*******************************************************/            24010800
+       DELETE  (DFPX1IVP.KSDS) CLUSTER FILE(VOL) PURGE                  24027100
+         IF LASTCC > 0 THEN -                                           24043400
+           DO                                                           24059700
+             DELETE    -                                                24076000
+               DFPX1IVP.KSDS.DATA -                                     24092300
+               FILE (VOL2)    -                                         24108600
+               VVR -                                                    24124900
+               CATALOG (DFX1CAT1)                                       24141200
+             DELETE    -                                                24157500
+               DFPX1IVP.KSDS.INDEX -                                    24173800
+               FILE (VOL2)    -                                         24190100
+               VVR -                                                    24206400
+               CATALOG (DFX1CAT1)                                       24222700
+             SET MAXCC = 0                                              24239000
+           END                                                          24255300
+   /*******************************************************/            24271600
+   /* STEP12  DELETE THE ESDS CLUSTER. IF THE ICF CATALOG */            24287900
+   /*         DOES NOT EXIST, DELETE THE CLUSTER'S VVR    */            24304200
+   /*         ENTRY (DATA) FOR VOLUME CLEANUP.            */            24320500
+   /*         EXPECT EITHER THE "DELETE CLUSTER" OR       */            24336800
+   /*         "DELETE VVR" TO BE SUCCESSFUL.              */            24353100
+   /*******************************************************/            24369400
+       DELETE  (DFPX1IVP.ESDS) CLUSTER FILE(VOL) PURGE                  24385700
+         IF LASTCC > 0 THEN -                                           24402000
+           DO                                                           24418300
+             DELETE    -                                                24434600
+               DFPX1IVP.ESDS.DATA -                                     24450900
+               FILE (VOL2)    -                                         24467200
+               VVR -                                                    24483500
+               CATALOG (DFX1CAT1)                                       24499800
+             SET MAXCC = 0                                              24516100
+           END                                                          24532400
+                                                                        24548700
+   /*******************************************************/            24565000
+   /* STEP12  DELETE THE ALIAS.                           */            24581300
+   /*******************************************************/            24597600
+       DELETE  DFPX1IVP ALIAS                                           24613900
+                                                                        24630200
+   /*******************************************************/            24646500
+   /* STEP12  DELETE THE FIRST ICF USERCATALOG. IF IT IS  */            24662800
+   /*         DISCONNECTED FROM THE MASTERCATALOG, DELETE */            24679100
+   /*         ITS VVR ENTRIES (DATA & INDEX) FOR VOLUME   */            24695400
+   /*         CLEANUP.                                    */            24711700
+   /*         EXPECT EITHER THE "DELETE UCAT" OR          */            24728000
+   /*         "DELETE VVR" TO BE SUCCESSFUL.              */            24744300
+   /*******************************************************/            24760600
+     DELETE    (DFX1CAT1) UCAT FORCE                                    24776900
+       IF LASTCC > 0 THEN -                                             24793200
+         DO                                                             24809500
+           DELETE      -                                                24825800
+             DFX1CAT1 -                                                 24842100
+             FILE (VOL1)      -                                         24858400
+             VVR -                                                      24874700
+           CATALOG (CATALOG.ZOS24.MASTER)          /*MASTERCAT*/
+           DELETE      -                                                24907300
+             DFX1CAT1.CATINDEX -                                        24923600
+             FILE (VOL1)      -                                         24939900
+             VVR -                                                      24956200
+           CATALOG (CATALOG.ZOS24.MASTER)          /*MASTERCAT*/
+           SET MAXCC = 0                                                24988800
+         END                                                            25005100
+   /*******************************************************/            25021400
+   /* STEP12  DELETE THE SECOND ICF USERCATALOG. IF IT IS */            25037700
+   /*         DISCONNECTED FROM THE MASTERCATALOG, DELETE */            25054000
+   /*         ITS VVR ENTRIES (DATA & INDEX) FOR VOLUME   */            25070300
+   /*         CLEANUP.                                    */            25086600
+   /*         EXPECT EITHER THE "DELETE UCAT" OR          */            25102900
+   /*         "DELETE VVR" TO BE SUCCESSFUL.              */            25119200
+   /*******************************************************/            25135500
+     DELETE    (DFX1CAT2) UCAT FORCE                                    25151800
+       IF LASTCC > 0 THEN -                                             25168100
+         DO                                                             25184400
+           DELETE      -                                                25200700
+             DFX1CAT1 -                                                 25217000
+             FILE (VOL1)      -                                         25233300
+             VVR -                                                      25249600
+           CATALOG (CATALOG.ZOS24.MASTER)                   /*MASTERCAT*/
+           DELETE      -                                                25282200
+             DFX1CAT1.CATINDEX -                                        25298500
+             FILE (VOL1)      -                                         25314800
+             VVR -                                                      25331100
+           CATALOG (CATALOG.ZOS24.MASTER)                   /*MASTERCAT*/
+           SET MAXCC = 0                                                25363700
+         END                                                            25380000
+/*                                                                      25400000

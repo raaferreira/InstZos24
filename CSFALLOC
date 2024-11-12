@@ -1,0 +1,71 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//********************************************************************
+//*  JOB: CSFALLOC (product-supplied jobs CSFPKDS and CSFCKDS
+//*                 in library SAMPLIB)
+//*
+//*  GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//*  DOC: This job allocates the PKDS and CKDS data sets.
+//*
+//*  NOTES:
+//*
+//*   1. Instructions:
+//*
+//*       -Modify the PKDS and CKDS data set names if needed to meet
+//*        your installation's requirements.
+//*          Note: If you do change the names, you must also change
+//*                them in the CSFPRM00 member of parmlib.
+//*       -If you want the data sets to be SMS-managed delete the
+//*             VOLUMES keywords and replace them with
+//*             STORCLASS(storage_class)
+//*       -Specify the desired volume in the VOLUMES keywords if you
+//*        will not use SMS to manage the data sets.
+//*       -Do NOT change the space allocation amounts for the two
+//*        data sets.
+//*
+//*   2. The expected return code for all steps is zero.
+//********************************************************************
+//ALOCICSF EXEC PGM=IDCAMS,REGION=64M
+//SYSPRINT DD  SYSOUT=*
+//SYSIN DD *
+  DEFINE CLUSTER (NAME(CSF.CSFPKDS)         -
+                  VOLUMES(ZOS243)           -
+                  RECORDS(100 50)           -
+                  RECORDSIZE(800,3800)      -
+                  KEYS(72 0)                -
+                  FREESPACE(0,0)            -
+                  SHAREOPTIONS(2,3))        -
+            DATA (NAME(CSF.CSFPKDS.DATA)    -
+                  BUFFERSPACE(100000)       -
+                  ERASE                     -
+                  CISZ(8192))               -
+           INDEX (NAME(CSF.CSFPKDS.INDEX))  -
+           CATALOG(CATALOG.ZOS24.MASTER)
+  DEFINE CLUSTER (NAME(CSF.CSFCKDS)        -
+                  VOLUMES(ZOS243)          -
+                  RECORDS(100 50)          -
+                  RECORDSIZE(252,252)      -
+                  KEYS(72 0)               -
+                  FREESPACE(10,10)         -
+                  SHAREOPTIONS(2))         -
+            DATA (NAME(CSF.CSFCKDS.DATA)   -
+                  BUFFERSPACE(100000)      -
+                  ERASE)                   -
+           INDEX (NAME(CSF.CSFCKDS.INDEX)) -
+           CATALOG(CATALOG.ZOS24.MASTER)
+/*

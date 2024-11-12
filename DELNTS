@@ -1,0 +1,98 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*-------------------------------------------------------------------
+//* GDE: ServerPac INSTALLATION
+//*
+//* DOC: This JOB deletes the files that were created by the download
+//*      (that is, the order's archive files).
+//*      If a new file system was allocated, it will unmount it and
+//*      delete the Unix file system data set (HFS or zFS) that was
+//*      allocated to contain the files.
+//*
+//* MRC: THE MAXIMUM EXPECTED RETURN CODE IS: 12
+//*--------------------------------------------------------------------
+//DELS1    EXEC PGM=BPXBATCH,COND=(4000,LT),
+// PARM='SH rm -rv /u/zos24/OS231147.content/OS241147.order'
+//*--------------------------------------------------------------------
+//*  Remove the ServerPac ORDER archive entries from
+//*  the subdirectory in your target directory
+//*--------------------------------------------------------------------
+//STDOUT   DD PATH='/tmp/STDout',
+//            PATHOPTS=(OCREAT,OTRUNC,OWRONLY),PATHMODE=SIRWXU
+//STDIN    DD PATH='/tmp/STDin',
+//            PATHOPTS=(OCREAT,ORDONLY),PATHMODE=SIRWXU
+//STDERR   DD PATH='/tmp/STDerr',
+//            PATHOPTS=(OCREAT,OWRONLY),PATHMODE=SIRWXU
+//*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((0,GE,DELS1),(4000,LT))
+//*
+//DELS2    EXEC PGM=BPXBATCH,COND=(4000,LT),
+// PARM='SH rm -rv /u/zos24/OS231147.content/OS241147.content'
+//*--------------------------------------------------------------------
+//*  Remove the ServerPac CONTENT archive entries from
+//*  the subdirectory in your target directory
+//*--------------------------------------------------------------------
+//STDOUT   DD PATH='/tmp/STDout',
+//            PATHOPTS=(OCREAT,OTRUNC,OWRONLY),PATHMODE=SIRWXU
+//STDIN    DD PATH='/tmp/STDin',
+//            PATHOPTS=(OCREAT,ORDONLY),PATHMODE=SIRWXU
+//STDERR   DD PATH='/tmp/STDerr',
+//            PATHOPTS=(OCREAT,OWRONLY),PATHMODE=SIRWXU
+//*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((0,GE,DELS2),(4000,LT))
+//*
+//GERRS3   EXEC PGM=IKJEFT01,COND=((0,GE,DELS1),(0,GE,DELS2))
+//*-------------------------------------------------------------------
+//* Copy STDerr from previous step into JES job output
+//*-------------------------------------------------------------------
+//JES      DD SYSOUT=*,DCB=(RECFM=V,LRECL=256)
+//ERRORF   DD PATH='/tmp/STDerr',PATHOPTS=ORDONLY
+//SYSTSPRT DD DUMMY
+//SYSTSIN  DD *
+  OCOPY INDD(ERRORF) OUTDD(JES)
+/*
+//*
+//NOTOK    EXEC PGM=CPPMAXRC,
+//         COND=((0,GE,DELS1),(0,GE,DELS2),(0,GE,GERRS3),(4000,LT))
+//*
+//GOUTS4   EXEC PGM=IKJEFT01,COND=((0,GE,DELS1),(0,GE,DELS2))
+//*-------------------------------------------------------------------
+//* Copy STDout from previous step into JES job output
+//*-------------------------------------------------------------------
+//JES      DD SYSOUT=*,DCB=(RECFM=V,LRECL=256)
+//OUTF     DD PATH='/tmp/STDout',PATHOPTS=ORDONLY
+//SYSTSPRT DD DUMMY
+//SYSTSIN  DD *
+  OCOPY INDD(OUTF) OUTDD(JES)
+/*
+//*
+//NOTOK    EXEC PGM=CPPMAXRC,
+//         COND=((0,GE,DELS1),(0,GE,DELS2),(0,GE,GOUTS4),(4000,LT))
+//*
+//DELOS5   EXEC PGM=IEFBR14,COND=(4000,LT)
+//*-------------------------------------------------------------------
+//* Delete remaining files
+//*
+//* The redirected input/output files are deleting in the UNIX
+//* file system
+//*-------------------------------------------------------------------
+//INF      DD PATH='/tmp/STDin',PATHDISP=(DELETE,DELETE)
+//OUTF     DD PATH='/tmp/STDout',PATHDISP=(DELETE,DELETE)
+//ERRF     DD PATH='/tmp/STDerr',PATHDISP=(DELETE,DELETE)
+//*
+//NOTOK    EXEC PGM=CPPMAXRC,COND=((0,GE,DELOS5),(4000,LT))
+//*

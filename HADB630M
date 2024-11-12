@@ -1,0 +1,85 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//  SET LIBPRFX=CEE
+//*********************************************************************
+//* JOB: HADB630M  (product-supplied job IGYWIVP1 in library SIGYSAMP)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job compiles, linkedits, and runs a COBOL program.
+//*
+//* NOTES:
+//*
+//*   1. Before running this job do the following:
+//*
+//*      a. If required, change the following high-level qualifiers
+//*         (HLQs):
+//*         - IGY (HLQ for the Enterprise COBOL target libraries)
+//*         - CEE (HLQ for the Language Environment target libraries)
+//*
+//*      b. To produce compiler and runtime messages in Japanese:
+//*
+//*         - change "PARM.COBOL=RENT,"
+//*               to "PARM.COBOL='RENT,LANGUAGE(JA)',"
+//*         - change "PARM.GO=''"
+//*               to "PARM.GO='NATLANG(JPN)'"
+//*
+//*         Also add the following to the compile step:
+//*
+//*           //CEEOPTS DD * NATLANG(JPN)
+//*
+//*   2. All 3 steps should return condition code 0, unless OPT is
+//*      specified, for the COMPILE, which will result in a RC=4.
+//*
+//*   3. This job should put the following messages to the SYSOUT
+//*      data set:
+//*
+//*      ***** START OF CALLIVP1 *****
+//*      ***** CALLIVP1 SUCCESSFUL *****
+//*
+//*********************************************************************
+//*********************************************************************
+//*
+//* CAUTION:
+//*
+//*   Ensure that the PTFs for the following APARs have been applied
+//*   on your target system:
+//*
+//*   - PH10606, PH10740 and PH15585 (z/OS V2R2 Language Environment)
+//*   - PH07107, PH09543 and PH15589 (z/OS V2R3 Language Environment)
+//*
+//*   If PTF(s) for the Language Environment not already applied,
+//*   this job will fail at link step with a return code of 8 and
+//*   with the following message:
+//*
+//*   IEW2456E 9207 SYMBOL IGZXLERR UNRESOLVED.  MEMBER COULD NOT BE
+//*            INCLUDED FROM THE DESIGNATED CALL LIBRARY.
+//*
+//*********************************************************************
+//*********************************************************************
+//*
+//    JCLLIB ORDER=IGY.SIGYPROC
+//RUNIVP EXEC IGYWCLG,REGION=0M,
+//    LNGPRFX='IGY',
+//    LIBPRFX=&LIBPRFX,
+//    PARM.LKED='LIST,XREF,LET,MAP',
+//    PARM.COBOL=RENT,
+//    PARM.GO=''
+//COBOL.SYSIN DD DSN=IGY.SIGYSAMP(IGYIVP),
+//       DISP=SHR
+//GO.SYSOUT DD SYSOUT=*
+//

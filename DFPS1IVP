@@ -1,0 +1,422 @@
+//DFPS1IVP JOB (DFPS1IVP),IVP,MSGLEVEL=(1,1),MSGCLASS=A,CLASS=A         00050000
+//********************************************************************* 00100000
+//*                                                                     00150000
+//*PROPRIETARY STATEMENT                                                00200000
+//*LICENSED MATERIALS - PROPERTY OF IBM                                 00210000
+//*5650-ZOS                                                             00220000
+//*COPYRIGHT IBM CORP. 1997                                             00230000
+//*END PROPRIETARY STATEMENT                                            00450000
+//********************************************************************* 00500000
+//*             DFSMSDFP IVP FOR CATALOG & AMS FUNCTIONS                00550000
+//*                  SMS MANAGED VERSION   03/13/97                     00600000
+//********************************************************************* 00650000
+//*  NOTE: THIS JOB SHOULD BE RUN ONLY ON A SYSTEM THAT HAS STORAGE     00700000
+//*  MANAGEMENT SUBSYSTEM (SMS) ACTIVE.                                 00750000
+//*                                                                     00800000
+//*  YOU MAY NEED TO MAKE CHANGES TO THIS JCL TO EXECUTE ON YOUR SYSTEM 00850000
+//*                                                                     00900000
+//*  THE FOLLOWING STRINGS REPRESENT CHANGES                            00950000
+//*  YOU MAY WANT TO MAKE:                                              01000000
+//*                                                                     01050000
+//*    TMP011    -    SMS MANAGED VOLUME 1                              01100000
+//*    TMP012    -    SMS MANAGED VOLUME 2                              01150000
+//*    SUPCLONE   -    A GUARANTEED SPACE STORAGE CLASS THAT             0120000
+//*                      INCLUDES THE VOLUMES TMP011 & TMP012           01250000
+//*    CATALOG.ZOS24.MASTER  - THE NAME OF THE MASTER CATALOG
+//*                                                                     01350000
+//*                                                                     01400000
+//*******************************************************************   01450000
+//* JOBSTEPS                                                            01500000
+//*                                                                     01550000
+//*   STEP01  DELETE THE VSAM CLUSTERS AND ICF CATALOGS FOR CLEANUP.    01600000
+//*   STEP02  DEFINE THE FIRST ICF USERCATALOG AND AN ALIAS.    *3 CYL* 01650000
+//*   STEP03  DEFINE A KSDS CLUSTER IN THE FIRST USERCATALOG.           01700000
+//*   STEP04  PLACE DATA IN THE CLUSTER USING REPRO.                    01750000
+//*   STEP05  DEFINE THE SECOND ICF USERCATALOG.                *3 CYL* 01800000
+//*   STEP06  DEFINE AN ESDS CLUSTER IN THE SECOND USERCATALOG.         01850000
+//*   STEP07  MERGE THE 2ND ICF CATALOG INTO THE 1ST ICF CATALOG        01900000
+//*             USING REPRO MERGECAT.                                   01950000
+//*   STEP08  LIST THE FIRST ICF CATALOG AND VERIFY THE MERGED          02000000
+//*             VSAM CLUSTER ENTRIES.                                   02050000
+//*   STEP09  EXPORT THE ICF CATALOG INTO A TEMPORARY DATA SET.         02100000
+//*   STEP10  IMPORT THE EXPORTED ICF CATALOG.                          02150000
+//*   STEP11  DIAGNOSE TO ASSURE A SUCCESSFUL IMPORT.                   02200000
+//*   STEP12  DELETE THE VSAM CLUSTERS AND ICF CATALOGS FOR CLEANUP.    02250000
+//*******************************************************************   02350000
+//*  SETUP:                                                             02400000
+//*        THE USER MUST FIRST MOUNT TWO 30-CYL (OR HIGHER) SMS-        02450000
+//*        MANAGED SCRATCH VOLUMES FOR ICF CATALOGS AND VSAM DATA       02500000
+//*        SETS. A SCRATCH VOLUME IS DEFINED AS A VOLUME THAT DOES      02550000
+//*        NOT HAVE ANY DATA SETS THAT WILL REQUIRE FURTHER USE.        02600000
+//*                                                                     02650000
+//*        IN THE FOLLOWING JOBSTREAM, ADJUST VALUES FOR THE            02700000
+//*        DEVICES AND THE MASTER CATALOG AS INDICATED BY THE           02750000
+//*        COMMENT FLAGS.                                               02800000
+//*******************************************************************   02850000
+//* CHANGE ACTIVITY =                                                   02900000
+//*                                                                     02950000
+//*******************************************************************   03000000
+//*                                                                     03050000
+//STEP02  EXEC PGM=IDCAMS,COND=(8,LE)                                   08400000
+//*                                                                     08450000
+//*   DEFINE THE FIRST ICF USERCATALOG.                                 08500000
+//*                                                                     08550000
+//SYSPRINT DD  SYSOUT=A                                                 08600000
+//VOL      DD  UNIT=SYSDA,VOL=SER=TMP011,DISP=OLD      /*SMS VOL1*/     08650000
+//SYSIN    DD  *                                                        08700000
+   /*******************************************************/            08750000
+   /* STEP02  DEFINE AN ICF USERCATALOG IN AN SMS-MANAGED */            08800000
+   /*         VOLUME USING A GUARANTEED STORAGE CLASS.    */            08850000
+   /*         EXPECT SUCCESSFUL COMPLETION OF THIS STEP.  */            08900000
+   /*******************************************************/            08950000
+       DEFINE  USERCATALOG -                                            09000000
+          (NAME(DFS1CAT1) -                                             09050000
+          CYLINDERS(3 2) -                                              09100000
+          VOLUME(TMP011)            /* SMS VOL1*/ -                     09150000
+          STORCLAS(SUPCLONE)         /* GUARANTEED SPACE STORCLAS*/ -    0920000
+          FREESPACE(10 10) -                                            09300000
+          RECORDSIZE(4086 4086) -                                       09350000
+          ICFCATALOG -                                                  09400000
+          FILE(VOL)) -                                                  09450000
+       CATALOG(CATALOG.ZOS24.MASTER)             /*MASTERCAT*/
+                                                                        09550000
+   /******************************************************/             09600000
+   /* STEP02  DEFINE AN ALIAS OF THE USERCATALOG.        */             09650000
+   /*         EXPECT SUCCESSFUL COMPLETION OF THIS STEP. */             09700000
+   /******************************************************/             09750000
+       DEFINE ALIAS (NAME -                                             09800000
+         (DFPS1IV1) -                                                   09850000
+         RELATE(DFS1CAT1))                                              09900000
+/*                                                                      09950000
+//STEP03  EXEC PGM=IDCAMS,COND=(8,LE)                                   10000000
+//*                                                                     10050000
+//*   DEFINE A KSDS CLUSTER AND LIST ITS ENTRY                          10100000
+//*                                                                     10150000
+//SYSPRINT DD  SYSOUT=A                                                 10200000
+//SYSIN    DD  *                                                        10250000
+   /*******************************************************/            10300000
+   /*  STEP03  DEFINE A KSDS CLUSTER IN AN SMS-MANAGED    */            10350000
+   /*          VOLUME USING A GUARANTEED STORAGE CLASS.   */            10400000
+   /*          THE CLUSTER'S HLQ DETERMINES WHERE THIS    */            10450000
+   /*          DATA SET WILL BE CATALOGED.                */            10500000
+   /*          EXPECT SUCCESSFUL COMPLETION OF THIS STEP. */            10550000
+   /*******************************************************/            10600000
+       DEFINE  CLUSTER -                                                10650000
+               (NAME(DFPS1IV1.KSDS) -                                   10700000
+               TRACKS(1 1) -                                            10750000
+               VOLUMES(TMP012)       /* SMS VOL2 */ -                   10800000
+               STORCLAS(SUPCLONE)     /* GUARANTEED SPACE STORCLAS*/ -   1085000
+               RECORDSIZE(80 80) -                                      10950000
+               KEYS(5 0) -                                              11000000
+               FREESPACE(10 10))                                        11050000
+                                                                        11100000
+   /*******************************************************/            11150000
+   /*  STEP03  LIST THE ENTRY IF DEFINE WAS SUCCESSFUL.   */            11200000
+   /*******************************************************/            11250000
+  IF MAXCC = 0 -                                                        11300000
+     THEN -                                                             11350000
+       LISTCAT ENTRIES(DFPS1IV1.KSDS) -                                 11400000
+               ALL -                                                    11450000
+               CATALOG(DFS1CAT1)                                        11500000
+/*                                                                      11550000
+//STEP04  EXEC PGM=IDCAMS                                               11600000
+//*                                                                     11650000
+//*   PLACE DATA IN THE DEFINED CLUSTER                                 11700000
+//*                                                                     11750000
+//SYSPRINT DD  SYSOUT=A                                                 11800000
+//DSDATA   DD  *                                                        11850000
+ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRST11900000
+BCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTU11950000
+CDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUV12000000
+DEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVW12050000
+EFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWX12100000
+FGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXY12150000
+GHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ12200000
+HIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZA12250000
+IJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZAB12300000
+JKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABC12350000
+/*                                                                      12400000
+//DSNM     DD  DSN=DFPS1IV1.KSDS,DISP=OLD                               12450000
+//SYSIN    DD  *                                                        12500000
+   /*******************************************************/            12550000
+   /*  STEP04  PLACE DATA IN THE DEFINED KSDS CLUSTER.    */            12600000
+   /*          EXPECT SUCCESSFUL COMPLETION OF THIS STEP. */            12650000
+   /*******************************************************/            12700000
+         REPRO INFILE(DSDATA) -                                         12750000
+               OUTFILE(DSNM)                                            12800000
+                                                                        12850000
+  IF LASTCC = 0 -                                                       12900000
+     THEN -                                                             12950000
+         PRINT INFILE(DSNM)                                             13000000
+/*                                                                      13050000
+//STEP05  EXEC PGM=IDCAMS,COND=(8,LE)                                   13100000
+//*                                                                     13150000
+//*  DEFINE ANOTHER ICF USERCATALOG.                                    13200000
+//*                                                                     13250000
+//SYSPRINT DD  SYSOUT=A                                                 13300000
+//VOL      DD  UNIT=SYSDA,VOL=SER=TMP011,DISP=OLD      /*SMS VOL1*/     13350000
+//SYSIN    DD  *                                                        13400000
+   /*******************************************************/            13450000
+   /*  STEP05  DEFINE A SECOND ICF USERCATALOG IN AN      */            13500000
+   /*          SMS-MANAGED VOLUME USING A GUARANTEED      */            13550000
+   /*          SPACE STORAGE CLASS. EXPECT SUCCESSFUL     */            13600000
+   /*          EXPECT SUCCESSFUL COMPLETION OF THIS STEP. */            13650000
+   /*******************************************************/            13700000
+       DEFINE  USERCATALOG -                                            13750000
+         (NAME(DFS1CAT2) -                                              13800000
+         CYLINDERS(3 2) -                                               13850000
+         VOLUME(TMP011)              /*SMS VOL1*/ -                     13900000
+         STORCLAS(SUPCLONE)           /*GUARANTEED SPACE STORCLAS*/ -    1395000
+         FREESPACE(10 10) -                                             14050000
+         RECORDSIZE(4086 4086) -                                        14100000
+         ICFCATALOG -                                                   14150000
+         FILE(VOL)) -                                                   14200000
+         CATALOG(CATALOG.ZOS24.MASTER)            /*MASTERCAT*/
+/*                                                                      14300000
+//STEP06  EXEC PGM=IDCAMS,COND=(8,LE)                                   14350000
+//*                                                                     14400000
+//*   DEFINE AN ESDS CLUSTER AND LIST ITS ENTRY                         14450000
+//*                                                                     14500000
+//SYSPRINT DD  SYSOUT=A                                                 14550000
+//VOL      DD  UNIT=SYSDA,VOL=SER=TMP012,DISP=OLD    /*SMS VOL2*/       14600000
+//SYSIN    DD  *                                                        14650000
+   /*******************************************************/            14700000
+   /*  STEP06  DEFINE AN ESDS CLUSTER IN AN SMS-MANAGED   */            14750000
+   /*          VOLUME USING A GUARANTEED STORAGE CLASS.   */            14800000
+   /*          EXPECT SUCCESSFUL COMPLETION OF THIS STEP. */            14850000
+   /*******************************************************/            14900000
+       DEFINE  CLUSTER -                                                14950000
+               (NAME(DFPS1IV2.ESDS) -                                   15000000
+               TRACKS(1 1) -                                            15050000
+               VOLUMES(TMP012)        /*SMS VOL2 */     -               15100000
+               STORCLAS(SUPCLONE)     /*GUARANTEED SPACE STORCLAS*/ -    1515000
+               RECORDSIZE(80 80) -                                      15250000
+               NONINDEXED -                                             15300000
+               FREESPACE(10 10)) -                                      15350000
+               CATALOG(DFS1CAT2)                                        15400000
+                                                                        15450000
+   /*******************************************************/            15500000
+   /*  STEP06   LIST THE ENTRY IF DEFINE WAS SUCCESSFUL.  */            15550000
+   /*******************************************************/            15600000
+  IF MAXCC = 0 -                                                        15650000
+     THEN -                                                             15700000
+       LISTCAT ENTRIES(DFPS1IV2.ESDS) -                                 15750000
+               ALL -                                                    15800000
+               CATALOG(DFS1CAT2)                                        15850000
+/*                                                                      15900000
+//STEP07  EXEC PGM=IDCAMS                                               15950000
+//*                                                                     16000000
+//*   MERGE THE TWO ICF USERCATALOGS.                                   16050000
+//*                                                                     16100000
+//UCAT1    DD  DSN=DFS1CAT1,DISP=OLD                                    16150000
+//UCAT2    DD  DSN=DFS1CAT2,DISP=OLD                                    16200000
+//SYSPRINT DD  SYSOUT=A                                                 16250000
+//SYSIN    DD  *                                                        16300000
+   /*********************************************************/          16350000
+   /* STEP07  MERGE THE 2ND ICF USERCATALOG INTO THE        */          16400000
+   /*         1ST USERCATALOG VIA REPRO MERGECAT.           */          16450000
+   /*         EXPECT SUCCESSFUL COMPLETION OF THIS STEP.    */          16500000
+   /*********************************************************/          16550000
+       REPRO -                                                          16600000
+             INFILE (UCAT2) -                                           16650000
+             OUTFILE (UCAT1) -                                          16700000
+             LEVEL(DFPS1IV2) -                                          16750000
+             MERGECAT                                                   16800000
+/*                                                                      16850000
+//STEP08  EXEC PGM=IDCAMS,COND=(8,LE)                                   16900000
+//*                                                                     16950000
+//*   LIST THE CATALOG TO SHOW TWO CLUSTER ENTRIES                      17000000
+//*                                                                     17050000
+//SYSPRINT DD  SYSOUT=A                                                 17100000
+//VOL      DD  UNIT=SYSDA,VOL=SER=TMP011,DISP=OLD      /*SMS VOL1*/     17150000
+//SYSIN    DD  *                                                        17200000
+   /**********************************************************/         17250000
+   /*  STEP08  LIST THE 1ST CATALOG TO SHOW THE PRESENCE     */         17300000
+   /*          OF THE MERGED ESDS ENTRY.                     */         17350000
+   /*          EXPECT SUCCESSFUL COMPLETION OF THIS LISTCAT. */         17400000
+   /**********************************************************/         17450000
+       LISTCAT -                                                        17500000
+               ALL -                                                    17550000
+               FILE(VOL) -                                              17600000
+               CATALOG(DFS1CAT1)                                        17650000
+                                                                        17700000
+   /**********************************************************/         17750000
+   /*  STEP08  LIST THE 2ND CATALOG TO SHOW THE ESDS         */         17800000
+   /*          ENTRY IS NO LONGER THERE.                     */         17850000
+   /*          EXPECT SUCCESSFUL COMPLETION OF THIS LISTCAT. */         17900000
+   /**********************************************************/         17950000
+       LISTCAT -                                                        18000000
+               ALL -                                                    18050000
+               FILE(VOL) -                                              18100000
+               CATALOG(DFS1CAT2)                                        18150000
+/*                                                                      18200000
+//STEP09  EXEC PGM=IDCAMS,COND=(8,LE)                                   18250000
+//*                                                                     19450000
+//*   EXPORT THE CATALOG TO DISK FOR BACKUP                             19500000
+//*   MARK THE CATALOG TEMPORARY (A BACKUP COPY EXISTS)                 19550000
+//*                                                                     19600000
+//SYSPRINT DD  SYSOUT=A                                                 19650000
+//DISK     DD  DSNAME=EXPORT.DFS1CAT1,UNIT=SYSDA,DISP=(NEW,PASS),       19700000
+//             VOL=SER=TMP012,SPACE=(CYL,(1,1)),STORCLAS=SUPCLONE        1975000
+//SYSIN    DD  *                                                        19800000
+   /**************************************************************/     19850000
+   /*  STEP09  EXPORT THE CATALOG TO DISK FOR BACKUP.            */     19900000
+   /*          MARK THE CATALOG TEMPORARY (A BACKUP COPY EXISTS) */     19950000
+   /*          EXPECT NO MORE THAN RETURN CODE 4 FOR THIS STEP.  */     20000000
+   /**************************************************************/     20050000
+       EXPORT  DFS1CAT1 -                                               20100000
+               OUTFILE(DISK) -                                          20150000
+               TEMPORARY                                                20200000
+                                                                        20250000
+       IF LASTCC = 4 THEN SET MAXCC=0                                   20300000
+/*                                                                      20350000
+//STEP10  EXEC PGM=IDCAMS,COND=(8,LE)                                   20400000
+//*                                                                     20450000
+//*   REPLACE THE CATALOG WITH THE BACKUP COPY                          20500000
+//*                                                                     20550000
+//SYSPRINT DD  SYSOUT=A                                                 20600000
+//UCAT1    DD  UNIT=SYSDA,VOL=SER=TMP011,DISP=OLD,    /*SMS VOL1*/      20650000
+//             DSNAME=DFS1CAT1,AMP='AMORG'                              20700000
+//DISK1    DD  DSNAME=EXPORT.DFS1CAT1,DISP=(OLD,PASS)                   20750000
+//SYSIN    DD  *                                                        20800000
+   /*******************************************************/            20850000
+   /*  STEP10  REPLACE THE CATALOG WITH THE BACKUP COPY.  */            20900000
+   /*          EXPECT SUCCESSFUL COMPLETION OF THIS STEP. */            20950000
+   /*******************************************************/            21000000
+    IMPORT     INFILE(DISK1) -                                          21050000
+      OUTFILE(UCAT1) -                                                  21100000
+      CATALOG(CATALOG.ZOS24.MASTER)                /*MASTERCAT/
+/*                                                                      21200000
+//STEP11  EXEC PGM=IDCAMS,COND=(8,LE)                                   21250000
+//*                                                                     21300000
+//*   VERIFY THAT IMPORT WAS SUCCESSFUL                                 21350000
+//*                                                                     21400000
+//SYSPRINT DD  SYSOUT=A                                                 21450000
+//UCAT1    DD  UNIT=SYSDA,VOL=SER=TMP011,DISP=OLD,    /*SMS VOL1*/      21500000
+//             DSN=DFS1CAT1,AMP='AMORG'                                 21550000
+//VVDS1    DD  UNIT=SYSDA,VOL=SER=TMP011,DISP=OLD,    /*SMS VOL1*/      21600000
+//             DSN=SYS1.VVDS.VTMP011,AMP='AMORG'                        21650000
+//SYSIN    DD  *                                                        21700000
+   /************************************************************/       21750000
+   /* STEP11  VERIFY (VIA DIAGNOSE COMMAND) THAT IMPORT        */       21800000
+   /*         WAS SUCCESSFUL (CATALOG IN SYNCH).               */       21850000
+   /*         EXPECT NO MORE THAN RETURN CODE 4 FOR THIS STEP. */       21900000
+   /************************************************************/       21950000
+       DIAGNOSE -                                                       22000000
+               ICFCATALOG -                                             22050000
+               INFILE(UCAT1) -                                          22100000
+               COMPAREDD(VVDS1) -                                       22150000
+               LIST NODUMP                                              22200000
+                                                                        22250000
+       IF LASTCC = 4 THEN SET MAXCC = 0                                 22300000
+/*                                                                      22350000
+//STEP12  EXEC PGM=IDCAMS                                               22400000
+//*                                                                     22450000
+//*   CLEANUP                                                           22500000
+//*                                                                     22550000
+//SYSPRINT DD  SYSOUT=A                                                 22600000
+//VOL1     DD  UNIT=SYSDA,VOL=SER=TMP011,DISP=OLD    /*SMS VOL1*/       22650000
+//VOL2     DD  UNIT=SYSDA,VOL=SER=TMP012,DISP=OLD    /*SMS VOL2*/       22700000
+//SYSIN    DD  *                                                        22750000
+   /******************************************************/             22800000
+   /* STEP12  DEFINE THE HLQ OF THE CLUSTERS AS ALIASES  */             22850000
+   /*         OF THE ICF CATALOG TO ENABLE LOCATING THEM */             22900000
+   /*         DURING THE DELETE CLUSTER THAT FOLLOWS FOR */             22950000
+   /*         SYSTEM CLEANUP. EXPECT SUCCESSFUL RESULTS. */             23000000
+   /******************************************************/             23050000
+    DEFINE ALIAS (NAME(DFPS1IV1) RELATE(DFS1CAT1))                      23100000
+    DEFINE ALIAS (NAME(DFPS1IV2) RELATE(DFS1CAT1))                      23150000
+                                                                        23200000
+   /******************************************************/             23250000
+   /* STEP12  DELETE THE VSAM KSDS. IF IN CASE THE       */             23300000
+   /*         CATALOG IS GONE, DELETE THE CLUSTER'S      */             23350000
+   /*         VVR ENTRIES FOR VOLUME CLEANUP.            */             23400000
+   /*         EXPECT EITHER "DELETE CLUSTER" OR "DELETE  */             23450000
+   /*         VVR" TO BE SUCCESSFUL.                     */             23500000
+   /******************************************************/             23550000
+    DELETE     (DFPS1IV1.KSDS) CLUSTER PURGE                            23600000
+      IF LASTCC > 0 THEN -                                              23650000
+        DO                                                              23700000
+          DELETE       -                                                23750000
+            DFPS1IV1.KSDS.DATA -                                        23800000
+            FILE (VOL2)       -                                         23850000
+            VVR -                                                       23900000
+            CATALOG (DFS1CAT1)                                          23950000
+                                                                        24000000
+          DELETE       -                                                24050000
+            DFPS1IV1.KSDS.INDEX -                                       24100000
+            FILE (VOL2)       -                                         24150000
+            VVR -                                                       24200000
+            CATALOG (DFS1CAT1)                                          24250000
+                                                                        24300000
+          SET MAXCC = 0                                                 24350000
+        END                                                             24400000
+   /******************************************************/             24450000
+   /* STEP12  DELETE THE VSAM ESDS. IF THE ICF CATALOG   */             24500000
+   /*         DOES NOT EXIST, DELETE THE CLUSTER'S       */             24550000
+   /*         VVR ENTRY FOR VOLUME CLEANUP.              */             24600000
+   /*         EXPECT EITHER THE "DELETE CLUSTER" OR      */             24650000
+   /*         "DELETE VVR" TO BE SUCCESSFUL.             */             24700000
+   /******************************************************/             24750000
+     DELETE    (DFPS1IV2.ESDS) CLUSTER PURGE                            24800000
+       IF LASTCC > 0 THEN -                                             24850000
+         DO                                                             24900000
+           DELETE      -                                                24950000
+             DFPS1IV2.ESDS.DATA -                                       25000000
+             FILE (VOL2)      -                                         25050000
+             VVR -                                                      25100000
+             CATALOG (DFS1CAT1)                                         25150000
+                                                                        25200000
+           SET MAXCC = 0                                                25250000
+         END                                                            25300000
+                                                                        25350000
+   /******************************************************/             25400000
+   /* STEP12  DELETE THE ALIASES.                        */             25450000
+   /******************************************************/             25500000
+    DELETE    DFPS1IV1 ALIAS                                            25550000
+    DELETE    DFPS1IV2 ALIAS                                            25600000
+                                                                        25650000
+   /**********************************************************/         25700000
+   /* STEP12  DELETE THE FIRST ICF CATALOG. IF DISCONNECTED  */         25750000
+   /*         FROM THE MASTERCATALOG, DELETE ITS VVR ENTRIES */         25800000
+   /*         FOR VOLUME CLEANUP. EXPECT EITHER THE "DELETE  */         25850000
+   /*         UCAT" OR "DELETE VVR" TO BE SUCCESSFUL.        */         25900000
+   /**********************************************************/         25950000
+    DELETE    (DFS1CAT1) UCAT FORCE                                     26000000
+      IF LASTCC > 0 THEN -                                              26050000
+       DO                                                               26100000
+         DELETE      -                                                  26150000
+           DFS1CAT1 -                                                   26200000
+           FILE (VOL1)      -                                           26250000
+           VVR -                                                        26300000
+         CATALOG (CATALOG.ZOS24.MASTER)             /*MASTERCAT*/
+         DELETE      -                                                  26400000
+           DFS1CAT1.CATINDEX -                                          26450000
+           FILE (VOL1)      -                                           26500000
+           VVR -                                                        26550000
+         CATALOG (CATALOG.ZOS24.MASTER)             /*MASTERCAT*/
+         SET MAXCC = 0                                                  26650000
+      END                                                               26700000
+                                                                        26750000
+   /**********************************************************/         26800000
+   /* STEP12  DELETE THE SECOND ICF CATALOG. IF DISCONNECTED */         26850000
+   /*         FROM THE MASTERCATALOG, DELETE ITS VVR ENTRIES */         26900000
+   /*         FOR VOLUME CLEANUP. EXPECT EITHER THE "DELETE  */         26950000
+   /*         UCAT" OR "DELETE VVR" TO BE SUCCESSFUL.        */         27000000
+   /**********************************************************/         27050000
+   DELETE    (DFS1CAT2) UCAT FORCE                                      27100000
+     IF LASTCC > 0 THEN -                                               27150000
+       DO                                                               27200000
+         DELETE      -                                                  27250000
+           DFS1CAT2 -                                                   27300000
+           FILE (VOL1)      -                                           27350000
+           VVR -                                                        27400000
+         CATALOG (CATALOG.ZOS24.MASTER)             /*MASTERCAT*/
+         DELETE      -                                                  27500000
+           DFS1CAT2.CATINDEX -                                          27550000
+           FILE (VOL1)      -                                           27600000
+           VVR -                                                        27650000
+         CATALOG (CATALOG.ZOS24.MASTER)             /*MASTERCAT*/
+         SET MAXCC = 0                                                  27750000
+       END                                                              27800000
+/*                                                                      27850000

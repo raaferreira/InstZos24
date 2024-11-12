@@ -1,0 +1,47 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*-------------------------------------------------------------------
+//*
+//* JOB: HRF77C0L (product-supplied job IRRDPTAB in
+//*               SYS1.SAMPLIB(RACPROC))
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job creates procedure IRRDPTAB in the new target
+//*      system's PROCLIB
+//*-------------------------------------------------------------------
+//DPTAB     EXEC PGM=IEBGENER
+//SYSUT2    DD DISP=SHR,
+//             DSN=Z24MST.SYS1.IBM.PROCLIB(IRRDPTAB)
+//SYSPRINT  DD SYSOUT=*
+//SYSIN     DD DUMMY
+//SYSUT1    DD DATA,DLM='##'
+//IRRDPTAB PROC
+//*-------------------------------------------------------------------
+//*  RACF - IRRDPTAB
+//*  THIS STARTED TASK IS RUN AT IPL TO LOAD THE RACF DYNAMIC
+//*  PARSE TABLE.  THE USERID FOR THE TASK MUST BE AUTHORIZED
+//*  TO ISSUE THE IRRDPI00 COMMAND.
+//*-------------------------------------------------------------------
+//IEFPROC  EXEC PGM=IKJEFT01,PARM='IRRDPI00 UPDATE'
+//SYSTSPRT DD SYSOUT=*,HOLD=YES
+//SYSUDUMP DD SYSOUT=*,HOLD=YES
+//SYSUT1   DD DISP=SHR,
+//            DSN=SYS1.SAMPLIB(IRRDPSDS)
+//SYSTSIN  DD DUMMY
+##
+//*

@@ -1,0 +1,42 @@
+//SSZOS24  JOB 60798,E002884,
+//         CLASS=W,
+//         MSGCLASS=Q,
+//         MSGLEVEL=(1,1),
+//         NOTIFY=ROSCAAO,
+//         TIME=NOLIMIT,
+//         LINES=(999999,WARNING),
+//         REGION=0M
+//*
+//*  MODIFY THE JOB STATEMENT ABOVE AS REQUIRED FOR YOUR INSTALLATION'S
+//*  REQUIREMENTS, AND PRESS END TO CONTINUE
+//*
+//*
+//JOBLIB   DD DSN=ZOS24.OS241147.ORDER.SCPPLOAD,
+//            DISP=SHR
+//*
+//*
+//********************************************************************
+//* JOB: HFST101K  (product-supplied job EPW12012 in library SEPWSRC2)
+//*
+//* GDE: ServerPac INSTALLING YOUR ORDER
+//*
+//* DOC: This job is optional.  It will start the FFST
+//*      installation verification program EPWIVP.
+//*
+//*       Expected condition code = 0000
+//*
+//* NOTE:
+//*
+//*  Make sure that task EPWFFST has been started
+//*  before running this IVP.
+//*
+//*******************************************************************
+//*
+//STEP1    EXEC PGM=EPWIVP,REGION=3000K
+//STEPLIB  DD DSN=FFST.V120ESA.SEPWMOD3,
+//            DISP=SHR
+//FFSTLIB  DD DSN=FFST.V120ESA.SEPWMOD3,
+//            DISP=SHR
+//SYSPRINT DD SYSOUT=A
+//SYSABEND DD SYSOUT=A
+//*

@@ -1,0 +1,778 @@
+//DFPS3IVP JOB 60798,E002884,CLASS=W,NOTIFY=ROSCAAO,MSGCLASS=Q
+//********************************************************************* 00100000
+//*PROPRIETARY STATEMENT                                                00150000
+//*LICENSED MATERIALS - PROPERTY OF IBM                                 00160000
+//*5650-ZOS                                                             00170000
+//*COPYRIGHT IBM CORP. 1997                                             00180000
+//*END PROPRIETARY STATEMENT                                            00400000
+//********************************************************************* 00450000
+//*       IVP FOR VSAM CONTROL BLOCK MANIPULATION MODULE                00500000
+//*               SMS MANAGED VERSION  7/20/2000                        00550000
+//********************************************************************* 00600000
+//*                                                                     00650000
+//*  NOTE: THIS JOB SHOULD BE RUN ONLY ON A SYSTEM THAT HAS STORAGE     00700000
+//*  MANAGEMENT SUBSYSTEM (SMS) ACTIVE.                                 00750000
+//*                                                                     00800000
+//*  YOU MAY NEED TO MAKE CHANGES TO THIS JCL TO EXECUTE ON YOUR SYSTEM 00850000
+//*                                                                     00900000
+//*  THE FOLLOWING STRINGS REPRESENT CHANGES                            00950000
+//*  YOU MAY WANT TO MAKE:                                              01000000
+//*                                                                     01050000
+//*    TMP011    -    AN SMS MANAGED VOLUME                             01150000
+//*    SUPCLONE   -    A GUARANTEED SPACE STORAGE CLASS                  0120000
+//*                      THAT INCLUDES THE VOLUME TMP011                01250000
+//*    CATALOG.ZOS24.MASTER  -    THE NAME OF THE MASTER CATALOG
+//*                                                                     01400000
+//*                                                                     01450000
+//*******************************************************************   01500000
+//* THE DFP IVP CONSISTS OF THREE JOBS WITH VARIOUS STEPS TO VERIFY     01550000
+//* THE VSAM CONTROL BLOCK MANIPULATION MODULE.                         01600000
+//*******************************************************************   01650000
+//* JOBSTEPS                                                            01700000
+//*                                                                     01750000
+//* JOB1: DFPS3IVP                                                      01800000
+//*      DELETE1  -- DELETE TEMPORARY LOAD LIBRARY.  (CLEANUP)          01850000
+//*      CLEANUP1 -- CLEANUP ICF CATALOG AND ANY VSAM DATASETS.         01950000
+//*      DEFCAT   -- DEFINE DFS3UCAT ON SCRATCH PACK.        (3 CYL)    02000000
+//*      CREATE   -- CREATE TEMPORARY LOAD LIBRARY.                     02025000
+//*      HOLD1    -- IEBGENER UTILITY ISSUED TO HOLD THE NEXT JOB.      02050000
+//*                                                                     02100000
+//* JOB2: DFPS3IV2                                                      02150000
+//*      DEFKSDS  -- DEFINE CLUSTER DFPS3IVP.KSDS01.         (10 TRK)   02200000
+//*      ASSEM1   -- ASSEMBLE VSAM 31-BIT PROGRAM (DFPS3IVP) TO TEST    02250000
+//*                  CONTROL BLOCK MANIPULATION MODULE.                 02300000
+//*      LINK1    -- LINK TEST PROGRAM.                                 02350000
+//*      HOLD1    -- IEBGENER UTILITY ISSUED TO HOLD THE NEXT JOB.      02400000
+//* JOB3: DFPS3IV3                                                      02450000
+//*      EXECIVP  -- EXECUTE TEST PROGRAM, DFPS3IVP.                    02500000
+//*      CLEANUPT -- DELETE TEMPORARY LOAD LIBRARY                      02537500
+//*      CLEANUP2 -- DELETE ICF CATALOG WITH DFPS3IVP.KSDS01.           02575000
+//*                                                                     02612500
+//********************************************************************* 02650000
+//*                                                                     02700000
+//*      NORMAL COMPLETION RESULTS:                                     02750000
+//*                 ALL STEPS SHOULD HAVE ZERO RETURN CODES.            02800000
+//*                                                                     02850000
+//*      ABNORMAL COMPLETION RESULTS:                                   02900000
+//*                 USER 100 ABENDS ARE ISSUED FOR ANY ERROR RETURN     02950000
+//*                     CODES FROM VSAM AND FROM VIO.                   03000000
+//*                                                                     03050000
+//********************************************************************* 03100000
+//* SETUP:                                                              03150000
+//*       THE USER MUST FIRST MOUNT A SMS MANAGED VOLUME.               03200000
+//*       A SCRATCH VOLUME IS DEFINED AS A VOLUME THAT DOES NOT         03250000
+//*       HAVE ANY DATA SETS THAT WILL REQUIRE FURTHER USE.             03300000
+//*                                                                     03400000
+//*       IN THE FOLLOWING JOBSTREAM, SUBSTITUTE DEVICES AND MASTER     03450000
+//*       CATALOG NAME INDICATED BY THE COMMENT FLAGS.                  03500000
+//********************************************************************* 03550000
+//* CHANGE ACTIVITY =                                                   03600000
+//*                                                                     03650000
+//* ADD DROP STATEMENT BEFORE CHANGING BASE REGISTERS AND             * 03700000
+//* CORRECT PARAMETERS                                        @WA24440* 03750000
+//********************************************************************* 03800000
+//*                                                                   * 03850000
+//*        DELETE TEMPORARY LOAD MODULE LIBARARY IF EXISTING          * 03900000
+//*                                                                   * 03950000
+//* ADD HLASMC                                                @WA29697* 03975000
+//* FIXED HLASMC SYNTAX                                           @01C* 03987500
+//********************************************************************* 04000000
+//*                                                                     04050000
+//DELETE1 EXEC PGM=IEFBR14                                              04100000
+//LOADDD   DD  DSN=DFPS3IVP.TEMPLIB,DISP=(MOD,DELETE),                  04150000
+//             SPACE=(TRK,(0)),STORCLAS=SUPCLONE,                        0420000
+//             UNIT=SYSDA,VOL=SER=TMP011                                04250000
+//*                                                                     04850000
+//********************************************************************* 04900000
+//*                                                                   * 04950000
+//* CLEANUP ICF CATALOG AND ANY VSAM DATASETS FROM SCRATCH PACK.      * 05000000
+//*                                                                   * 05050000
+//********************************************************************* 05100000
+//*                                                                     05150000
+//CLEANUP1 EXEC PGM=IDCAMS                                              05200000
+//SYSPRINT DD  SYSOUT=*                                                 05250000
+//SYSIN    DD  *                                                        05300000
+ /********************************************************************/ 05350000
+ /* CLEANUP1  DELETE CLUSTER AND USERCATALOG THAT MAY HAVE BEEN      */ 05400000
+ /* --------  PREVIOUSLY DEFINED. EXPECT A NON-ZERO RETURN CODE      */ 05450000
+ /*           IF THEY DON'T EXIST.                                   */ 05500000
+ /********************************************************************/ 05550000
+  DELETE (DFPS3IVP.KSDS01) CLUSTER PURGE                                05600000
+  DELETE DFS3UCAT -                                                     05650000
+      UCAT FORCE                                                        05700000
+  EXPORT DFS3UCAT DISCONNECT                     /*@YA24876*/           05750000
+ SET LASTCC=0                                                           05800000
+ SET MAXCC=0                                                            05850000
+/*                                                                      05900000
+//*                                                                     05950000
+//********************************************************************* 06000000
+//*                                                                   * 06050000
+//*     DFPS3IVP     DEFCAT - DEFINES DFS3UCAT ON SCRATCH PACK.       * 06100000
+//*                                                                   * 06150000
+//********************************************************************* 06200000
+//*                                                                     06250000
+//DEFCAT  EXEC PGM=IDCAMS                                               06300000
+//SYSPRINT DD  SYSOUT=*                                                 06350000
+//SYSIN    DD  *                                                        06400000
+  /***********************************************************/         06450000
+  /* DEFCAT  DEFINE AN ICF CATALOG IN AN SMS-MANAGED VOLUME. */         06500000
+  /* ------  EXPECT SUCCESSFUL COMPLETION OF THIS DEFINE.    */         06550000
+  /***********************************************************/         06600000
+         DEFINE  UCAT  (  -                                             06650000
+               NAME (DFS3UCAT)  -                                       06700000
+               ICFCATALOG -                                             06750000
+               STORCLAS(SUPCLONE)     /*GUARANTEED SPACE STORCLAS*/  -   0685000
+               VOL (TMP011)          /*SMS VOL*/  -                     06900000
+               RECSZ (4086 32400) -                                     06950000
+               CYL (1 1))  -                                            07000000
+               CATALOG (CATALOG.ZOS24.MASTER)
+                                                                        07100000
+                                                                        07150000
+  /***********************************************************/         07200000
+  /*         DEFINE AN ALIAS OF THE USERCATALOG.             */         07250000
+  /*         EXPECT SUCCESSFUL COMPLETION OF THIS DEFINE.    */         07300000
+  /***********************************************************/         07350000
+         DEFINE ALIAS ( NAME ( DFPS3IVP) RELATE (DFS3UCAT))             07400000
+/*                                                                      07450000
+//********************************************************************* 07500000
+//*                                                                   * 07504100
+//*           CREATE NEW LOAD MODULE LIBRARY DFPS3IVP.TEMPLIB.        * 07508200
+//*                                                                   * 07512300
+//********************************************************************* 07516400
+//*                                                                     07520500
+//CREATE EXEC PGM=IEFBR14                                               07524600
+//LOADDD DD DSN=DFPS3IVP.TEMPLIB,UNIT=SYSDA,                            07528700
+//          VOL=SER=TMP011,DCB=(SYS1.LINKLIB),STORCLAS=SUPCLONE,         0753280
+//          SPACE=(TRK,(5,2,1),RLSE),DISP=(NEW,KEEP)                    07536900
+//*                                                                     07541000
+//********************************************************************* 07545100
+//*   THE FOLLOWING STEP WILL HOLD THE NEXT JOB(S) FROM BEING         * 07550000
+//*   SUBMITTED UNTIL THE PRECEDING JOB IS COMPLETELY EXECUTED.       * 07600000
+//********************************************************************* 07650000
+//HOLD1   EXEC PGM=IEBGENER                                             07700000
+//SYSPRINT DD  SYSOUT=*                                                 07750000
+//SYSIN  DD  DUMMY                                                      07800000
+//SYSUT2  DD SYSOUT=(A,INTRDR)                                          07850000
+//SYSUT1  DD DATA,DLM=$A                                                07900000
+//DFPS3IV2 JOB (DFPS3IVP),IVP2,MSGLEVEL=(1,1),MSGCLASS=A,CLASS=A        07950000
+//*                                                                     08000000
+//********************************************************************* 08050000
+//*                                                                   * 08100000
+//*     DEFINE DFPS3IVP.KSDS01.                                       * 08150000
+//*                                                                   * 08200000
+//********************************************************************* 08250000
+//*                                                                     08300000
+//DEFKSDS EXEC PGM=IDCAMS                                               08350000
+//SYSPRINT DD  SYSOUT=*                                                 08400000
+//SYSIN    DD  *                                                        08450000
+ /*************************************************************/        08500000
+ /* DEFKSDS  DEFINE CLUSTER DFPS3IVP.KSDS01 IN AN SMS VOLUME. */        08550000
+ /* -------  EXPECT SUCCESSFUL COMPLETION OF THIS STEP.       */        08600000
+ /*************************************************************/        08650000
+                                                                        08700000
+         DEFINE CLUSTER ( NAME (DFPS3IVP.KSDS01)    -                   08750000
+            VOLUMES (TMP011)                             /*SMS VOL*/ -  08800000
+            STORCLAS(SUPCLONE)          /*GUARANTEED SPACE STORCLAS*/ -  0885000
+            TRK                (10 1)              -                    08900000
+            RECSZ (256 256)                        -                    08950000
+            CISZ (2048)                            -                    09000000
+            KEYS (4 8)                             -                    09050000
+            SHR (3 3)                              -                    09150000
+            OWNER (VSM31BIT) )                     -                    09200000
+            DATA ( NAME (DFPS3IVP.KSDS01.DATA) )   -                    09250000
+            INDEX ( NAME (DFPS3IVP.KSDS01.INDEX) ) -                    09300000
+            CATALOG (DFS3UCAT)                                          09350000
+/*                                                                      09400000
+//*                                                                     09450000
+//********************************************************************* 09500000
+//*                                                                   * 09550000
+//*           ASSEMBLE DFPSIVP1                                       * 09600000
+//*                                                                   * 09650000
+//********************************************************************* 09700000
+//*                                                                     09750000
+//ASSEM1  EXEC HLASMC,REGION.C=512K,COND.C=(0,NE,DEFKSDS), /*@WA29697*/ 09800000
+//             PARM.C='NOOBJECT,LINECOUNT(55),DECK'       /*@WA24440*/  09850000
+//C.SYSPUNCH DD  DSN=&ASM1OBJ,UNIT=SYSDA,DISP=(NEW,PASS),               09900000
+//             SPACE=(TRK,(1,1),RLSE)                                   09950000
+//C.SYSIN    DD  *                                                      10000000
+DFPS3IVP TITLE 'INSTALLATION VERIFICATION PROGRAM FOR DFP'              10050000
+DFPS3IVP CSECT                                                          10100000
+DFPS3IVP AMODE 31                                                       10150000
+DFPS3IVP RMODE 24                                                       10200000
+         PRINT NOGEN                                                    10250000
+*START OF SPECIFICATIONS *********************************************  10300000
+*                                                                    *  10350000
+*MODULE NAME: DFPS3IVP       INSTALLATION VERIFICATION PROGRAM       *  10400000
+*                                                                    *  10450000
+*STATUS:  MVS/XA DFP                                                 *  10500000
+*                                                                    *  10550000
+*FUNCTION:                                                           *  10600000
+*     VERIFY INSTALLATION OF THE CONTROL BLOCK MANIPULATION MODULE   *  10650000
+*     IDA019C1 IS CORRECT.                                           *  10700000
+*                                                                    *  10750000
+*METHOD:                                                             *  10800000
+*     GENERATE ACB, EXLST, AND RPL CONTROL BLOCKS USING GENCB MACRO. *  10850000
+*     OPEN, LOAD, AND READ A VSAM KEY-SEQUENCED DATA SET USING THE   *  10900000
+*     CONTROL BLOCKS CREATED.                                        *  10950000
+*                                                                    *  11000000
+*NOTES:                                                              *  11050000
+*                                                                    *  11100000
+*     DEPENDENCIES:                                                  *  11150000
+*         MVS/XA DFP RELEASE 1.2                                     *  11200000
+*                                                                    *  11250000
+*     REGISTER CONVENTIONS:                                          *  11300000
+*         R1            POINTS TO PARAMETER LISTS                    *  11350000
+*         R2 - R11      WORK REGISTERS                               *  11400000
+*         R12           BASE REGISTER                                *  11450000
+*         R13           POINTS TO SAVE AREA                          *  11500000
+*         R14           POINTS TO RETURN ADDRESS                     *  11550000
+*         R15           ENTRY POINT ADDRESS                          *  11600000
+*                       RETURN CODES                                 *  11650000
+*                                                                    *  11700000
+*     PROCESSOR:   ASSEMBLER XF OR ABOVE                             *  11750000
+*                                                                    *  11800000
+*ENTRY POINT:  DFPS3IVP                                              *  11850000
+*                                                                    *  11900000
+*     PURPOSE:  SEE FUNCTION                                         *  11950000
+*                                                                    *  12000000
+*     LINKAGE:  STANDARD LINKAGE CONVENTIONS                         *  12050000
+*                                                                    *  12100000
+*INPUT:   NONE                                                       *  12150000
+*                                                                    *  12200000
+*OUTPUT:                                                             *  12250000
+*     50 RECORDS. 100 BYTES EACH. KEYS 0 - 62 HEX.         @YA29737  *  12300000
+*                                                                    *  12350000
+*EXIT-NORMAL:                                                        *  12400000
+*     RETURN CODE ZERO ON REGISTER 15                                *  12450000
+*                                                                    *  12500000
+*EXIT-ERROR:                                                         *  12550000
+*     U0101 ABEND  ACB1 GENCB ERROR                                  *  12600000
+*     U0102 ABEND  ACB2 GENCB ERROR                                  *  12650000
+*     U0103 ABEND  ACB3 GENCB ERROR                                  *  12700000
+*     U0201 ABEND  RPL1 GENCB ERROR                                  *  12750000
+*     U0202 ABEND  RPL2 GENCB ERROR                                  *  12800000
+*     U0203 ABEND  RPL3 GENCB ERROR                                  *  12850000
+*     U0302 ABEND  EXL2 GENCB ERROR                                  *  12900000
+*     U0303 ABEND  EXL3 GENCB ERROR                                  *  12950000
+*     U0400 ABEND  RPL1 MODCB ERROR                                  *  13000000
+*     U0401 ABEND  ACB1 OPEN ERROR                                   *  13050000
+*     U0402 ABEND  PUT ERROR FOR ACB1                                *  13100000
+*     U0403 ABEND  CLOSE ERROR FOR ACB1                              *  13150000
+*     U0500 ABEND  ACB2 OPEN ERROR                                   *  13200000
+*     U0501 ABEND  GET ERROR FOR ACB2                                *  13250000
+*     U0502 ABEND  CLOSE ERROR FOR ACB2                              *  13300000
+*     U0600 ABEND  ACB3 OPEN ERROR                                   *  13350000
+*     U0601 ABEND  INVALID KEY TEST FAILED KEY=1                     *  13400000
+*     U0602 ABEND  INVALID KEY TEST FAILED KEY=100                   *  13450000
+*     U0603 ABEND  READ ERROR FOR VALID KEY                          *  13500000
+*     U0604 ABEND  READ ERROR FOR VALID KEY                          *  13550000
+*     U0605 ABEND  READ ERROR FOR VALID KEY                          *  13600000
+*     U0700 ABEND  EXIT ENTRY COUINT IS INCORRECT                    *  13650000
+*     U0800 ABEND  READ ERROR FOR VALID KEY                          *  13700000
+*                                                                    *  13750000
+*EXTERNAL REFERENCES:  NONE                                          *  13800000
+*                                                                    *  13850000
+*MACROS:                                                             *  13900000
+*     GENCB, MODCB, ABEND, OPEN, PUT, GET, CLOSE.                    *  13950000
+*                                                                    *  14000000
+*END OF SPECIFICATIONS ***********************************************  14050000
+         EJECT                                                          14100000
+**********************************************************************  14150000
+*                                                                    *  14200000
+*        REGISTER EQUATES                                            *  14250000
+*                                                                    *  14300000
+**********************************************************************  14350000
+R0       EQU   0                       REGISTER 0                       14400000
+R1       EQU   1                       REGISTER 1                       14450000
+R2       EQU   2                       REGISTER 2                       14500000
+R3       EQU   3                       REGISTER 3                       14550000
+R4       EQU   4                       REGISTER 4                       14600000
+R5       EQU   5                       REGISTER 5                       14650000
+R6       EQU   6                       REGISTER 6                       14700000
+R7       EQU   7                       REGISTER 7                       14750000
+R8       EQU   8                       REGISTER 8                       14800000
+R9       EQU   9                       REGISTER 9                       14850000
+R10      EQU   10                      REGISTER 10                      14900000
+R11      EQU   11                      REGISTER 11                      14950000
+R12      EQU   12                      REGISTER 12                      15000000
+R13      EQU   13                      REGISTER 13                      15050000
+R14      EQU   14                      REGISTER 14                      15100000
+R15      EQU   15                      REGISTER 15                      15150000
+         EJECT                                                          15200000
+**********************************************************************  15250000
+*                                                                    *  15300000
+*        STANDARD PROLOGUE                                           *  15350000
+*                                                                    *  15400000
+**********************************************************************  15450000
+         USING *,R15                   SET UP ADDRESSIBILITY            15500000
+         B     PROLOG                  BRANCH AROUND EYECATCHER         15550000
+         DC    CL8'DFPS3IVP'           MODULE NAME                      15600000
+         DC    CL8'&SYSDATE'           MODULE DATE                      15650000
+PROLOG   DS    0H                      HALFWORD BOUNDARY ALIGNMENT      15700000
+         STM   R14,R12,12(R13)         SAVE CALLER'S REGISTERS          15750000
+         BALR  R12,R0                  SET UP BASE REGISTER             15800000
+         DROP  R15                     DROP INITIAL BASE REG@WA24440    15850000
+         USING *,R12                   SET UP ADDRESSIBILITY            15900000
+         LA    R15,SAVEAREA            GET ADDRESS OF SAVE AREA         15950000
+         ST    R13,4(,R15)             SAVE CALLER'S SAVE AREA PTR      16000000
+         ST    R15,8(,R13)             SAVE PTR TO MY SAVE AREA         16050000
+         LR    R13,R15                 POINT TO MY SAVE AREA            16100000
+*                                                                       16150000
+         EJECT                                                          16200000
+**********************************************************************  16250000
+*                                                                    *  16300000
+*        GENERATE REQUIRED VSAM CONTROL BLOCKS.                      *  16350000
+*                                                                    *  16400000
+**********************************************************************  16450000
+*                                                                       16500000
+GETACB1  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      16550000
+         GENCB MF=(E,GENACB1)                                           16600000
+         LTR   R15,R15                 ACB1 GENERATED OK?               16650000
+         BZ    ACB1OK                  YES, GO SAVE ACB1 ADDRESS.       16700000
+         ABEND 101,DUMP                NO, ISSUE USER 101 ABEND.        16750000
+ACB1OK   DS    0H                      HALFWORD BOUNDARY ALIGNMENT      16800000
+         ST    R1,ACB1ADDR             SAVE ADDRESS OF ACB1             16850000
+GETRPL1  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      16900000
+         GENCB MF=(E,GENRPL1)                                           16950000
+         LTR   R15,R15                 RPL1 GENERATED OK?               17000000
+         BZ    RPL1OK                  YES, GO SAVE RPL1 ADDRESS.       17050000
+         ABEND 201,DUMP                NO, ISSUE USER 201 ABEND.        17100000
+RPL1OK   DS    0H                      HALFWORD BOUNDARY ALIGNMENT      17150000
+         ST    R1,RPL1ADDR             SAVE ADDRESS OF RPL1             17200000
+GETEXL2  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      17250000
+         GENCB MF=(E,GENEXL2)                                           17300000
+         LTR   R15,R15                 EXL2 GENERATED OK?               17350000
+         BZ    EXL2OK                  YES, GO SAVE EXL2 ADDRESS.       17400000
+         ABEND 302,DUMP                NO, ISSUE USER 302 ABEND.        17450000
+EXL2OK   DS    0H                      HALFWORD BOUNDARY ALIGNMENT      17500000
+         ST    R1,EXL2ADDR             SAVE ADDRESS OF EXL2             17550000
+GETACB2  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      17600000
+         GENCB MF=(E,GENACB2)                                           17650000
+         LTR   R15,R15                 ACB2 GENERATED OK?               17700000
+         BZ    ACB2OK                  YES, GO SAVE ACB2 ADDRESS.       17750000
+         ABEND 102,DUMP                NO, ISSUE USER 102 ABEND.        17800000
+ACB2OK   DS    0H                      HALFWORD BOUNDARY ALIGNMENT      17850000
+         ST    R1,ACB2ADDR             SAVE ADDRESS OF ACB2             17900000
+GETRPL2  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      17950000
+         GENCB MF=(E,GENRPL2)                                           18000000
+         LTR   R15,R15                 RPL2 GENERATED OK?               18050000
+         BZ    RPL2OK                  YES, GO SAVE RPL2 ADDRESS.       18100000
+         ABEND 202,DUMP                NO, ISSUE USER 202 ABEND.        18150000
+RPL2OK   DS    0H                      HALFWORD BOUNDARY ALIGNMENT      18200000
+         ST    R1,RPL2ADDR             SAVE ADDRESS OF RPL2             18250000
+GETEXL3  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      18300000
+         GENCB MF=(E,GENEXL3)                                           18350000
+         LTR   R15,R15                 EXL3 GENERATED OK?               18400000
+         BZ    EXL3OK                  YES, GO SAVE EXL3 ADDRESS.       18450000
+         ABEND 303,DUMP                NO, ISSUE USER 303 ABEND.        18500000
+EXL3OK   DS    0H                      HALFWORD BOUNDARY ALIGNMENT      18550000
+         ST    R1,EXL3ADDR             SAVE ADDRESS OF EXL3             18600000
+GETACB3  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      18650000
+         GENCB MF=(E,GENACB3)                                           18700000
+         LTR   R15,R15                 ACB3 GENERATED OK?               18750000
+         BZ    ACB3OK                  YES, GO SAVE ACB3 ADDRESS.       18800000
+         ABEND 103,DUMP                NO, ISSUE USER 103 ABEND.        18850000
+ACB3OK   DS    0H                      HALFWORD BOUNDARY ALIGNMENT      18900000
+         ST    R1,ACB3ADDR             SAVE ADDRESS OF ACB3             18950000
+GETRPL3  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      19000000
+         GENCB MF=(E,GENRPL3)                                           19050000
+         LTR   R15,R15                 RPL3 GENERATED OK?               19100000
+         BZ    RPL3OK                  YES, GO SAVE RPL3 ADDRESS.       19150000
+         ABEND 203,DUMP                NO, ISSUE USER 203 ABEND.        19200000
+RPL3OK   DS    0H                      HALFWORD BOUNDARY ALIGNMENT      19250000
+         ST    R1,RPL3ADDR             SAVE ADDRESS OF RPL3             19300000
+*                                                                       19350000
+**********************************************************************  19400000
+*                                                                    *  19450000
+*        LOAD KSDS01                                                 *  19500000
+*                                                                    *  19550000
+**********************************************************************  19600000
+*                                                                       19650000
+         L     R2,RPL1ADDR             GET ADDRESS OF RPL1              19700000
+         L     R3,ACB1ADDR             GET ADDRESS OF ACB1              19750000
+         MODCB RPL=(R2),ACB=(R3)       MODIFY RPL1 TO POINT TO ACB1     19800000
+         LTR   R15,R15                 RPL1 MODIFIED OK?                19850000
+         BZ    OPEN1                   YES, GO OPEN ACB1.               19900000
+         ABEND 400,DUMP                NO, ISSUE USER 400 ABEND.        19950000
+OPEN1    DS    0H                      HALFWORD BOUNDARY ALIGNMENT      20000000
+         L     R3,ACB1ADDR             GET ADDRESS OF ACB1              20050000
+         OPEN  ((3))                   OPEN ACB1                        20100000
+         LTR   R15,R15                 RPL1 OPENED OK?                  20150000
+         BZ    OPEN1OK                 YES, GO LOAD KSDS01.             20200000
+         ABEND 401,DUMP                NO, ISSUE USER 401 ABEND.        20250000
+OPEN1OK  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      20300000
+         L     R2,RPL1ADDR             GET ADDRESS OF RPL1              20350000
+         LA    R3,50                   GET RECORD COUNT                 20400000
+         SR    R4,R4                   SET STARTING RECORD KEY          20450000
+LOAD     DS    0H                      HALFWORD BOUNDARY ALIGNMENT      20500000
+         ST    R4,KEY                  UPDATE RECORD KEY                20550000
+         PUT   RPL=(2)                 WRITE RECORD                     20600000
+         LTR   R15,R15                 RECORD WRITTEN OK?               20650000
+         BZ    PUTOK                   YES, GO INCREMENT KEY.           20700000
+         ABEND 402,DUMP                NO, ISSUE USER 402 ABEND.        20750000
+PUTOK    DS    0H                      HALFWORD BOUNDARY ALIGNMENT      20800000
+         LA    R4,2(,R4)               INCREMENT RECORD KEY             20850000
+         BCT   R3,LOAD                 CONTINUE LOAD LOOP               20900000
+         L     R3,ACB1ADDR             GET ADDRESS OF ACB1              20950000
+         CLOSE ((3))                   CLOSE ACB1                       21000000
+         LTR   R15,R15                 ACB1 CLOSED OK?                  21050000
+         BZ    CLOSE1OK                YES, GO READ KSDS01 SEQ. BY      21100000
+*                                          KEY.                         21150000
+         ABEND 403,DUMP                NO, ISSUE USER 403 ABEND.        21200000
+**********************************************************************  21250000
+*                                                                    *  21300000
+*        READ KSDS01 SEQUENTIALLY                                    *  21350000
+*                                                                    *  21400000
+**********************************************************************  21450000
+*                                                                       21500000
+CLOSE1OK DS    0H                      HALFWORD BOUNDARY ALIGNMENT      21550000
+         L     R2,RPL2ADDR             GET ADDRESS OF RPL2              21600000
+         L     R3,ACB2ADDR             GET ADDRESS OF ACB2              21650000
+         L     R4,EXL2ADDR             GET ADDRESS OF EXL2              21700000
+         MODCB RPL=(R2),ACB=(R3)       MODIFY RPL2 TO POINT TO ACB2     21750000
+         MODCB ACB=(R3),EXLST=(R4)     MODIFY ACB2 TO POINT TO EXL2     21800000
+         MODCB EXLST=(R4),EODAD=(EOF,A)  MODIFY EXL2                    21850000
+OPEN2    DS    0H                      HALFWORD BOUNDARY ALIGNMENT      21900000
+         L     R2,RPL2ADDR             GET ADDRESS OF RPL2              21950000
+         L     R3,ACB2ADDR             GET ADDRESS OF ACB2              22000000
+         OPEN  ((3))                   OPEN ACB2                        22050000
+         LTR   R15,R15                 RPL2 OPENED OK?                  22100000
+         BZ    OPEN2OK                 YES, GO LOAD KSDS01.             22150000
+         ABEND 500,DUMP                NO, ISSUE USER 500 ABEND.        22200000
+OPEN2OK  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      22250000
+         GET   RPL=(2)                 READ KSDS01 SEQ. FORWARD         22300000
+         LTR   R15,R15                 RECORD READ OK?                  22350000
+         BZ    OPEN2OK                 YES, GO GET NEXT RECORD.         22400000
+         ABEND 501,DUMP                NO, ISSUE USER 501 ABEND.        22450000
+         EJECT                                                          22500000
+*                                                                       22550000
+**********************************************************************  22600000
+*                                                                    *  22650000
+*        END OF DATA ROUTINE                                         *  22700000
+*                                                                    *  22750000
+**********************************************************************  22800000
+*                                                                       22850000
+EOF      DS    0H                      HALFWORD BOUNDARY ALIGNMENT      22900000
+         LH    R2,EXITCNT              GET EXIT ENTRY COUNT             22950000
+         LA    R2,1(,R2)               ADD 1 TO EXIT COUNT              23000000
+         STH   R2,EXITCNT              SAVE EXIT ENTRY COUNT            23050000
+         L     R3,ACB2ADDR             GET ADDRESS OF ACB2              23100000
+         CLOSE ((3))                   CLOSE ACB2                       23150000
+         LTR   R15,R15                 ACB2 CLOSED OK?                  23200000
+         BZ    CLOSE2OK                YES, GO RE-OPEN KSDS01.          23250000
+         ABEND 502,DUMP                NO, ISSUE USER 502 ABEND.        23300000
+         EJECT                                                          23350000
+**********************************************************************  23400000
+*                                                                    *  23450000
+*        OPEN KSDS01 FOR DIRECT PROCESSING                           *  23500000
+*                                                                    *  23550000
+**********************************************************************  23600000
+*                                                                       23650000
+CLOSE2OK DS    0H                      HALFWORD BOUNDARY ALIGNMENT      23700000
+         L     R2,RPL3ADDR             GET ADDRESS OF RPL3              23750000
+         L     R3,ACB3ADDR             GET ADDRESS OF ACB3              23800000
+         L     R4,EXL3ADDR             GET ADDRESS OF EXL3              23850000
+         MODCB RPL=(R2),ACB=(R3)       MODIFY RPL3 TO POINT TO ACB3     23900000
+         MODCB ACB=(R3),EXLST=(R4)     MODIFY ACB3 TO POINT TO EXL3     23950000
+         MODCB EXLST=(R4),EODAD=(EOF,A) MODIFY EXL3                     24000000
+OPEN3    DS    0H                      HALFWORD BOUNDARY ALIGNMENT      24050000
+         L     R2,RPL3ADDR             GET ADDRESS OF RPL3              24100000
+         L     R3,ACB3ADDR             GET ADDRESS OF ACB3              24150000
+         OPEN  ((3))                   OPEN ACB3                        24200000
+         LTR   R15,R15                 RPL3 OPENED OK?                  24250000
+         BZ    OPEN3OK                 YES, GO OPEN KSDS01.             24300000
+         ABEND 600,DUMP                NO, ISSUE USER 600 ABEND.        24350000
+OPEN3OK  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      24400000
+         LA    R4,1                    GET INVALID KEY                  24450000
+         ST    R4,KEY                  UPDATE SEARCH ARGUMENT           24500000
+         GET   RPL=(2)                 ATTEMPT TO READ RECORD           24550000
+         LTR   R15,R15                 LOGICAL ERROR OCCUR?             24600000
+         BNZ   ERR1OK                  YES, GO READ KSDS01.             24650000
+         ABEND 601,DUMP                NO, ISSUE USER 601 ABEND.        24700000
+ERR1OK   DS    0H                      HALFWORD BOUNDARY ALIGNMENT      24750000
+         LA    R4,100                  GET INVALID KEY                  24800000
+         ST    R4,KEY                  UPDATE SEARCH ARGUMENT           24850000
+         GET   RPL=(2)                 ATTEMPT TO READ RECORD           24900000
+         LTR   R15,R15                 LOGICAL ERROR OCCUR?             24950000
+         BNZ   ERR2OK                  YES, GO READ KSDS01.             25000000
+         ABEND 602,DUMP                NO, ISSUE USER 602 ABEND.        25050000
+ERR2OK   DS    0H                      HALFWORD BOUNDARY ALIGNMENT      25100000
+         LA    R4,4                    GET VALID KEY                    25150000
+         ST    R4,KEY                  UPDATE SEARCH ARGUMENT           25200000
+         GET   RPL=(2)                 ATTEMPT TO READ RECORD           25250000
+         LTR   R15,R15                 RECORD READ OK?                  25300000
+         BZ    READ1OK                 YES, GO READ KSDS01.             25350000
+         ABEND 603,DUMP                NO, ISSUE USER 999 ABEND.        25400000
+READ1OK  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      25450000
+         LA    R4,42                   GET VALID KEY                    25500000
+         ST    R4,KEY                  UPDATE SEARCH ARGUMENT           25550000
+         GET   RPL=(2)                 ATTEMPT TO READ RECORD           25600000
+         LTR   R15,R15                 LOGICAL ERROR OCCUR?             25650000
+         BZ    READ2OK                 YES, GO READ KSDS01.             25700000
+         ABEND 604,DUMP                NO, ISSUE USER 604 ABEND.        25750000
+READ2OK  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      25800000
+         LA    R4,26                   GET VALID KEY                    25850000
+         ST    R4,KEY                  UPDATE SEARCH ARGUMENT           25900000
+         GET   RPL=(2)                 ATTEMPT TO READ RECORD           25950000
+         LTR   R15,R15                 LOGICAL ERROR OCCUR?             26000000
+         BZ    READ3OK                 YES, GO CLOSE KSDS01.            26050000
+         ABEND 605,DUMP                NO, ISSUE USER 605 ABEND.        26100000
+READ3OK  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      26150000
+         L     R3,ACB3ADDR             GET ADDRESS OF ACB3              26200000
+         CLOSE ((3))                   CLOSE ACB3                       26250000
+         LTR   R15,R15                 ACB3 CLOSE OK?                   26300000
+         BZ    EXIT                    YES, GO TO EXIT TESTS.           26350000
+         ABEND 606,DUMP                NO, ISSUE USER 606 ABEND.        26400000
+**********************************************************************  26450000
+*                                                                    *  26500000
+*        STANDARD EPILOGUE                                           *  26550000
+*                                                                    *  26600000
+**********************************************************************  26650000
+*                                                                       26700000
+EXIT     DS    0H                      HALFWORD BOUNDARY ALIGNMENT      26750000
+         LA    R2,3                    GET EXPECTED EXIT COUNT          26800000
+         CH    R2,EXITCNT              EXIT COUNT EQUAL 3?              26850000
+         BE    ADDRCHK                 YES, GO CHECK CONTROL BLOCK      26900000
+*                                          ADDRESSES.                   26950000
+         ABEND 700,DUMP                NO, ISSUE USER 700 ABEND.        27000000
+ADDRCHK  DS    0H                      HALFWORD BOUNDARY ALIGNMENT      27050000
+         L     R2,ACB1ADDR             GET ACB1 ADDRESS                 27100000
+         C     R2,ADDRTEST             IS ACB1 BELOW 16MB LINE?         27150000
+         BNH   ACB2TEST                YES, GO CHECK ACB2.              27200000
+         ABEND 800,DUMP                NO, ISSUE USER 800 ABEND.        27250000
+ACB2TEST DS    0H                      HALFWORD BOUNDARY ALIGNMENT      27300000
+         L     R2,ACB2ADDR             GET ACB2 ADDRESS                 27350000
+         C     R2,ADDRTEST             IS ACB2 BELOW 16MB LINE?         27400000
+         BNH   ACB3TEST                YES, GO CHECK ACB3.              27450000
+         ABEND 801,DUMP                NO, ISSUE USER 801 ABEND.        27500000
+ACB3TEST DS    0H                      HALFWORD BOUNDARY ALIGNMENT      27550000
+         L     R2,ACB3ADDR             GET ACB3 ADDRESS                 27600000
+         C     R2,ADDRTEST             IS ACB3 BELOW 16MB LINE?         27650000
+         BNH   RPL1TEST                YES, GO CHECK RPL1.              27700000
+         ABEND 802,DUMP                NO, ISSUE USER 802 ABEND.        27750000
+RPL1TEST DS    0H                      HALFWORD BOUNDARY ALIGNMENT      27800000
+         L     R2,RPL1ADDR             GET RPL1 ADDRESS                 27850000
+         C     R2,ADDRTEST             IS RPL1 BELOW 16MB LINE?         27900000
+         BNH   RPL2TEST                YES, GO CHECK RPL2.              27950000
+         ABEND 803,DUMP                NO, ISSUE USER 803 ABEND.        28000000
+RPL2TEST DS    0H                      HALFWORD BOUNDARY ALIGNMENT      28050000
+         L     R2,RPL2ADDR             GET RPL2 ADDRESS                 28100000
+         C     R2,ADDRTEST             IS RPL2 BELOW 16MB LINE?         28150000
+         BNH   RPL3TEST                YES, GO CHECK RPL3.              28200000
+         ABEND 804,DUMP                NO, ISSUE USER 804 ABEND.        28250000
+RPL3TEST DS    0H                      HALFWORD BOUNDARY ALIGNMENT      28300000
+         L     R2,RPL3ADDR             GET RPL3 ADDRESS                 28350000
+         C     R2,ADDRTEST             IS RPL3 BELOW 16MB LINE?         28400000
+         BNH   EXL2TEST                YES, GO CHECK EXL2.              28450000
+         ABEND 805,DUMP                NO, ISSUE USER 805 ABEND.        28500000
+EXL2TEST DS    0H                      HALFWORD BOUNDARY ALIGNMENT      28550000
+         L     R2,EXL2ADDR             GET EXL2 ADDRESS                 28600000
+         C     R2,ADDRTEST             IS EXL2 BELOW 16MB LINE?         28650000
+         BNH   EXL3TEST                YES, GO CHECK EXL3.              28700000
+         ABEND 806,DUMP                NO, ISSUE USER 806 ABEND.        28750000
+EXL3TEST DS    0H                      HALFWORD BOUNDARY ALIGNMENT      28800000
+         L     R2,EXL3ADDR             GET EXL3 ADDRESS                 28850000
+         C     R2,ADDRTEST             IS EXL3 BELOW 16MB LINE?         28900000
+         BNH   RETURN                  YES, GO RETURN TO CALLER.        28950000
+         ABEND 807,DUMP                NO, ISSUE USER 807 ABEND.        29000000
+RETURN   DS    0H                      HALFWORD BOUNDARY ALIGNMENT      29050000
+         L     R13,4(,R13)             RESTORE CALLER'S SAVE AREA PTR   29100000
+         LM    R14,R12,12(R13)         RESTORE CALLERS'S REGISTERS      29150000
+         SR    R15,R15                 ZERO REGISTER 15                 29200000
+         BR    R14                     RETURN TO CALLER                 29250000
+*                                                                       29300000
+**********************************************************************  29350000
+*                                                                    *  29400000
+*        LOGICAL ERROR HANDLING ROUTINE                              *  29450000
+*                                                                    *  29500000
+**********************************************************************  29550000
+*                                                                       29600000
+LOGERR   DS    0H                      HALFWORD BOUNDARY ALIGNMENT      29650000
+         STM   R0,R15,LERSAVE          SAVE CALLER'S REGISTERS          29700000
+         LH    R2,EXITCNT              GET EXIT ENTRY COUNT             29750000
+         LA    R2,1(,R2)               ADD 1 TO EXIT COUNT              29800000
+         STH   R2,EXITCNT              SAVE EXIT ENTRY COUNT            29850000
+         LM    R0,R15,LERSAVE          RESTORE CALLER'S REGISTERS       29900000
+         BR    R14                     RETURN TO CALLER                 29950000
+         EJECT                                                          30000000
+*                                                                       30050000
+**********************************************************************  30100000
+*                                                                    *  30150000
+*        STORAGE AND CONSTANT DEFINITIONS                            *  30200000
+*                                                                    *  30250000
+**********************************************************************  30300000
+SAVEAREA DC    18F'0'                  MODULE SAVE AREA                 30350000
+LERSAVE  DC    16F'0'                  LERAD EXIT SAVE AREA             30400000
+*                                                                       30450000
+ADDRTEST DC    F'16777216'             RMODE TEST LABEL                 30500000
+EXITCNT  DC    H'0'                    EXIT ENTRY COUNT                 30550000
+*                                                                       30600000
+ACB1ADDR DS    A                       ACB1 ADDRESS SAVE AREA           30650000
+RPL1ADDR DS    A                       RPL1 ADDRESS SAVE AREA           30700000
+ACB2ADDR DS    A                       ACB2 ADDRESS SAVE AREA           30750000
+RPL2ADDR DS    A                       RPL2 ADDRESS SAVE AREA           30800000
+EXL2ADDR DS    A                       EXL2 ADDRESS SAVE AREA           30850000
+ACB3ADDR DS    A                       ACB3 ADDRESS SAVE AREA           30900000
+RPL3ADDR DS    A                       RPL3 ADDRESS SAVE AREA           30950000
+EXL3ADDR DS    A                       EXL3 ADDRESS SAVE AREA           31000000
+*                                                                       31050000
+RECORD   DS    0CL100                  RECORD WORK AREA                 31100000
+         DC    CL8'DFPS3IVP'           FILLER                           31150000
+KEY      DS    CL4                     SEARCH ARGUMENT                  31200000
+KEYLENG  EQU   *-KEY                   KEY LENGTH                       31250000
+         DC    CL88' '                 FILLER                           31300000
+RECLENG  EQU   *-RECORD                RECORD LENGTH                    31350000
+         EJECT                                                          31400000
+**********************************************************************  31450000
+*                                                                    *  31500000
+*        VSAM CONTROL BLOCKS                                         *  31550000
+*                                                                    *  31600000
+**********************************************************************  31650000
+*                                                                       31700000
+GENACB1  GENCB BLK=ACB,                CONTROL BLOCK TYPE              X31750000
+               AM=VSAM,                ACCESS METHOD                   X31800000
+               DDNAME=KSDS01,          DDNAME FOR KSDS01               X31850000
+               MACRF=(KEY,SEQ,OUT,AMODE31), PROCESSING OPTIONS         X31900000
+               MF=L                    LIST FORM                        31950000
+*                                                                       32000000
+GENRPL1  GENCB BLK=RPL,                CONTROL BLOCK TYPE              X32050000
+               AM=VSAM,                ACCESS METHOD                   X32100000
+               AREA=RECORD,            RECORD WORK AREA                X32150000
+               AREALEN=RECLENG,        RECORD WORK AREA LENGTH         X32200000
+               RECLEN=RECLENG,         RECORD WORK AREA LENGTH         X32250000
+               KEYLEN=KEYLENG,         SEARCH ARGUMENT LENGTH          X32300000
+               OPTCD=(KEY,SEQ),        PROCESSING OPTIONS              X32350000
+               MF=L                    LIST FORM                        32400000
+*                                                                       32450000
+GENACB2  GENCB BLK=ACB,                CONTROL BLOCK TYPE              X32500000
+               AM=VSAM,                ACCESS METHOD                   X32550000
+               DDNAME=KSDS01,          DDNAME FOR KSDS01               X32600000
+               MACRF=(KEY,SEQ,IN,AMODE31), PROCESSING OPTIONS          X32650000
+               MF=L                    LIST FORM                        32700000
+*                                                                       32750000
+GENRPL2  GENCB BLK=RPL,                CONTROL BLOCK TYPE              X32800000
+               AM=VSAM,                ACCESS METHOD                   X32850000
+               AREA=RECORD,            RECORD WORK AREA                X32900000
+               AREALEN=RECLENG,        RECORD WORK AREA LENGTH         X32950000
+               RECLEN=RECLENG,         RECORD WORK AREA LENGTH         X33000000
+               ARG=KEY,                SEARCH ARGUMENT ADDRESS         X33050000
+               KEYLEN=KEYLENG,         SEARCH ARGUMENT LENGTH          X33100000
+               OPTCD=(KEY,SEQ),        PROCESSING OPTIONS              X33150000
+               MF=L                    LIST FORM                        33200000
+*                                                                       33250000
+GENEXL2  GENCB BLK=EXLST,              CONTROL BLOCK TYPE              X33300000
+               AM=VSAM,                ACCESS METHOD                   X33350000
+               LERAD=(LOGERR,A),       LOGICAL ERROR HANDLING ROUTINE  X33400000
+               MF=L                    LIST FORM                        33450000
+*                                                                       33500000
+GENACB3  GENCB BLK=ACB,                CONTROL BLOCK TYPE              X33550000
+               AM=VSAM,                ACCESS METHOD                   X33600000
+               DDNAME=KSDS01,          DDNAME FOR KSDS01               X33650000
+               MACRF=(KEY,DIR,IN,AMODE31), PROCESSING OPTIONS          X33700000
+               MF=L                    LIST FORM                        33750000
+*                                                                       33800000
+GENRPL3  GENCB BLK=RPL,                CONTROL BLOCK TYPE              X33850000
+               AM=VSAM,                ACCESS METHOD                   X33900000
+               AREA=RECORD,            RECORD WORK AREA                X33950000
+               AREALEN=RECLENG,        RECORD WORK AREA LENGTH         X34000000
+               RECLEN=RECLENG,         RECORD WORK AREA LENGTH         X34050000
+               ARG=KEY,                SEARCH ARGUMENT ADDRESS         X34100000
+               KEYLEN=KEYLENG,         SEARCH ARGUMENT LENGTH          X34150000
+               OPTCD=(KEY,DIR),        PROCESSING OPTIONS              X34200000
+               MF=L                    LIST FORM                        34250000
+*                                                                       34300000
+GENEXL3  GENCB BLK=EXLST,              CONTROL BLOCK TYPE              X34350000
+               AM=VSAM,                ACCESS METHOD                   X34400000
+               LERAD=(LOGERR,A),       LOGICAL ERROR HANDLING ROUTINE  X34450000
+               MF=L                    LIST FORM                        34500000
+*                                                                       34550000
+         END                                                            34600000
+/*                                                                      34650000
+//*                                                                     34700000
+//********************************************************************* 34750000
+//*                                                                   * 34800000
+//*       LINK EDIT THE DFPS3IVP OBJECT MODULE.                       * 34850000
+//*                                                                   * 34900000
+//********************************************************************* 34950000
+//*                                                                     35000000
+//LINK1   EXEC PGM=HEWLH096,PARM='XREF,LIST,LET',COND=(0,NE)            35050000
+//SYSPRINT DD  SYSOUT=*                                                 35100000
+//SYSUT1   DD  UNIT=SYSDA,SPACE=(1024,(50,20,1),RLSE)                   35150000
+//SYSLMOD  DD  DSN=DFPS3IVP.TEMPLIB,DISP=SHR                            35200000
+//*                                                                     35250000
+//OBJ1IN   DD  DSN=&ASM1OBJ,DISP=(OLD,PASS)                             35300000
+//SYSLIN   DD  *                                                        35350000
+ INCLUDE OBJ1IN                                                         35400000
+ MODE AMODE(31),RMODE(24)                                               35450000
+ NAME DFPS3IVP(R)                                                       35500000
+/*                                                                      35550000
+//********************************************************************* 35600000
+//*   THE FOLLOWING STEP WILL HOLD THE NEXT JOB(S) FROM BEING         * 35650000
+//*   SUBMITTED UNTIL THE PRECEDING JOB IS COMPLETELY EXECUTED.       * 35700000
+//********************************************************************* 35750000
+//HOLD2   EXEC PGM=IEBGENER                                             35800000
+//SYSPRINT DD  SYSOUT=*                                                 35850000
+//SYSIN  DD  DUMMY                                                      35900000
+//SYSUT2  DD SYSOUT=(A,INTRDR)                                          35950000
+//SYSUT1  DD DATA,DLM=$B                                                36000000
+//DFPS3IV3 JOB (DFPS3IVP),IVP3,MSGLEVEL=(1,1),MSGCLASS=A,CLASS=A        36050000
+//*                                                                     36100000
+//********************************************************************* 36150000
+//*                                                                   * 36200000
+//*      EXECUTE TEST PROGRAM DFPS3IVP.                               * 36250000
+//*                                                                   * 36300000
+//********************************************************************* 36350000
+//*                                                                     36400000
+//EXECIVP  EXEC PGM=DFPS3IVP,REGION=1024K                               36450000
+//STEPLIB  DD  DSN=DFPS3IVP.TEMPLIB,DISP=SHR                            36500000
+//KSDS01   DD  DSN=DFPS3IVP.KSDS01,DISP=SHR                             36600000
+//SYSUDUMP DD  SYSOUT=*                                                 36650000
+//*                                                                     36700000
+//********************************************************************* 36750000
+//*                                                                   * 36800000
+//*      PRINT AND DELETE ICFCATALOG WITH DFPS3IVP.KSDS01             * 36850000
+//*                                                                   * 36900000
+//********************************************************************* 36950000
+//*                                                                     37000000
+//********************************************************************* 37005000
+//*                                                                   * 37010000
+//*      CLEAN UP TEMPORARY LOAD LIBRARY                              * 37015000
+//*                                                                   * 37020000
+//********************************************************************* 37025000
+//*                                                                     37030000
+//CLEANUPT EXEC PGM=IEFBR14,COND=EVEN                                   37035000
+//LOADDD   DD  DSN=DFPS3IVP.TEMPLIB,DISP=(OLD,DELETE)                   37040000
+//*                                                                     37045000
+//CLEANUP2 EXEC PGM=IDCAMS,COND=EVEN                                    37050000
+//SYSPRINT DD  SYSOUT=*                                                 37100000
+//KSDS01   DD  DSN=DFPS3IVP.KSDS01,DISP=SHR                             37250000
+//SYSIN    DD  *                                                        37300000
+                                                                        37350000
+ /*************************************************************/        37400000
+ /*  CLEANUP2                                                 */        37450000
+ /*************************************************************/        37500000
+ /*   PRINT THE DATASET DFPS3IVP.KSDS01. EXPECT A ZERO RETURN */        37550000
+ /*   CODE. VERIFY 50 RECORDS PROCESSED AND SHOULD HAVE       */        37600000
+ /*   KEYS X'00' TO X'62'.                           @YA29737 */        37650000
+ /*************************************************************/        37700000
+                                                                        37750000
+    PRINT -                                                             37800000
+       INFILE(KSDS01) -                                                 37850000
+       OUTFILE(SYSPRINT) -                                              37900000
+       DUMP                                                             37950000
+                                                                        38000000
+ /********************************************************************/ 38050000
+ /* CLEANUP2                                                         */ 38100000
+ /********************************************************************/ 38150000
+ /*     DELETE THE CLUSTER, ALIAS, AND USERCATALOG.                  */ 38200000
+ /*     EXPECT SUCCESSFUL COMPLETION (RC=0) OF THESE DELETES.        */ 38250000
+ /********************************************************************/ 38300000
+                                                                        38350000
+   DELETE (DFPS3IVP.KSDS01) CLUSTER PURGE                               38400000
+   DELETE DFPS3IVP ALIAS                                                38450000
+   DELETE DFS3UCAT UCAT FORCE                                           38500000
+   SET LASTCC=0                                                         38550000
+   SET MAXCC=0                                                          38600000
+/*                                                                      38650000
+$B                                                                      38700000
+$A                                                                      38750000
